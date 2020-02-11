@@ -1,0 +1,21 @@
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+rbac:
+    pspEnabled: true
+serviceAccount:
+    name: amazon-ec2-metadata-mock-service-account
+    create: true
+    annotations: {}
+amazonEC2MetadataMock:
+    label: amazon-ec2-metadata-mock
+    image:
+        repository: amazon-ec2-metadata-mock
+        tag: v0.9.0
+configMap: ""
+settings:
+  port: 1338
+  hostname: ""
+  mockDelaySec: 0
+  partition: ""
+  region: ""

@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+JSON_FILES=$(find $SCRIPTPATH/../ -name "*.json" -type f)
+
+for j in $JSON_FILES; do
+  echo "validating $j"
+  python -mjson.tool "$j" > /dev/null || exit 1
+done

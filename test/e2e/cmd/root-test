@@ -1,0 +1,85 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT"
+DELAY_IN_SEC=3
+
+function test_root() {
+  pid=$1
+  query_path=$2
+  golden_file=$3
+  test_name=$4
+
+  tput setaf $CYAN
+  health_check $ROOT_TEST_PATH
+
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $query_path)
+  expected_paths=$(cat $golden_file)
+
+  assert_value "$actual_paths" "$expected_paths" "test_root::$test_name"
+
+  clean_up $pid
+}
+
+function test_root_delay() {
+  pid=$1
+  delay_in_sec=$2
+  tput setaf $CYAN
+
+  # Give server time to startup
+  sleep 1
+  expected_delayed_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+
+  # Subcommand paths are delayed
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $ROOT_TEST_PATH/latest/meta-data/spot/instance-action || :)
+  assert_value "$actual_response" "$expected_delayed_response" "test_root_delay::pre-delay_response"
+
+  # Send request after delay duration
+  echo "⏲ Waiting on delay ⏲"
+  sleep $delay_in_sec
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $ROOT_TEST_PATH/latest/meta-data/spot/instance-action || :)
+  assert_not_equal "$actual_response" "$expected_delayed_response" "test_root_delay::post-delay_response"
+
+  # Confirm response isn't empty
+  if [[ ! -z $actual_response ]]; then
+    echo "✅ Verified post-delay response"
+  else
+    echo "❌ Failed delay: there should be a response after delay"
+    EXIT_CODE_TO_RETURN=1
+  fi
+
+  clean_up $pid
+}
+
+tput setaf $CYAN
+echo "======================================================================================================"
+echo "🥑 Starting root integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+ROOT_PID=$!
+test_root $ROOT_PID "$ROOT_TEST_PATH/latest/meta-data" "$SCRIPTPATH/golden/root_paths.golden" "paths"
+
+$start_cmd &
+ROOT_PID=$!
+test_root $ROOT_PID "$ROOT_TEST_PATH" "$SCRIPTPATH/golden/versions.golden" "versions"
+
+$start_cmd &
+ROOT_PID=$!
+test_root $ROOT_PID "$ROOT_TEST_PATH/womp" "$SCRIPTPATH/golden/404_response.golden" "unsupported_paths"
+
+# Delay should not affect path query
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT --mock-delay-sec $DELAY_IN_SEC)
+$start_cmd &
+ROOT_PID=$!
+test_root $ROOT_PID "$ROOT_TEST_PATH/latest/meta-data" "$SCRIPTPATH/golden/root_paths.golden" "paths_with_delay"
+
+$start_cmd &
+ROOT_PID=$!
+test_root_delay $ROOT_PID $DELAY_IN_SEC
+
+exit $EXIT_CODE_TO_RETURN

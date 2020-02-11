@@ -1,0 +1,42 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+function test_imdsv2() {
+  pid=$1
+  expected_value=$(cat $2)
+  token_TTL=$3
+  test_name=$4
+  tput setaf $ORANGE
+  health_check "$HOSTNAME:$AEMM_PORT"
+
+  TOKEN=$(get_v2Token $token_TTL $AEMM_PORT)
+  sleep 1
+  actual_value=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" "$HOSTNAME:$AEMM_PORT/latest/meta-data")
+
+  assert_value "$actual_value" "$expected_value" "$test_name"
+
+  clean_up $pid
+}
+
+# run these tests once
+if [[ "$METADATA_VERSION" == "v2" ]]; then
+  tput setaf $ORANGE
+  echo "======================================================================================================"
+  echo "🥑 Starting imdsv2 integration tests."
+  echo "======================================================================================================"
+
+  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  IMDSV2_PID=$!
+  test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/root_paths.golden" "21600" "imdsv2::valid_token"
+
+  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  IMDSV2_PID=$!
+  test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/400_bad_request.golden" "0" "imdsv2::invalid_token"
+
+  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  IMDSV2_PID=$!
+  test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/401_response.golden" "1" "imdsv2::expired_token"
+fi
+
+exit $EXIT_CODE_TO_RETURN

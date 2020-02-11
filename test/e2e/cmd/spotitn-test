@@ -1,0 +1,130 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/ec2-mock-config-integ.json"
+SPOTITN_IA_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action"
+SPOTITN_TT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time"
+FLAG_OVERRIDDEN_INSTANCE_ACTION="hibernate"
+ENV_OVERRIDDEN_INSTANCE_ACTION="stop"
+FLAG_OVERRIDDEN_TERMINATION_TIME="2025-05-05T05:05:55Z"
+CONFIG_OVERRIDDEN_TERMINATION_TIME="2020-01-07T01:03:47Z"
+
+function test_spotitn_paths() {
+  pid=$1
+  tput setaf $MAGENTA
+  health_check $SPOTITN_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
+  expected_paths=$(cat $SCRIPTPATH/golden/spotitn_paths.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_spotitn_paths"
+
+  clean_up $pid
+}
+
+function test_spotitn_ia_defaults() {
+  pid=$1
+  tput setaf $MAGENTA
+  health_check $SPOTITN_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
+  actual_inst_action=$(get_value '"instance-action"' "$response")
+  actual_ia_time=$(get_value '"time"' "$response")
+
+  assert_value "$actual_inst_action" $SPOTITN_INSTANCE_ACTION_DEFAULT 'Default spotitn_ia::instance-action val'
+  assert_format "$actual_ia_time" $SPOTITN_DATE_REGEX 'Default spotitn_ia::time format'
+
+  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
+  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::termination-time val'
+
+  clean_up $pid
+}
+
+function test_spotitn_ia_overrides() {
+  pid=$1
+  expected_inst_action=$2
+  expected_term_time=$3
+  tput setaf $MAGENTA
+  health_check $SPOTITN_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
+  actual_inst_action=$(get_value '"instance-action"' "$response")
+  actual_ia_time=$(get_value '"time"' "$response")
+
+  assert_value "$actual_inst_action" $expected_inst_action 'Override spotitn_ia::instance-action'
+  assert_value "$actual_ia_time" $expected_term_time 'Override spotitn_ia::time'
+
+  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
+  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::termination-time val'
+
+  clean_up $pid
+}
+
+function test_spotitn_subcommand_paths_404() {
+  pid=$1
+  test_url="$2"
+  test_name="$3"
+  expected_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  tput setaf $MAGENTA
+  health_check $SPOTITN_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $test_url)
+
+  assert_value "$actual_response" "$expected_response" "subcommand_paths_404::$test_name"
+
+  clean_up $pid
+}
+
+tput setaf $MAGENTA
+echo "======================================================================================================"
+echo "🥑 Starting spotitn integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_paths $SPOTITN_PID
+
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_ia_defaults $SPOTITN_PID
+
+# flag overrides
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
+
+# flag + env overrides
+export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
+
+# env + config overrides
+export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
+
+# flag + env + config overrides
+export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -c $TEST_CONFIG_FILE)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
+
+# paths for other subcommands should be disabled
+start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT)
+$start_cmd &
+SPOTITN_PID=$!
+test_spotitn_subcommand_paths_404 $SPOTITN_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/maintenance/scheduled" "scheduled-maintenance-events"
+
+exit $EXIT_CODE_TO_RETURN

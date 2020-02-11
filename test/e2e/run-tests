@@ -1,0 +1,181 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPTPATH="$(
+  cd "$(dirname "$0")"
+  pwd -P
+)"
+HOSTNAME="localhost"
+SPOTITN_DATE_REGEX='^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z'
+SPOTITN_INSTANCE_ACTION_DEFAULT='terminate'
+SCHEDULED_EVENTS_DATE_REGEX='^[0-9]{2} [A-Z]{1}[a-z]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT'
+SCHEDULED_EVENTS_CODE_DEFAULT='system-reboot'
+SCHEDULED_EVENTS_STATE_DEFAULT='active'
+JSON_VALUE_EXTRACTION_REGEX='(\d*?,|.*[^\\]")'
+MAX_TOKEN_TTL="21600"
+EXIT_CODE_SUCCESSS=0
+EXIT_CODE_TO_RETURN=0
+STARTING_TEST_PORT=1738
+TEST_FILES=$(find $SCRIPTPATH/cmd -type f)
+# Font colors
+RED=1
+GREEN=2
+YELLOW=3
+BLUE=4
+MAGENTA=5
+CYAN=6
+ORANGE=172
+
+function health_check() {
+  sleep 1
+  while true; do
+    echo "⏳ Waiting for server..."
+    health=$(curl -s $1 || :)
+    # server is ready if ANY response is received
+    if [[ ! -z $health ]]; then
+      echo "======================================================================================================"
+      echo "👍 Started server: $1 👍"
+      echo "======================================================================================================"
+      break
+    fi
+    sleep 1
+  done
+}
+
+function assert_value() {
+  # assert actual == expected
+  if [[ $1 == $2 ]]; then
+    echo "✅ Verified $3"
+  else
+    echo "❌ Failed $3 verification. Actual: $1 Expected: $2"
+    EXIT_CODE_TO_RETURN=1
+  fi
+}
+
+function assert_not_equal() {
+  # assert actual != expected
+  if [[ $1 != $2 ]]; then
+    echo "✅ Verified $3"
+  else
+    echo "❌ Failed $3 verification. Actual and Expected are the same value"
+    EXIT_CODE_TO_RETURN=1
+  fi
+}
+
+function assert_format() {
+  # assert actual format == expected format
+  if [[ $1 =~ $2 ]]; then
+    echo "✅ Validated $3 format"
+  else
+    echo "❌ Failed $3 format validation"
+    EXIT_CODE_TO_RETURN=1
+  fi
+}
+
+function get_value() {
+  # Extracts value from a given JSON key, $1, then removes quotes
+  # -E needed for GNU grep because passing in JSON
+  output=$(grep -Eo $1:$JSON_VALUE_EXTRACTION_REGEX <<<$2 | cut -d'"' -f 4)
+  if [[ $output ]]; then
+    echo "$output"
+  else
+    echo "Value not found"
+  fi
+}
+
+function get_v2Token() {
+  TTL=$1
+  port=$2
+  token=$(curl -X PUT "$HOSTNAME:$port/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: $TTL")
+  echo "$token"
+}
+
+function create_cmd() {
+  # Creates AEMM CLI command and applies imdsv2 arg, if necessary
+  imds_version=$1
+  shift # shifts all params down by one. $3 -> $2; $2 -> $1
+  cmd_args="$*"
+  cmd="$SCRIPTPATH/../../build/amazon-ec2-metadata-mock $cmd_args"
+  if [[ "$imds_version" == "v2" ]]; then
+    cmd="$cmd --imdsv2"
+  fi
+  echo "$cmd"
+}
+
+function clean_up() {
+  kill $@ || :
+  echo "======================================================================================================"
+  echo "💀 Killed server 💀"
+  echo "======================================================================================================"
+  tput sgr0 # Reset color
+}
+
+function fail_and_clean_up() {
+  echo "======================================================================================================"
+  echo "❌ One or more tests failed ❌"
+  echo "======================================================================================================"
+
+  pids=$(pgrep -f amazon-ec2-metadata-mock || :)
+  if [[ $pids ]]; then
+    echo "🧹 Cleaning up amazon-ec2-metadata-mock PIDs 🧹"
+    for pid in $pids; do
+      echo "Killing pid: $pid"
+      kill "$pid" || :
+    done
+  fi
+
+  tput sgr0 # Reset color
+}
+
+### exported vars and funcs that tests can use
+export SCRIPTPATH
+export RED
+export GREEN
+export YELLOW
+export BLUE
+export MAGENTA
+export CYAN
+export ORANGE
+export HOSTNAME
+export SPOTITN_INSTANCE_ACTION_DEFAULT
+export SCHEDULED_EVENTS_STATE_DEFAULT
+export SCHEDULED_EVENTS_CODE_DEFAULT
+export SCHEDULED_EVENTS_DATE_REGEX
+export SPOTITN_DATE_REGEX
+export JSON_VALUE_EXTRACTION_REGEX
+export MAX_TOKEN_TTL
+export EXIT_CODE_TO_RETURN
+export -f health_check
+export -f assert_value
+export -f assert_not_equal
+export -f assert_format
+export -f get_value
+export -f get_v2Token
+export -f create_cmd
+export -f clean_up
+
+trap "fail_and_clean_up" INT TERM ERR
+
+tput setaf $RED
+echo "======================================================================================================"
+echo "🥑 Starting AEMM integration tests"
+echo "======================================================================================================"
+
+i=0
+for md_version in $(seq 1 2); do
+  for test_file in $TEST_FILES; do
+    export AEMM_PORT=$(expr $i + $STARTING_TEST_PORT)
+    export METADATA_VERSION="v$md_version"
+    i=$(expr $i + 1)
+    $test_file
+  done
+done
+
+tput setaf $GREEN
+echo "======================================================================================================"
+echo "✅ All tests passed! ✅"
+echo "======================================================================================================"
+tput sgr0
+
+exit $EXIT_CODE_TO_RETURN

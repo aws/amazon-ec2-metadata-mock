@@ -1,0 +1,161 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+SCHED_EVENTS_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/maintenance/scheduled"
+CODE_INST_STOP="instance-stop"
+STATE_CANCELED="canceled"
+EXPECTED_NOTBEFORE="01 Jan 2020 01:03:47 GMT"
+EXPECTED_NOTAFTER="07 Jan 2020 01:03:47 GMT"
+EXPECTED_NOTBEFORE_DEADLINE="10 Jan 2020 01:03:47 GMT"
+FLAG_STATE_OVERRIDE=$STATE_CANCELED
+ENV_CODE_OVERRIDE="instance-reboot"
+
+function test_scheduledevents_paths() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
+  expected_paths=$(cat $SCRIPTPATH/golden/scheduledevents_paths.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_scheduledevents_paths"
+
+  clean_up $pid
+}
+
+function test_scheduledevents_defaults() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SCHED_EVENTS_TEST_PATH)
+  actual_code=$(get_value '"Code"' "$response")
+  actual_state=$(get_value '"State"' "$response")
+  actual_not_before=$(get_value '"NotBefore"' "$response")
+  actual_not_after=$(get_value '"NotAfter"' "$response")
+  actual_not_before_deadline=$(get_value '"NotBeforeDeadline"' "$response")
+
+  assert_value "$actual_code" $SCHEDULED_EVENTS_CODE_DEFAULT 'Default scheduledevents::code'
+  assert_value "$actual_state" $SCHEDULED_EVENTS_STATE_DEFAULT 'Default scheduledevents::state'
+  assert_format "$actual_not_before" "$SCHEDULED_EVENTS_DATE_REGEX" 'Default scheduledevents::NotBefore'
+  assert_format "$actual_not_after" "$SCHEDULED_EVENTS_DATE_REGEX" 'Default scheduledevents::NotAfter'
+  assert_format "$actual_not_before_deadline" "$SCHEDULED_EVENTS_DATE_REGEX" 'Default scheduledevents::NotBeforeDeadline'
+
+  clean_up $pid
+}
+
+function test_scheduledevents_code_and_state() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SCHED_EVENTS_TEST_PATH)
+  actual_code=$(get_value '"Code"' "$response")
+  actual_state=$(get_value '"State"' "$response")
+
+  assert_value "$actual_code" $CODE_INST_STOP 'Override scheduledevents::code'
+  assert_value "$actual_state" $STATE_CANCELED 'Override scheduledevents::state'
+
+  clean_up $pid
+}
+
+function test_scheduledevents_time_conversions() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SCHED_EVENTS_TEST_PATH)
+  actual_not_before=$(get_value '"NotBefore"' "$response")
+  actual_not_after=$(get_value '"NotAfter"' "$response")
+  actual_not_before_deadline=$(get_value '"NotBeforeDeadline"' "$response")
+
+  assert_value "$actual_not_before" "$EXPECTED_NOTBEFORE" 'Override scheduledevents::NotBefore'
+  assert_value "$actual_not_after" "$EXPECTED_NOTAFTER" 'Override scheduledevents::NotAfter'
+  assert_value "$actual_not_before_deadline" "$EXPECTED_NOTBEFORE_DEADLINE" 'Override scheduledevents::NotBeforeDeadline'
+
+  clean_up $pid
+}
+
+function test_scheduledevents_config_precedence() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SCHED_EVENTS_TEST_PATH)
+  actual_code=$(get_value '"Code"' "$response")
+  actual_state=$(get_value '"State"' "$response")
+  actual_not_before=$(get_value '"NotBefore"' "$response")
+  actual_not_after=$(get_value '"NotAfter"' "$response")
+  actual_not_before_deadline=$(get_value '"NotBeforeDeadline"' "$response")
+
+  assert_value "$actual_code" $ENV_CODE_OVERRIDE 'config_precedence scheduledevents::code'
+  assert_value "$actual_state" $FLAG_STATE_OVERRIDE 'config_precedence scheduledevents::state'
+
+  clean_up $pid
+}
+
+function test_scheduledevents_subcommand_paths_404() {
+  pid=$1
+  test_url="$2"
+  test_name="$3"
+  expected_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  tput setaf $YELLOW
+  health_check $SCHED_EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $test_url)
+
+  assert_value "$actual_response" "$expected_response" "subcommand_paths_404::$test_name"
+
+  clean_up $pid
+}
+
+tput setaf $YELLOW
+echo "======================================================================================================"
+echo "🥑 Starting scheduledevents integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT)
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_paths $SCHEDEV_PID
+
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_defaults $SCHEDEV_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT --code instance-stop --state canceled)
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_code_and_state $SCHEDEV_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT -a 2020-01-07T01:03:47Z -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z)
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_time_conversions $SCHEDEV_PID
+
+# validate flag/env precedence; can't override scheduled-events via config
+export AEMM_SCHEDULED_EVENTS_STATE="completed"
+export AEMM_SCHEDULED_EVENTS_CODE="instance-reboot"
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT --state canceled)
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_config_precedence $SCHEDEV_PID
+
+# paths for other subcommands should be disabled
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT)
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_subcommand_paths_404 $SCHEDEV_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action" "spot-instance-action"
+
+$start_cmd &
+SCHEDEV_PID=$!
+test_scheduledevents_subcommand_paths_404 $SCHEDEV_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time" "spot-termination-time"
+
+exit $EXIT_CODE_TO_RETURN

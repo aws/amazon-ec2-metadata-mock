@@ -1,0 +1,97 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/ec2-mock-config-integ.json"
+
+MAC_ADDRESS_DEFAULT="0e:49:61:0f:c3:11"
+MAC_ADDRESS_OVERRIDDEN="0e:49:61:0f:c3:77"
+PUBLIC_IPV4_DEFAULT="192.0.2.54"
+PUBLIC_IPV4_OVERRIDDEN="54.92.157.77"
+NETWORK_INTERFACE_ID_DEFAULT="eni-0f95d3625f5c521cc"
+IPV4_ASSOCIATION_DEFAULT="192.0.2.54"
+
+ROOT_PATH="http://$HOSTNAME:$AEMM_PORT"
+MAC_ADDRESS_PATH="$ROOT_PATH/latest/meta-data/mac"
+NETWORK_INTERFACE_ID_PATH_DEFAULT="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_DEFAULT/interface-id"
+NETWORK_INTERFACE_ID_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_OVERRIDDEN/interface-id"
+IPV4_ASSOCIATIONS_PATH_DEFAULT="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_DEFAULT/ipv4-associations/$PUBLIC_IPV4_DEFAULT"
+IPV4_ASSOCIATIONS_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_OVERRIDDEN/ipv4-associations/$PUBLIC_IPV4_OVERRIDDEN"
+SPOTITN_TEST_PATH="$ROOT_PATH/latest/meta-data/spot/instance-action"
+SCHED_EVENTS_TEST_PATH="$ROOT_PATH/latest/meta-data/events/maintenance/scheduled"
+
+function test_static_metadata_available() {
+  pid=$1
+  test_url=$2
+  test_name=$3
+  tput setaf $BLUE
+  health_check $test_url
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_mac_address=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $MAC_ADDRESS_PATH)
+  assert_value "$actual_mac_address" $MAC_ADDRESS_DEFAULT "mac_address $test_name"
+
+  actual_network_interface_id=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $NETWORK_INTERFACE_ID_PATH_DEFAULT)
+  assert_value "$actual_network_interface_id" $NETWORK_INTERFACE_ID_DEFAULT "network_interface_id $test_name"
+
+  actual_ipv4_association=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $IPV4_ASSOCIATIONS_PATH_DEFAULT)
+  assert_value "$actual_ipv4_association" $IPV4_ASSOCIATION_DEFAULT "ipv4_association $test_name"
+
+  clean_up $pid
+}
+
+function test_static_metadata_with_config_file() {
+  pid=$1
+  test_url=$2
+  test_name=$3
+  tput setaf $BLUE
+  health_check $test_url
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  updated_mac_address=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $MAC_ADDRESS_PATH)
+  assert_value "$updated_mac_address" $MAC_ADDRESS_OVERRIDDEN "updated_mac_address $test_name"
+
+  # Default paths should no longer be valid
+  invalid_network_interface_id=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $NETWORK_INTERFACE_ID_PATH_DEFAULT)
+  assert_not_equal "invalid_network_interface_id" $NETWORK_INTERFACE_ID_DEFAULT "invalid_networkId $test_name"
+  invalid_ipv4_association=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $IPV4_ASSOCIATIONS_PATH_DEFAULT)
+  assert_not_equal "invalid_ipv4_association" $IPV4_ASSOCIATION_DEFAULT "invalid_ipv4Association $test_name"
+
+  # Updated paths return expected
+  actual_network_interface_id=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $NETWORK_INTERFACE_ID_PATH_OVERRIDDEN)
+  assert_value "$actual_network_interface_id" $NETWORK_INTERFACE_ID_DEFAULT "networkId $test_name"
+  # Double substitution
+  actual_ipv4_association=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $IPV4_ASSOCIATIONS_PATH_OVERRIDDEN)
+  assert_value "$actual_ipv4_association" $IPV4_ASSOCIATION_DEFAULT "ipv4_association $test_name"
+
+  clean_up $pid
+}
+
+tput setaf $BLUE
+echo "======================================================================================================"
+echo "🥑 Starting static metadata integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+# Static metadata should ALWAYS be available
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+STATIC_PID=$!
+test_static_metadata_available $STATIC_PID $ROOT_PATH "static_metadata::root"
+
+start_cmd=$(create_cmd $METADATA_VERSION spotitn -a hibernate --port $AEMM_PORT)
+$start_cmd &
+STATIC_PID=$!
+test_static_metadata_available $STATIC_PID $SPOTITN_TEST_PATH "static_metadata::spotitn"
+
+start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --code instance-stop --port $AEMM_PORT)
+$start_cmd &
+STATIC_PID=$!
+test_static_metadata_available $STATIC_PID $SCHED_EVENTS_TEST_PATH "static_metadata::scheduledevents"
+
+# Static metadata paths should reflect updated placeholder values
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+$start_cmd &
+STATIC_PID=$!
+test_static_metadata_with_config_file $STATIC_PID $ROOT_PATH "static_metadata::config"
+
+exit $EXIT_CODE_TO_RETURN
