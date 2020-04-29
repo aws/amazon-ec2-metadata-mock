@@ -9,14 +9,14 @@
    <a href="https://opensource.org/licenses/Apache-2.0">
    <img src="https://img.shields.io/badge/License-Apache%202.0-ff69b4.svg?color=orange" alt="license">
    </a>
-   <a href="https://travis-ci.org/aws/amazon-ec2-instance-advisor">
-   <img src="https://travis-ci.org/aws/amazon-ec2-instance-advisor.svg?branch=master" alt="build-status">
+   <a href="https://travis-ci.org/aws/amazon-ec2-metadata-mock">
+   <img src="https://travis-ci.org/aws/amazon-ec2-metadata-mock.svg?branch=master" alt="build-status">
    </a>
-   <a href="https://codecov.io/gh/aws/amazon-ec2-instance-advisor">
-   <img src="https://img.shields.io/codecov/c/github/aws/amazon-ec2-instance-advisor" alt="build-status">
+   <a href="https://codecov.io/gh/aws/amazon-ec2-metadata-mock">
+   <img src="https://img.shields.io/codecov/c/github/aws/amazon-ec2-metadata-mock" alt="build-status">
    </a>
-   <a href="https://hub.docker.com/r/amazon/amazon-ec2-instance-advisor">
-   <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-instance-advisor" alt="docker-pulls">
+   <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
+   <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
    </a>
 </p>
 
