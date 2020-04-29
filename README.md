@@ -3,12 +3,21 @@
 **Amazon EC2 Metadata Mock (AEMM)** is a tool to simulate [Amazon EC2 instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) for local testing.
 
 <p>
-<a href="https://golang.org/doc/go1.13">
-    <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
-</a>
-<a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache%202.0-ff69b4.svg?color=orange" alt="license">
-</a>
+   <a href="https://golang.org/doc/go1.13">
+   <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
+   </a>
+   <a href="https://opensource.org/licenses/Apache-2.0">
+   <img src="https://img.shields.io/badge/License-Apache%202.0-ff69b4.svg?color=orange" alt="license">
+   </a>
+   <a href="https://travis-ci.org/aws/amazon-ec2-instance-advisor">
+   <img src="https://travis-ci.org/aws/amazon-ec2-instance-advisor.svg?branch=master" alt="build-status">
+   </a>
+   <a href="https://codecov.io/gh/aws/amazon-ec2-instance-advisor">
+   <img src="https://img.shields.io/codecov/c/github/aws/amazon-ec2-instance-advisor" alt="build-status">
+   </a>
+   <a href="https://hub.docker.com/r/amazon/amazon-ec2-instance-advisor">
+   <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-instance-advisor" alt="docker-pulls">
+   </a>
 </p>
 
 # Table of Contents
@@ -33,6 +42,7 @@
          * [Static Metadata Overrides &amp; Path Substitutions](#static-metadata-overrides--path-substitutions)
    * [Troubleshooting](#troubleshooting)
       * [Warnings and Expected Outcome](#warnings-and-expected-outcome)
+   * [Building](#building)
    * [Communication](#communication)
    * [Contributing](#contributing)
    * [License](#license)
@@ -179,11 +189,11 @@ These configurations can be loaded from various sources with a deterministic pre
 ## Defaults
 Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **CLI flags**
-  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blobs/mainline/--/pkg/config/server.go) 
+  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/server.go#L22) 
 * **Metadata mock responses**
-  * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blobs/mainline/--/pkg/config/defaults/aemm-metadata-default-values.json)
+  * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/defaults/aemm-metadata-default-values.json)
 * **Commands**
-  * [scheduledevents](https://github.com/aws/amazon-ec2-metadata-mock/blobs/mainline/--/pkg/cmd/scheduledevents/scheduledevents.go) 
+  * [scheduledevents](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/scheduledevents/scheduledevents.go#L72) 
 
 
 ## Config Precedence (Highest to Lowest)
@@ -462,7 +472,7 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `scheduledevents` defaults**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available per the *Note* above:
+1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available per the *Note* above:
 
 ```
 $ amazon-ec2-metadata-mock scheduledevents
@@ -578,16 +588,16 @@ Applying overrides to these *placeholder values* will automatically update paths
 * config-overrides.json:
 
 ```
-	 {
-       "metadata": {
-       	"paths": {
-       	  "mac-device-number": "/latest/meta-data/network/interfaces/macs/BAR/device-number"
-       	},
-         "values": {
-           "mac": "FOO"
-         }
-       }
-     }
+{
+   "metadata":{
+      "paths":{
+         "mac-device-number":"/latest/meta-data/network/interfaces/macs/BAR/device-number"
+      },
+      "values":{
+         "mac":"FOO"
+      }
+   }
+}
 
 ```
 
@@ -601,7 +611,7 @@ Flags:
 config-file: config-overrides.json
 ```
 
-* querying the available routes will show placeholder paths updated **except** for those explicitly overridden in the "paths" blob of *config-overrides.json*:
+* querying the available routes will show updated placeholder paths **except** for those explicitly overridden in the "paths" blob of *config-overrides.json*:
 
 ```
 $ curl localhost:1338/latest/meta-data
@@ -645,12 +655,13 @@ FOO
 |Warning: Failed to save the final configuration to local file _path/to/local/file_: _error string_  |Failure to save final configuration to a file |configuration used by the tool is NOT saved to a local file. The tool continues with its primary job of mocking metadata paths |
 |Warning: Failed to find home directory due to error: _error string_|Failure to get home directory| working directory is used instead|
 
+# Building
+For build instructions, please consult [BUILD.md](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/BUILD.md)
 
 # Communication
-* Found a bug or have a feature request? Please open an issue.
-* Want to contribute? Please submit a pull request.
+If you've run into a bug or have a new feature request, please open an [issue](https://github.com/aws/amazon-ec2-metadata-mock/issues/new).
 
-#  Contributing
+# Contributing
 Contributions are welcome! Please read our [guidelines](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/CONTRIBUTING.md) and our [Code of Conduct](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/CODE_OF_CONDUCT.md)
 
 # License
