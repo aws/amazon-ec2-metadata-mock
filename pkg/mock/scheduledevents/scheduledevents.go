@@ -26,7 +26,7 @@ import (
 
 const (
 	descriptionPrefix = "The instance is scheduled for "
-	timeLayout        = "02 Jan 2006 15:04:05 GMT"
+	timeLayout        = "2 Jan 2006 15:04:05 GMT"
 )
 
 var appStartTime int64 = time.Now().Unix()
