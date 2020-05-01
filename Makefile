@@ -29,4 +29,10 @@ e2e-test: build
 validate-json:
 	${MAKEFILE_PATH}/test/json-validator
 
-test: unit-test e2e-test
+license-test:
+	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
+
+go-report-card-test:
+	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
+
+test: unit-test e2e-test license-test go-report-card-test
