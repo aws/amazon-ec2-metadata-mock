@@ -27,10 +27,11 @@ import (
 )
 
 const (
-	defaultCfgFileName = "ec2-mock-config"
+	defaultCfgFileName = "aemm-config"
 	defaultCfgFileExt  = "json"
 	finalCfgDir        = ".amazon-ec2-metadata-mock"
-	finalCfgFile       = ".ec2-mock-config-used.json"
+	finalCfgFile       = ".aemm-config-used.json"
+	cfgFileEnvKey 	   = "AEMM_CONFIG_FILE"
 )
 
 var (
@@ -92,10 +93,16 @@ func createDir(dir string) error {
 
 // LoadConfigForRoot is initiated by the root command. It loads config from various input sources
 func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interface{}) {
-	// set up config file
+	
+	// Set config file following Viper's precedence, in order to allow Viper to apply correct precedence for values in config file
+	// 1) config file name in flag
+	// 2) config file name in env variable
+	// 3) default config file in user's HOME dir
 	configFile := viper.GetString(configFileFlagName)
 	if configFile != "" {
 		viper.SetConfigFile(configFile)
+	} else if val, ok := os.LookupEnv(cfgFileEnvKey); ok {
+		viper.SetConfigFile(val)
 	} else if home != "" {
 		// Search for config file in home directory by name, without including extension
 		viper.SetConfigName(defaultCfgFileName)
