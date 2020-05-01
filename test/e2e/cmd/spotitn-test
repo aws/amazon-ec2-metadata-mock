@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-TEST_CONFIG_FILE="$SCRIPTPATH/testdata/ec2-mock-config-integ.json"
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
 SPOTITN_IA_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action"
 SPOTITN_TT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time"
 FLAG_OVERRIDDEN_INSTANCE_ACTION="hibernate"

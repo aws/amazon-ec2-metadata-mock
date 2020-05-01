@@ -101,13 +101,13 @@ Available Commands:
   spotitn         Mock EC2 Spot interruption notice
 
 Flags:
-  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/ec2-mock-config.json)
+  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)
   -h, --help                  help for amazon-ec2-metadata-mock
   -n, --hostname string       the HTTP hostname for the mock url (default: localhost)
   -I, --imdsv2                whether to enable IMDSv2 only requiring a session token when submitting requests (default: false)
   -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
   -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.ec2-mock-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 
 Use "amazon-ec2-metadata-mock [command] --help" for more information about a command.
 ```
@@ -206,52 +206,61 @@ Defaults for AEMM configuration are sourced throughout code. Examples below:
 
 For example, if values from the following sources were loaded:
 ```
-Defaults in code
+Defaults in code:
+{
+    "config-file": "$HOME/aemm-config.json", # by default, AEMM looks here for a config file
+    "server": {
+         "port": "1338"
+    },
+    "mock-delay-sec": 0,
+    "save-config-to-file": false,
+    "spot-itn": {
+       "instance-action": "terminate"
+    }
+}
+
+Env variables:
+export AEMM_MOCK_DELAY_SEC=12
+export AEMM_SPOT_ITN_INSTANCE_ACTION=hibernate
+export AEMM_CONFIG_FILE=/path/to/my-custom-aemm-config.json
+
+Config File (at /path/to/my-custom-aemm-config.json):
+{
+    "imdsv2": true,
+    "server": {
+         "port": "1550"
+    },
+    "spot-itn": {
+       "instance-action": "stop"
+    }
+}
+
+CLI Flags:
  {
- 	"port": "1338",
-	"mock-delay-sec": 0,
-	"save-config-to-file": true,
-   	"spot-itn": {
-	   "instance-action": "terminate"
-	}
- }
-Config (at $HOME/.aemm-config-overrides.json)
- {
-   "port": "1440",
-   "spot-itn": {
-	   "instance-action": "stop"
-   }
- }
-Env (export AEMM_MOCK_DELAY_SEC=12;export AEMM_SPOT_ITN_INSTANCE_ACTION=stop)
- {
-   "mock-delay-sec": 12  
-   "spot-itn": {
-		"instance-action": "hibernate"
-   }
- }
-CLI Flags
- {
-   "mock-delay-sec": 8  
+   "mock-delay-sec": 8
  }
 ```
 
-The resulting config will have the following values:
+The resulting config will have the following values (non-overriden values are truncated for readability):
 ```
  {
-	"config-file": "$HOME/.aemm-config-overrides.json",
-   	"mock-delay-sec": 8,
-   	"port": "1440",
-	"save-config-to-file": true,
-   	"spot-itn": {
-		"instance-action": "hibernate"
+    "mock-delay-sec": 8,                                        # from CLI flag
+    "config-file": "/path/to/my-custom-aemm-config.json",       # from env
+    "spot-itn": {
+        "instance-action": "hibernate"                          # from env
    }
+    "imdsv2": true,                                             # from custom config file at /path/to/my-custom-aemm-config.json
+     "server": {
+        "port": "1550"                                          # from custom config file at /path/to/my-custom-aemm-config.json
+    },
+    "save-config-to-file": false,                               # from defaults in code
  }
 ```
 
 AEMM is built using Viper which is where the precedence is sourced from. More details can be found in their documentation: 
 
 <a href="https://github.com/spf13/viper/blob/master/README.md">
-	<img src="https://img.shields.io/badge/viper-documentation-green" alt="">
+    <img src="https://img.shields.io/badge/viper-documentation-green" alt="">
 </a>
 
 ## Configuring AEMM
@@ -259,14 +268,14 @@ The tool can be configured in various ways:
 
 1. CLI flags
 
-	Use help commands to learn more
+    Use help commands to learn more
 
 2. Env variables
-	```
-	$ export AEMM_MOCK_DELAY_SEC=12
-	$ export AEMM_SPOT_ITN_INSTANCE_ACTION=stop
-	$ env | grep AEMM    	// To list the tool's env variables
-	```
+    ```
+    $ export AEMM_MOCK_DELAY_SEC=12
+    $ export AEMM_SPOT_ITN_INSTANCE_ACTION=stop
+    $ env | grep AEMM     // To list the tool's env variables
+    ```
 
     > NOTE the translation of config key `spot-itn.instance-action` to `AEMM_SPOT_ITN_INSTANCE_ACTION` env variable.
 
@@ -274,9 +283,9 @@ The tool can be configured in various ways:
 ```
 {
   "metadata": {
-  	"paths": {
-  		"ipv4-associations": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:77/ipv4-associations/192.0.2.54"
-  	},
+    "paths": {
+        "ipv4-associations": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:77/ipv4-associations/192.0.2.54"
+    },
     "values": {
       "mac": "0e:49:61:0f:c3:77",
       "public-ipv4": "54.92.157.77"
@@ -293,10 +302,10 @@ Use the `-c` flag to consume the configuration file and the `-s` flag to save an
 
 ```
 $ amazon-ec2-metadata-mock -c path/to/config-overrides.json -s
-Successfully saved final configuration to local file  /path/to/home/.amazon-ec2-metadata-mock/.ec2-mock-config-used.json
+Successfully saved final configuration to local file  /path/to/home/.amazon-ec2-metadata-mock/.aemm-config-used.json
 
 
-$ cat $HOME/.amazon-ec2-metadata-mock/.ec2-mock-config-used.json
+$ cat $HOME/.amazon-ec2-metadata-mock/.aemm-config-used.json
 (truncated for readability)
 
 {
@@ -344,7 +353,7 @@ commands are designed as follows:
 * Run independently from other commands
   * i.e. when AEMM is started with `scheduledevents` subcommand, `spotitn` routes will **NOT** be available and vice-versa 
 * Local flag availability so that commands can be configured directly via CLI parameters
-	* With validation checks 
+    * With validation checks
 * Contain additional `--help` documentation
 * Default values sourced from code
 
@@ -373,12 +382,12 @@ Flags:
   -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
-  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/ec2-mock-config.json)
+  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)
   -n, --hostname string       the HTTP hostname for the mock url (default: localhost)
   -I, --imdsv2                whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
   -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
   -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.ec2-mock-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
 1.) **Starting AEMM with `spotitn`**:  `spotitn` routes available immediately:
@@ -475,7 +484,7 @@ Flags:
 1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available per the *Note* above:
 
 ```
-$ amazon-ec2-metadata-mock scheduledevents
+$ amazon-ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
 Initiating amazon-ec2-metadata-mock for EC2 Scheduled Events on port 1338
 Serving the following routes: ... (truncated for readability)
 
@@ -485,13 +494,13 @@ Send the request:
 ```
 $ curl localhost:1338/latest/meta-data/events/maintenance/scheduled
 {
-	"Code": "system-reboot",
-	"Description": "The instance is scheduled for system-reboot",
-	"State": "active",
+	"Code": "instance-reboot",
+	"Description": "The instance is scheduled for instance-reboot",
+	"State": "completed",
 	"EventID": "instance-event-1234567890abcdef0",
-	"NotBefore": "24 Apr 2020 12:32:00 GMT",
-	"NotAfter": "01 May 2020 12:32:00 GMT",
-	"NotBeforeDeadline": "03 May 2020 12:32:00 GMT"
+	"NotBefore": "1 Jan 2020 01:03:47 GMT",
+	"NotAfter": "7 Jan 2020 01:03:47 GMT",
+	"NotBeforeDeadline": "10 Jan 2020 01:03:47 GMT"
 }
 ```
 
@@ -589,14 +598,14 @@ Applying overrides to these *placeholder values* will automatically update paths
 
 ```
 {
-   "metadata":{
-      "paths":{
-         "mac-device-number":"/latest/meta-data/network/interfaces/macs/BAR/device-number"
-      },
-      "values":{
-         "mac":"FOO"
-      }
-   }
+    "metadata": {
+        "paths": {
+            "mac-device-number": "/latest/meta-data/network/interfaces/macs/BAR/device-number"
+        },
+        "values": {
+            "mac": "FOO"
+        }
+    }
 }
 
 ```
