@@ -52,7 +52,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	requestTime := time.Now().Unix()
 	delayRemaining := delayInSeconds - (requestTime - spotItnStartTime)
 	if delayRemaining > 0 {
-		log.Printf("Delaying the response by %ds as requested. The mock response will be avaiable in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
+		log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
 		server.ReturnNotFoundResponse(res)
 		return
 	}

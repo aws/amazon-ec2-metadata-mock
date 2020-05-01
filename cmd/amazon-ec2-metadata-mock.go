@@ -15,7 +15,7 @@ package main
 
 import (
 	"fmt"
-	
+
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root"
 )
 

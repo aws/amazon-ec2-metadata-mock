@@ -76,6 +76,7 @@ func PrintFlags(flags *pflag.FlagSet) {
 	}
 }
 
+// ValidateRFC3339TimeFormat validates an input time matches RFC3339 format
 func ValidateRFC3339TimeFormat(flagName string, input string) error {
 	if _, err := time.Parse(time.RFC3339, input); err != nil {
 		return e.FlagValidationError{
@@ -125,7 +126,7 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 		handlerPairs = append(handlerPairs, subCommandHandlers["scheduledevents"]...)
 	} else {
 		// root registers all subcommands
-		for k, _ := range subCommandHandlers {
+		for k := range subCommandHandlers {
 			handlerPairs = append(handlerPairs, subCommandHandlers[k]...)
 		}
 	}

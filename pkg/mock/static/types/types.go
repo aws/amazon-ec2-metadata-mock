@@ -13,7 +13,7 @@
 
 package types
 
-// IamRoleInformation metadata structure for mock json response parsing
+// IamInformation metadata structure for mock json response parsing
 type IamInformation struct {
 	Code               string `json:"code"`
 	LastUpdated        string `json:"last-updated"`

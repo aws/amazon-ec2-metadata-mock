@@ -40,7 +40,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 	// return 404 for unsupported paths; this is needed due to DefaultServeMux path-pattern matching
 	if req.URL.Path == "/latest/meta-data" || req.URL.Path == "/latest/meta-data/" {
-		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutes, "\n") + "\n")
+		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutes, "\n")+"\n")
 	} else {
 		server.ReturnNotFoundResponse(res)
 	}
