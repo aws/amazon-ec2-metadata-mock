@@ -1,21 +1,66 @@
+# Default values to be passed into the chart's templates. 
+
+image:
+    repository: "amazon/amazon-ec2-metadata-mock"
+    tag: "v0.9.0"
+    pullPolicy: "IfNotPresent"
+
+# nameOverride overrides the name of the helm chart
 nameOverride: ""
+# fullnameOverride overrides the name of the application
 fullnameOverride: ""
-podAnnotations: {}
+
+# nodeSelector tells the daemonset where to place the amazon-ec2-metadata-mock pods. 
+# By default, this value is empty and every node will receive a pod.
+nodeSelector: {}
+
+podAnnotations: {} 
+
+# updateStrategy represents the update strategy for a DaemonSet
+updateStrategy: "RollingUpdate"
+
 rbac:
-    pspEnabled: true
+    # rbac.pspEnabled, if `true` a restricted pod security policy is created and used 
+    pspEnabled: false
+
 serviceAccount:
-    name: amazon-ec2-metadata-mock-service-account
+    # create represents whether a service account should be created
     create: true
+    # name is the name of the service account to use. If name is not set and create is true,
+    # a name is generated using fullname template
+    name: "amazon-ec2-metadata-mock-service-account"
     annotations: {}
-amazonEC2MetadataMock:
-    label: amazon-ec2-metadata-mock
-    image:
-        repository: amazon-ec2-metadata-mock
-        tag: v0.9.0
+
+securityContext:
+    runAsUserID: "1000"
+    runAsGroupID: "1000"
+
+# namespace represents the K8s namespace for AEMM pods
+namespace: "default"
+
+# configMap represents the name of the configMap to use
+# configMap is used to pass a config file with all AEMM configuration overrides, not just limited to AEMM CLI flags. Learn more in README
 configMap: ""
-settings:
-  port: 1338
-  hostname: ""
+
+# configMapFileName represents the name of the file used to create the configMap. See example in README 
+# supported file extenstions - https://github.com/spf13/viper/blob/master/viper.go#L328
+configMapFileName: ""
+
+# aemm represents all the CLI flag configuration for Amazon EC2 Metadata Mock (AEMM)
+# Null / empty values here means that AEMM will run with defaults configured in the tool
+# Refer to the readme for descriptions and defaults - https://github.com/aws/amazon-ec2-metadata-mock/blob/master/README.md 
+aemm:
+  server:
+    port: ""
+    hostname: ""
   mockDelaySec: 0
-  partition: ""
-  region: ""
+  imdsv2: false
+  spotItn:
+    instanceAction: ""
+    terminationTime: ""
+  scheduledEvents:
+    code: ""
+    notAfter: ""
+    notBefore: ""
+    notBeforeDeadline: ""
+    state: ""

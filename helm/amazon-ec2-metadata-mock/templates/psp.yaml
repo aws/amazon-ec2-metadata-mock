@@ -10,7 +10,7 @@ metadata:
 spec:
   privileged: false
   hostIPC: false
-  hostNetwork: true
+  hostNetwork: false # turn off host network to prevent undesired exposure of AEMM web server
   hostPorts:
     - min: 1024
       max: 65535

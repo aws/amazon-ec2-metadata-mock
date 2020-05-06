@@ -1,0 +1,6 @@
+{{ .Release.Name }} has been {{- if .Release.IsInstall }} installed {{ else }} updated. {{- end}}
+
+kubectl get pods --namespace {{ .Values.namespace }}
+kubectl describe pod <AEMM-pod-name>
+kubectl logs <AEMM-pod-name>
+kubectl port-forward  pod/<AEMM-pod-name> <AEMM-port-number>
