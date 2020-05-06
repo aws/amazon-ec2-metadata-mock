@@ -9,4 +9,4 @@ RUN go get github.com/gojp/goreportcard/cmd/goreportcard-cli
 
 RUN go get -u golang.org/x/tools/cmd/goimports
 
-CMD $GOPATH/bin/goreportcard-cli -v -t 90
+CMD $GOPATH/bin/goreportcard-cli -v

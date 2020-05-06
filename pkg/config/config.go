@@ -31,7 +31,7 @@ const (
 	defaultCfgFileExt  = "json"
 	finalCfgDir        = ".amazon-ec2-metadata-mock"
 	finalCfgFile       = ".aemm-config-used.json"
-	cfgFileEnvKey 	   = "AEMM_CONFIG_FILE"
+	cfgFileEnvKey      = "AEMM_CONFIG_FILE"
 )
 
 var (
@@ -93,7 +93,7 @@ func createDir(dir string) error {
 
 // LoadConfigForRoot is initiated by the root command. It loads config from various input sources
 func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interface{}) {
-	
+
 	// Set config file following Viper's precedence, in order to allow Viper to apply correct precedence for values in config file
 	// 1) config file name in flag
 	// 2) config file name in env variable
