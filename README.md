@@ -2,7 +2,6 @@
 
 **Amazon EC2 Metadata Mock (AEMM)** is a tool to simulate [Amazon EC2 instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) for local testing.
 
-## :warning: Amazon EC2 Metadata Mock will be launched soon with CI/CD pipelines. In the mean time, feel free to build from source and try it out. :warning:
 <br/>
 <p>
    <a href="https://golang.org/doc/go1.13">
@@ -76,12 +75,25 @@ AEMM supports most [metadata categories](https://docs.aws.amazon.com/AWSEC2/late
 AEMM is simple to get up and running.
 
 ## Installation
-
-:warning: Amazon EC2 Metadata Mock will be launched soon with CI/CD pipelines. In the mean time, feel free to build from source and try it out. :warning:
-
 Download binary from the latest release:
+
+### MacOS/Linux
 ```
-curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/latest/amazon-ec2-metadata-mock
+curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
+```
+
+### ARM Linux
+```
+curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm
+```
+
+```
+curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm64
+```
+
+### Windows
+```
+curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-windows-amd64
 ```
 
 ## Starting AEMM
