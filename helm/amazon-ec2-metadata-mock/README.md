@@ -4,7 +4,7 @@ Amazon EC2 Metadata Mock(AEMM) Helm chart for Kubernetes. For more information o
 
 ## Prerequisites
 
-* Kubernetes >= 1.11
+* Kubernetes >= 1.14
 
 ## Installing the Chart
 
@@ -32,7 +32,7 @@ helm upgrade amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
 ### Installing the Chart with overridden values for AEMM configuration:
 
-AEMM has an [extensive list of parameters](https://github.com/aws/amazon-ec2-metadata-mock#defaults) that can overridden. For simplicity, a selective list of parameters are configurable using Helm custom `values.yaml` and `--set argument`. To override parameters not listed in `values.yaml` use Kubernetes ConfigMap.    
+AEMM has an [extensive list of parameters](https://github.com/aws/amazon-ec2-metadata-mock#defaults) that can overridden. For simplicity, a selective list of parameters are configurable using Helm custom `values.yaml` or `--set argument`. To override parameters not listed in `values.yaml` use Kubernetes ConfigMap.
 
 The [configuration](#configuration) section details the selective list of parameters. Alternatively, to retrieve the same information via helm, run:
 ```sh
@@ -45,23 +45,30 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
   --namespace default -f path/to/myvalues.yaml 
 ```
 
-* Passing custom values to helm via CLI 
+* Passing custom values to Helm via CLI arguments
 ```sh
 helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
-  --namespace default --set aemm.server.port=1660,aemm.mockDelaySec=120  
+  --namespace default --set aemm.spotItn.instanceAction="stop",aemm.mockDelaySec=120
 ```
 
 * Passing a config file to AEMM
 
  1. Create a Kubernetes ConfigMap from a custom AEMM configuration file:
 See [Readme](https://github.com/aws/amazon-ec2-metadata-mock#configuration) to learn more about AEMM configuration. [Here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/test/e2e/testdata/output/aemm-config-used.json) is a reference config file to create your own `aemm-config.json`
-```sh
-kubectl create configmap aemm-config-map --from-file path/to/aemm-config.json
-```
+
+    Note:
+    * AEMM's native config `aemm.server.port` needs to be a fixed value (1338) to be able to run AEMM as a K8s service. So, overriding the `aemm.server.port` in the custom config file will work only when AEMM is accessed via the pod directly. To access the AEMM K8s service on a custom port, override `servicePort` (which is a Helm config).
+
+    * The `configMapFileName` is used to mount the configMap on the containers running AEMM. The default file name is `aemm-config.json`. If a non-default file name was used to create the configMap, override `configMapFileName` in order for AEMM to be able to access it.
+
+    ```sh
+    kubectl create configmap aemm-config-map --from-file path/to/aemm-config.json
+    ```
 
  2. Create `myvalues.yaml` with overridden value for configMap:
 ```yaml
 configMap: "aemm-config-map"
+servicePort: 1550
 ```
 
  3. Install AEMM with override:
@@ -70,28 +77,54 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
   --namespace default -f path/to/myvalues.yaml 
 ```
 
-
-
 ## Making a HTTP request to the AEMM server running on a pod
 
-1. Get the AEMM pod name:
-```sh
-kubectl get pods --namespace default
-```
+1. Access AEMM pod / service
+    i. Set up port-forwarding to access AEMM on your machine:
 
-2. Set up port-forwarding for the port on which AEMM is running:
-```sh
-kubectl port-forward pod/<AEMM-pod-name> 1660
-```
+    ```sh
+    kubectl get pods --namespace default
+    ```
 
-3. Make the HTTP request
-```sh
-curl http://localhost:1660/latest/meta-data/spot/instance-action
-{
-	"instance-action": "terminate",
-	"time": "2020-05-04T18:11:37Z"
-}
-```
+    ```sh
+    kubectl port-forward pod/<AEMM-pod-name> 1338
+    ```
+
+    or
+
+    ```
+    kubectl port-forward service/amazon-ec2-metadata-mock 1338
+    ```
+
+    ii. Access AEMM from your application using the ClusterIP / DNS of the service or the pod directly.
+
+2. Make the HTTP request
+
+    ```sh
+    curl http://localhost:1338/latest/meta-data/spot/instance-action
+    {
+        "instance-action": "terminate",
+        "time": "2020-05-04T18:11:37Z"
+    }
+    ```
+    or
+    ```sh
+    # ClusterIP and port for the service should be availble in the application pod's environment, if it was created after the AEMM service.
+
+    curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_PORT/latest/meta-data/spot/instance-action
+    {
+        "instance-action": "terminate",
+        "time": "2020-05-04T18:11:37Z"
+    }
+    ```
+    or
+    ```sh
+    curl http://amazon-ec2-metadata-mock.default.svc.cluster.local:1338/latest/meta-data/spot/instance-action
+    {
+        "instance-action": "terminate",
+        "time": "2020-05-04T18:11:37Z"
+    }
+    ```
 
 ## Uninstalling the Chart
 
@@ -124,14 +157,14 @@ Parameter | Description | Default
 `namespace` | Kubernetes namespace to use for AEMM pods | `default`
 `configMap` | name of the Kubernetes ConfigMap to use to pass a config file for AEMM overrides | `""`
 `configMapFileName` | name of the file used to create the Kubernetes ConfigMap | `aemm-config.json`
+`servicePort` | port to run AEMM K8s Service on | `1338`
 
 NOTE: A selective list of AEMM parameters are configurable via Helm CLI and values.yaml file. 
 Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-values-for-aemm-configuration) to configure [other AEMM parameters](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/test/e2e/testdata/output/aemm-config-used.json). 
 
-Parameter | Description | Default in values.yaml | Default AEMM configuration
+Parameter | Description | Default in Helm | Default AEMM configuration
 --- | --- | --- | ---
-`aemm.server.port` | port to run AEMM on | `""` | `1338`
-`aemm.server.hostname` | hostname to run AEMM on | `""` | `localhost`
+`aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `localhost`
 `aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
 `aemm.spotItn.instanceAction` | instance action in the spot interruption notice | `""` | `terminate`

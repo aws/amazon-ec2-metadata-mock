@@ -14,7 +14,7 @@ fullnameOverride: ""
 # By default, this value is empty and every node will receive a pod.
 nodeSelector: {}
 
-podAnnotations: {} 
+podAnnotations: {}
 
 # updateStrategy represents the update strategy for a DaemonSet
 updateStrategy: "RollingUpdate"
@@ -38,20 +38,23 @@ securityContext:
 # namespace represents the K8s namespace for AEMM pods
 namespace: "default"
 
-# configMap represents the name of the configMap to use
-# configMap is used to pass a config file with all AEMM configuration overrides, not just limited to AEMM CLI flags. Learn more in README
+# configMap represents the name of an EXISTING configMap to use
+# configMap can be used to pass a config file with the complete set of AEMM configuration overrides, not just limited to AEMM CLI flags. Learn more in README.
 configMap: ""
 
-# configMapFileName represents the name of the file used to create the configMap. See example in README 
+# configMapFileName represents the name of the file used to create the configMap. Learn more in README.
 # supported file extenstions - https://github.com/spf13/viper/blob/master/viper.go#L328
-configMapFileName: ""
+configMapFileName: "aemm-config.json"
+
+# servicePort represents the port to run the AEMM K8s service on. This can be any port of user's choice.
+# note: this port is different from the native AEMM config - aemm.server.port which is not supported when AEMM is run as a K8s service. Learn more in README.
+servicePort: "1338"
 
 # aemm represents all the CLI flag configuration for Amazon EC2 Metadata Mock (AEMM)
 # Null / empty values here means that AEMM will run with defaults configured in the tool
-# Refer to the readme for descriptions and defaults - https://github.com/aws/amazon-ec2-metadata-mock/blob/master/README.md 
+# Refer to the readme for descriptions and defaults - https://github.com/aws/amazon-ec2-metadata-mock/blob/master/helm/amazon-ec2-metadata-mock/README.md
 aemm:
   server:
-    port: ""
     hostname: ""
   mockDelaySec: 0
   imdsv2: false

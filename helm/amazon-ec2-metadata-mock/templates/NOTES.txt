@@ -1,6 +1,8 @@
 {{ .Release.Name }} has been {{- if .Release.IsInstall }} installed {{ else }} updated. {{- end}}
 
+Some useful commands:
 kubectl get pods --namespace {{ .Values.namespace }}
 kubectl describe pod <AEMM-pod-name>
 kubectl logs <AEMM-pod-name>
-kubectl port-forward  pod/<AEMM-pod-name> <AEMM-port-number>
+kubectl port-forward  pod/<AEMM-pod-name> 1338
+kubectl port-forward service/amazon-ec2-metadata-mock 1338

@@ -23,7 +23,6 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        k8s-app: amazon-ec2-metadata-mock
     spec:
       {{- if .Values.nodeSelector }}
       nodeSelector:
@@ -74,14 +73,8 @@ spec:
         - name: AEMM_CONFIG_FILE
           value: {{ with $file := .Values.configMapFileName | default "aemm-config.json" }} {{ printf "/%s/%s" "config" $file }} {{ end }} 
         {{- end }}
-        {{- if .Values.aemm.server.port }}
-        - name: AEMM_SERVER_PORT
-          value: {{ .Values.aemm.server.port | quote }}
-        {{- end }}
-        {{- if .Values.aemm.server.hostname }}
-        - name: AEMM_SERVER_HOSTNAME
-          value: {{ .Values.aemm.server.hostname | quote }}
-        {{- end }}
+        - name: AEMM_SERVER_HOSTNAME # override hostname in order to listen on all available interfaces e.g. ClusterIP
+          value: {{ .Values.aemm.server.hostname | default "" | quote }}
         {{- if .Values.aemm.mockDelaySec }}
         - name: AEMM_MOCK_DELAY_SEC
           value: {{ .Values.aemm.mockDelaySec | quote }}
