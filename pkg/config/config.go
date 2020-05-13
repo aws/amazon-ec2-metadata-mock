@@ -111,6 +111,7 @@ func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interfa
 
 	// set up env
 	viper.AutomaticEnv()
+	viper.AllowEmptyEnv(true) // empty strings are perfectly valid values for our usecases
 	viper.SetEnvPrefix("aemm") // AEMM stands for amazon-ec2-metadata-mock, set prefix to avoid name clashes
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 
