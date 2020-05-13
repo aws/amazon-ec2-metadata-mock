@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "amazon-ec2-metadata-mock.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "amazon-ec2-metadata-mock.labels" . | indent 4 }}
+spec:
+  updateStrategy:
+    type: {{ toYaml .Values.updateStrategy }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+          {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "beta.kubernetes.io/os"
+                operator: In
+                values:
+                - linux
+              - key: "beta.kubernetes.io/arch"
+                operator: In
+                values:
+                - amd64
+                - arm
+                - arm64
+      serviceAccountName: {{ template "amazon-ec2-metadata-mock.serviceAccountName" . }}
+      hostNetwork: false # turn off host network to prevent undesired exposure of AEMM web server
+      {{- if .Values.configMap }}
+      volumes:
+      - name: "aemm-config"
+        configMap:
+          name: {{ .Values.configMap }}
+      {{- end }}
+      containers:
+      - name: {{ include "amazon-ec2-metadata-mock.name" . }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: {{ .Values.securityContext.runAsUserID }}
+          runAsGroup: {{ .Values.securityContext.runAsGroupID }}
+          allowPrivilegeEscalation: false
+        {{- if .Values.configMap }}
+        volumeMounts:
+        - name: "aemm-config"
+          mountPath: {{ with $file := .Values.configMapFileName | default "aemm-config.json" }} {{ printf "/%s/%s" "config" $file }} {{ end }} 
+          subPath: {{ .Values.configMapFileName | default "aemm-config.json"  }}
+          readOnly: true
+        {{- end }}
+        env:
+        {{- if .Values.configMap }}
+        - name: AEMM_CONFIG_FILE
+          value: {{ with $file := .Values.configMapFileName | default "aemm-config.json" }} {{ printf "/%s/%s" "config" $file }} {{ end }} 
+        {{- end }}
+        - name: AEMM_SERVER_HOSTNAME # override hostname in order to listen on all available interfaces e.g. ClusterIP
+          value: {{ .Values.aemm.server.hostname | default "" | quote }}
+        {{- if .Values.aemm.mockDelaySec }}
+        - name: AEMM_MOCK_DELAY_SEC
+          value: {{ .Values.aemm.mockDelaySec | quote }}
+        {{- end }}
+        {{- if .Values.aemm.imdsv2 }}
+        - name: AEMM_IMDSV2
+          value: {{ .Values.aemm.imdsv2| quote }}
+        {{- end }}
+        {{- if .Values.aemm.scheduledEvents.code }}
+        - name: AEMM_SCHEDULED_EVENTS_CODE
+          value: {{ .Values.aemm.scheduledEvents.code | quote }}
+        {{- end }}
+        {{- if .Values.aemm.scheduledEvents.notAfter }}
+        - name: AEMM_SCHEDULED_EVENTS_NOT_AFTER
+          value: {{ .Values.aemm.scheduledEvents.notAfter | quote }}
+        {{- end }}
+        {{- if .Values.aemm.scheduledEvents.notBefore }}
+        - name: AEMM_SCHEDULED_EVENTS_NOT_BEFORE
+          value: {{ .Values.aemm.scheduledEvents.notBefore | quote }}
+        {{- end }}
+        {{- if .Values.aemm.scheduledEvents.notBeforeDeadline }}
+        - name: AEMM_SCHEDULED_EVENTS_NOT_BEFORE_DEADLINE
+          value: {{ .Values.aemm.scheduledEvents.notBeforeDeadline | quote }}
+        {{- end }}
+        {{- if .Values.aemm.scheduledEvents.state }}
+        - name: AEMM_SCHEDULED_EVENTS_STATE
+          value: {{ .Values.aemm.scheduledEvents.state | quote }}
+        {{- end }}
+        {{- if .Values.aemm.spotItn.instanceAction }}
+        - name: AEMM_SPOT_ITN_INSTANCE_ACTION
+          value: {{ .Values.aemm.spotItn.instanceAction | quote }}
+        {{- end }}
+        {{- if .Values.aemm.spotItn.terminationTime }}
+        - name: AEMM_SPOT_ITN_TERMINATION_TIME
+          value: {{ .Values.aemm.spotItn.terminationTime | quote }}
+        {{- end }}

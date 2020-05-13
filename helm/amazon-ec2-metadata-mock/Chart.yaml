@@ -4,17 +4,20 @@ description: A Helm chart for the Amazon EC2 Metadata Mock
 version: 0.1.0
 appVersion: 0.9.0
 home: https://github.com/aws/amazon-ec2-metadata-mock
-icon: https://raw.githubusercontent.com/aws/eks-charts/master/docs/logo/aws.png
+icon: https://raw.githubusercontent.com/aws/amazon-ec2-metadata-mock/master/helm/aws-logo.png
 sources:
   - https://github.com/aws/amazon-ec2-metadata-mock
 maintainers:
   - name: Prathibha Datta Kumar
     url: https://github.com/pdk27
-    email: prathibhadk@users.noreply.github.com
-  - name: Matthew Becker
-    url: https://github.com/mattrandallbecker
-    email: mattrandallbecker@users.noreply.github.com
+    email: pdk27@users.noreply.github.com
+  - name: Bryan Carter
+    url: https://github.com/brycahta
+    email: brycahta@users.noreply.github.com
 keywords:
   - ec2
+  - aws-ec2
   - imds
-
+  - ec2-instance-metadata
+  - ec2-instance-metadata-mock
+  - spot-interruption-mock

@@ -31,7 +31,6 @@ Common labels
 app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
 helm.sh/chart: {{ include "amazon-ec2-metadata-mock.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-k8s-app: amazon-ec2-metadata-mock
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
