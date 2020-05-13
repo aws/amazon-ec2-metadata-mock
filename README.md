@@ -13,9 +13,6 @@
    <a href="https://travis-ci.org/aws/amazon-ec2-metadata-mock">
    <img src="https://travis-ci.org/aws/amazon-ec2-metadata-mock.svg?branch=master" alt="build-status">
    </a>
-   <a href="https://codecov.io/gh/aws/amazon-ec2-metadata-mock">
-   <img src="https://img.shields.io/codecov/c/github/aws/amazon-ec2-metadata-mock" alt="build-status">
-   </a>
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
    </a>
