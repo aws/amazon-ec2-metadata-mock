@@ -4,7 +4,7 @@
 
 <br/>
 <p>
-   <a href="https://golang.org/doc/go1.13">
+   <a href="https://golang.org/doc/go1.14">
    <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
    </a>
    <a href="https://opensource.org/licenses/Apache-2.0">

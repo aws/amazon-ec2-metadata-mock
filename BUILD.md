@@ -1,6 +1,6 @@
 # Amazon EC2 Metadata Mock: Build Instructions
 
-## Install Go version 1.13+
+## Install Go version 1.14+
 
 There are several options for installing go:
 

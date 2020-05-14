@@ -1,6 +1,6 @@
 module github.com/aws/amazon-ec2-metadata-mock
 
-go 1.13
+go 1.14
 
 require (
 	github.com/mitchellh/go-homedir v1.1.0
