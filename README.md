@@ -37,7 +37,6 @@
          * [Scheduled Events](#scheduled-events)
       * [Instance Metadata Service Versions](#instance-metadata-service-versions)
       * [Static Metadata](#static-metadata)
-         * [Static Metadata Overrides &amp; Path Substitutions](#static-metadata-overrides--path-substitutions)
    * [Troubleshooting](#troubleshooting)
       * [Warnings and Expected Outcome](#warnings-and-expected-outcome)
    * [Building](#building)
@@ -45,7 +44,7 @@
    * [Contributing](#contributing)
    * [License](#license)
 
-# Project Summary
+# Summary
 AWS EC2 Instance metadata is data about your instance that you can use to configure or manage the running instance. Instance metadata is divided into categories like hostname, instance id, maintenance events, spot instance action. See the complete list of metadata categories [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-categories.html).
 
 The instance metadata can be accessed from within the instance. Some instance metadata is available only when an instance is affected by the event. E.g. A Spot instance's metadata item `spot/instance-action` is available only when AWS decides to interrupt the Spot instance.
@@ -209,172 +208,16 @@ Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **Commands**
   * [scheduledevents](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/scheduledevents/scheduledevents.go#L72) 
 
-
-## Config Precedence (Highest to Lowest)
-1. overrides
-2. flag
-3. env
-4. config
-5. key/value store
-6. default
-
-For example, if values from the following sources were loaded:
-```
-Defaults in code:
-{
-    "config-file": "$HOME/aemm-config.json", # by default, AEMM looks here for a config file
-    "server": {
-         "port": "1338"
-    },
-    "mock-delay-sec": 0,
-    "save-config-to-file": false,
-    "spot-itn": {
-       "instance-action": "terminate"
-    }
-}
-
-Env variables:
-export AEMM_MOCK_DELAY_SEC=12
-export AEMM_SPOT_ITN_INSTANCE_ACTION=hibernate
-export AEMM_CONFIG_FILE=/path/to/my-custom-aemm-config.json
-
-Config File (at /path/to/my-custom-aemm-config.json):
-{
-    "imdsv2": true,
-    "server": {
-         "port": "1550"
-    },
-    "spot-itn": {
-       "instance-action": "stop"
-    }
-}
-
-CLI Flags:
- {
-   "mock-delay-sec": 8
- }
-```
-
-The resulting config will have the following values (non-overriden values are truncated for readability):
-```
- {
-    "mock-delay-sec": 8,                                        # from CLI flag
-    "config-file": "/path/to/my-custom-aemm-config.json",       # from env
-    "spot-itn": {
-        "instance-action": "hibernate"                          # from env
-   }
-    "imdsv2": true,                                             # from custom config file at /path/to/my-custom-aemm-config.json
-     "server": {
-        "port": "1550"                                          # from custom config file at /path/to/my-custom-aemm-config.json
-    },
-    "save-config-to-file": false,                               # from defaults in code
- }
-```
-
-AEMM is built using Viper which is where the precedence is sourced from. More details can be found in their documentation: 
-
-<a href="https://github.com/spf13/viper/blob/master/README.md">
-    <img src="https://img.shields.io/badge/viper-documentation-green" alt="">
-</a>
-
-## Configuring AEMM
-The tool can be configured in various ways:
-
-1. CLI flags
-
-    Use help commands to learn more
-
-2. Env variables
-    ```
-    $ export AEMM_MOCK_DELAY_SEC=12
-    $ export AEMM_SPOT_ITN_INSTANCE_ACTION=stop
-    $ env | grep AEMM     // To list the tool's env variables
-    ```
-
-    > NOTE the translation of config key `spot-itn.instance-action` to `AEMM_SPOT_ITN_INSTANCE_ACTION` env variable.
-
-3. Configuration file in JSON format at `path/to/config-overrides.json`
-```
-{
-  "metadata": {
-    "paths": {
-        "ipv4-associations": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:77/ipv4-associations/192.0.2.54"
-    },
-    "values": {
-      "mac": "0e:49:61:0f:c3:77",
-      "public-ipv4": "54.92.157.77"
-    }
-  },
-  "spot-itn": {
-    "instance-action": "terminate",
-    "time": "2020-01-07T01:03:47Z"
-  }
-}
-```
-
-Use the `-c` flag to consume the configuration file and the `-s` flag to save an output of the configurations used by AEMM after precedence has been applied:
-
-```
-$ amazon-ec2-metadata-mock -c path/to/config-overrides.json -s
-Successfully saved final configuration to local file  /path/to/home/.amazon-ec2-metadata-mock/.aemm-config-used.json
-
-
-$ cat $HOME/.amazon-ec2-metadata-mock/.aemm-config-used.json
-(truncated for readability)
-
-{
-  "config-file": "path/to/config-overrides.json",
-  "metadata": {
-    "paths": {
-      "ipv4-associations": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:77/ipv4-associations/192.0.2.54"
-    },
-    "values": {
-      "mac": "0e:49:61:0f:c3:77",
-      "public-ipv4": "54.92.157.77"
-    }
-  },
-  "mock-delay-sec": 12,
-  "save-config-to-file": true,
-  "server": {
-    "hostname": "localhost",
-    "port": "1338"
-  },
-  "spot-itn": {
-    "instance-action": "stop",
-    "time": "2020-01-07T01:03:47Z"
-  }
-}
-
-```
+## Overrides
+AEMM supports configuration from various sources including: cli flags, env variables, and config files. Details regarding
+configuration steps, behavior, and precedence are outlined [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/configuration.md).
 
 # Usage
-AEMM is primarily used as a developer tool to help test behavior related to Metadata Service. Popular use cases include: emulating spot instance interrupts after a designated delay, mocking scheduled maintenance events, and testing IMDSv1 to IMDSv2 migrations.
+AEMM is primarily used as a developer tool to help test behavior related to Metadata Service. Popular use cases include: emulating spot instance interrupts after a designated delay, mocking scheduled maintenance events, IMDSv2 migrations, 
+and requesting static metadata. This section outlines the common use cases of AEMM; advanced usage and behavior are documented [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md).
 
-## Commands
-AEMM's supported commands (`spotitn`, `scheduledevents`) are viewed using `--help`:
-```
-$ amazon-ec2-metadata-mock --help
-
-...
-Available Commands:
-  help            Help about any command
-  scheduledevents Mock EC2 Scheduled Events
-  spotitn         Mock EC2 Spot interruption notice
-
-...
-```
-commands are designed as follows:
-* Run independently from other commands
-  * i.e. when AEMM is started with `scheduledevents` subcommand, `spotitn` routes will **NOT** be available and vice-versa 
-* Local flag availability so that commands can be configured directly via CLI parameters
-    * With validation checks
-* Contain additional `--help` documentation
-* Default values sourced from code
-
-Metadata categories that are always available, irrespective of the CLI command run are referred to as **static metadata**. More details on static metadata can be found [here](#static-metadata)
-
-### Spot Interruption
-To view the available local flags for the Spot Interruption command use `spotitn --help`:
+## Spot Interruption
+To view the available flags for the Spot Interruption command use `spotitn --help`:
 ```
 $ amazon-ec2-metadata-mock spotitn --help
 Mock EC2 Spot interruption notice
@@ -420,14 +263,13 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 ```
 
 
-2.) **Starting AEMM with `spotitn` overrides after Delay**: Users can override `instance-action` via CLI flag as well as apply a *delay* duration in seconds for when the `spotitn` metadata will become available (i.e. simulating when AWS sends the spot interrupt notice); static metadata availability is unaffected:
+2.) **Starting AEMM with `spotitn` after Delay**: Users can apply a *delay* duration in seconds for when the `spotitn` metadata will become available:
 
 ```
-$ amazon-ec2-metadata-mock spotitn -a stop -d 10
+$ amazon-ec2-metadata-mock spotitn -d 10
 Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
-instance-action: stop
 mock-delay-sec: 10
 
 Serving the following routes: ... (truncated for readability)
@@ -459,13 +301,13 @@ Once the delay is complete, querying `spotitn` paths return expected results:
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 
 {
-	"instance-action": "stop",
+	"instance-action": "terminate",
 	"time": "2020-04-24T17:19:32Z"
 }
 
 ```
 
-### Scheduled Events
+## Scheduled Events
 Similar to spotitn, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
 
 ```
@@ -495,7 +337,7 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available per the *Note* above:
+1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
 
 ```
 $ amazon-ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
@@ -518,38 +360,10 @@ $ curl localhost:1338/latest/meta-data/events/maintenance/scheduled
 }
 ```
 
-2.) **Starting AEMM with `scheduledevents` invalid flag overrides**: as noted above, all commands have validation logic for overrides via CLI flags. If the user attempts to pass an invalid override value, then AEMM will panic, kill the server, and return an error message with what went wrong:
-
-```
-$ amazon-ec2-metadata-mock scheduledevents --code FOO
-
-panic: Fatal error while executing the root command: Invalid CLI input "FOO" for flag code. 
-Allowed value(s): instance-reboot,system-reboot,system-maintenance,instance-retirement,instance-stop.
-```
-
 ## Instance Metadata Service Versions
-AEMM supports [both versions](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) of Instance Metadata service. By default, AEMM starts with supporting v1 and v2; however, it is also possible to enable **IMDSv2 only** via overrides.
+AEMM supports [both versions](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) of Instance Metadata service. By default, AEMM starts with supporting v1 and v2; however, it is possible to enable **IMDSv2 only** via overrides.
 
-1.) **Starting AEMM with IMDSv1 & IMDSv2:** default behavior where providing session token is completely optional and normal request/response method is supported.
-
-```
-$ amazon-ec2-metadata-mock
-```
-
-Send a v1 request:
-```
-$ curl localhost:1338/latest/meta-data/mac
-0e:49:61:0f:c3:11
-```
-
-Send a v2 request:
-```
-TOKEN=`curl -X PUT "localhost:1338/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` \
-&& curl -H "X-aws-ec2-metadata-token: $TOKEN" localhost:1338/latest/meta-data/mac
-0e:49:61:0f:c3:11
-```
-
-2.) **Starting AEMM with IMDSv2 only:** session tokens are required for all requests; v1 requests will return **401 - Unauthorized:**
+1.) **Starting AEMM with IMDSv2 only:** session tokens are required for all requests; v1 requests will return **401 - Unauthorized:**
 
 ```
 $ amazon-ec2-metadata-mock --imdsv2
@@ -570,7 +384,12 @@ $ curl localhost:1338/latest/meta-data/mac
 </html>
 ```
 
-Sending a v2 request will yield the same results as 1.) above.
+Send a v2 request:
+```
+TOKEN=`curl -X PUT "localhost:1338/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` \
+&& curl -H "X-aws-ec2-metadata-token: $TOKEN" localhost:1338/latest/meta-data/mac
+0e:49:61:0f:c3:11
+```
 
 Requesting a token outside the TTL bounds (between 1-2600 seconds) will return **400 - Bad Request:**
 ```
@@ -590,82 +409,24 @@ $ curl -X PUT "localhost:1338/latest/api/token" -H "X-aws-ec2-metadata-token-ttl
 Providing an expired token is synonymous to no token at all resulting in **401 - Unauthorized**.
 
 ## Static Metadata
-Static metadata is classified as instance-specific metadata that is **always** available regardless of which command is used to start the tool. Some additional properties of static metadata:
-* delays do **NOT** affect static metadata availability
-* values are overridden via config file and/or env variables **only**
-  * values **cannot** be overridden using flags 
+Static metadata is classified as instance-specific metadata that is **always** available regardless of which command is used to start the tool. 
 
 Examples of static metadata include *all* [metadata categories](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-categories.html) from the non-dynamic category table (ami-id, instance-id, mac) **except for events and spot categories (classified as commands in AEMM).**
 
 *Note that 'static' naming is used within the context of this tool ONLY*
 
-### Static Metadata Overrides & Path Substitutions
-Some metadata categories use data unique to the instance as part of the query.
-* **Example:**  network/interfaces/macs/*MAC*/interface-id where *MAC* is a placeholder for the instance's mac address
-  * [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-categories.html)
-
-Applying overrides to these *placeholder values* will automatically update paths containing these values **unless** the path itself is explicitly overridden.
-
-1.) **Starting AEMM with JSON config overrides:** The static metadata will use the overridden values AND paths using overridden instance data will be updated as well.
-
-* config-overrides.json:
-
+1.) **Requesting static metadata `instance-id`**:
 ```
-{
-    "metadata": {
-        "paths": {
-            "mac-device-number": "/latest/meta-data/network/interfaces/macs/BAR/device-number"
-        },
-        "values": {
-            "mac": "FOO"
-        }
-    }
-}
-
+$ amazon-ec2-metadata-mock
 ```
 
-* start the server with overrides:
-
+Send the request:
 ```
-$ amazon-ec2-metadata-mock -c config-overrides.json
-Initiating amazon-ec2-metadata-mock for all mocks on port 1338
-
-Flags:
-config-file: config-overrides.json
+$ curl localhost:1338/latest/meta-data/instance-id
+i-1234567890abcdef0
 ```
 
-* querying the available routes will show updated placeholder paths **except** for those explicitly overridden in the "paths" blob of *config-overrides.json*:
-
-```
-$ curl localhost:1338/latest/meta-data
-
-network/interfaces/macs/BAR/device-number
-network/interfaces/macs/FOO/interface-id
-network/interfaces/macs/FOO/ipv4-associations/192.0.2.54
-network/interfaces/macs/FOO/ipv6s
-network/interfaces/macs/FOO/local-hostname
-network/interfaces/macs/FOO/local-ipv4s
-network/interfaces/macs/FOO/mac
-network/interfaces/macs/FOO/owner-id
-network/interfaces/macs/FOO/public-hostname
-network/interfaces/macs/FOO/public-ipv4s
-network/interfaces/macs/FOO/security-group-ids
-network/interfaces/macs/FOO/security-groups
-network/interfaces/macs/FOO/subnet-id
-network/interfaces/macs/FOO/subnet-ipv4-cidr-block
-network/interfaces/macs/FOO/subnet-ipv6-cidr-blocks
-network/interfaces/macs/FOO/vpc-id
-network/interfaces/macs/FOO/vpc-ipv4-cidr-block
-network/interfaces/macs/FOO/vpc-ipv4-cidr-blocks
-network/interfaces/macs/FOO/vpc-ipv6-cidr-blocks
-```
-
-* querying the mac address will reflect overridden value:
-
-```
-$ curl http://localhost:1338/latest/meta-data/mac
-FOO
-```
+Details on overriding static metadata values and behavior can be found [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md#static-metadata)
 
 # Troubleshooting
 
