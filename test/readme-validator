@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+README_FILES=$(find $SCRIPTPATH/../ -name "*.md" -type f)
+MAX_CHAR_COUNT=25000
+
+for r in $README_FILES; do
+  echo "validating $r"
+  chars=$( wc -m < "$r" )
+  if [[ $chars -ge $MAX_CHAR_COUNT ]]; then
+    echo "$r exceeds max character count"
+    exit 1
+  fi
+done

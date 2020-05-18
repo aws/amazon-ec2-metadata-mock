@@ -74,6 +74,9 @@ e2e-test: build
 validate-json:
 	${MAKEFILE_PATH}/test/json-validator
 
+validate-readme:
+	${MAKEFILE_PATH}/test/readme-validator
+
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
 
