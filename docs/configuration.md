@@ -39,11 +39,11 @@ The tool can be configured in various ways:
 Use the `-c` flag to consume the configuration file and the `-s` flag to save an output of the configurations used by AEMM after precedence has been applied:
 
 ```
-$ amazon-ec2-metadata-mock -c path/to/config-overrides.json -s
-Successfully saved final configuration to local file  /path/to/home/.amazon-ec2-metadata-mock/.aemm-config-used.json
+$ ec2-metadata-mock -c path/to/config-overrides.json -s
+Successfully saved final configuration to local file  /path/to/home/.ec2-metadata-mock/.aemm-config-used.json
 
 
-$ cat $HOME/.amazon-ec2-metadata-mock/.aemm-config-used.json
+$ cat $HOME/.ec2-metadata-mock/.aemm-config-used.json
 (truncated for readability)
 
 {

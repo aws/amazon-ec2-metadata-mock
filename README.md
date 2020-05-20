@@ -29,12 +29,10 @@
       * [Making a Request](#making-a-request)
    * [Configuration](#configuration)
       * [Defaults](#defaults)
-      * [Config Precedence (Highest to Lowest)](#config-precedence-highest-to-lowest)
-      * [Configuring AEMM](#configuring-aemm)
+      * [Overrides](#overrides)
    * [Usage](#usage)
-      * [Commands](#commands)
-         * [Spot Interruption](#spot-interruption)
-         * [Scheduled Events](#scheduled-events)
+      * [Spot Interruption](#spot-interruption)
+      * [Scheduled Events](#scheduled-events)
       * [Instance Metadata Service Versions](#instance-metadata-service-versions)
       * [Static Metadata](#static-metadata)
    * [Troubleshooting](#troubleshooting)
@@ -75,38 +73,38 @@ Download binary from the latest release:
 
 ### MacOS/Linux
 ```
-curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
 ```
 
 ### ARM Linux
 ```
-curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm
 ```
 
 ```
-curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm64
 ```
 
 ### Windows
 ```
-curl -Lo amazon-ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-windows-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-windows-amd64
 ```
 
 ## Starting AEMM
-Use `amazon-ec2-metadata-mock --help` to view examples and explanations of supported flags and commands:
+Use `ec2-metadata-mock --help` to view examples and explanations of supported flags and commands:
 
 ```
-$ amazon-ec2-metadata-mock --help
+$ ec2-metadata-mock --help
 
-amazon-ec2-metadata-mock is a tool to mock Amazon EC2 instance metadata.
+ec2-metadata-mock is a tool to mock Amazon EC2 instance metadata.
 
 Usage:
-  amazon-ec2-metadata-mock <command> [arguments] [flags]
-  amazon-ec2-metadata-mock [command]
+  ec2-metadata-mock <command> [arguments] [flags]
+  ec2-metadata-mock [command]
 
 Examples:
-  amazon-ec2-metadata-mock --mock-delay-sec 10	mocks all metadata paths
-  amazon-ec2-metadata-mock spotitn --instance-action terminate	mocks spot ITN only
+  ec2-metadata-mock --mock-delay-sec 10	mocks all metadata paths
+  ec2-metadata-mock spotitn --instance-action terminate	mocks spot ITN only
 
 Available Commands:
   help            Help about any command
@@ -120,17 +118,17 @@ Flags:
   -I, --imdsv2                whether to enable IMDSv2 only requiring a session token when submitting requests (default: false)
   -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
   -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -s, --save-config-to-file   whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 
-Use "amazon-ec2-metadata-mock [command] --help" for more information about a command.
+Use "ec2-metadata-mock [command] --help" for more information about a command.
 ```
 
-Starting AEMM with default configurations using `amazon-ec2-metadata-mock` will start the server on the default host and port:
+Starting AEMM with default configurations using `ec2-metadata-mock` will start the server on the default host and port:
 
 ```
-$ amazon-ec2-metadata-mock
+$ ec2-metadata-mock
 
-Initiating amazon-ec2-metadata-mock for all mocks on port 1338
+Initiating ec2-metadata-mock for all mocks on port 1338
 Serving the following routes: /latest/meta-data/product-codes, /latest/meta-data/iam/info, /latest/meta-data/instance-type, ...(truncated for readability)
 ```
 
@@ -219,18 +217,18 @@ and requesting static metadata. This section outlines the common use cases of AE
 ## Spot Interruption
 To view the available flags for the Spot Interruption command use `spotitn --help`:
 ```
-$ amazon-ec2-metadata-mock spotitn --help
+$ ec2-metadata-mock spotitn --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  amazon-ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
+  ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
 
 Aliases:
   spotitn, spot, spot-itn, spotItn
 
 Examples:
-  amazon-ec2-metadata-mock spotitn -h 	spotitn help
-  amazon-ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spotitn -h 	spotitn help
+  ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
 
 Flags:
   -h, --help                      help for spotitn
@@ -249,8 +247,8 @@ Global Flags:
 
 1.) **Starting AEMM with `spotitn`**:  `spotitn` routes available immediately:
 ```
-$ amazon-ec2-metadata-mock spotitn
-Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
+$ ec2-metadata-mock spotitn
+Initiating ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 Serving the following routes: ... (truncated for readability)
 ```
 Send the request:
@@ -266,8 +264,8 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 2.) **Starting AEMM with `spotitn` after Delay**: Users can apply a *delay* duration in seconds for when the `spotitn` metadata will become available:
 
 ```
-$ amazon-ec2-metadata-mock spotitn -d 10
-Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
+$ ec2-metadata-mock spotitn -d 10
+Initiating ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
 mock-delay-sec: 10
@@ -311,18 +309,18 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 Similar to spotitn, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
 
 ```
-$ amazon-ec2-metadata-mock scheduledevents --help
+$ ec2-metadata-mock scheduledevents --help
 Mock EC2 Scheduled Events
 
 Usage:
-  amazon-ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
+  ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
 
 Aliases:
   scheduledevents, se, scheduled-events, scheduledEvents
 
 Examples:
-  amazon-ec2-metadata-mock scheduledevents -h 	scheduledevents help
-  amazon-ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
+  ec2-metadata-mock scheduledevents -h 	scheduledevents help
+  ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
 
 Flags:
   -o, --code string                  event code in the scheduled event (default: system-reboot)
@@ -340,8 +338,8 @@ Flags:
 1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
 
 ```
-$ amazon-ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
-Initiating amazon-ec2-metadata-mock for EC2 Scheduled Events on port 1338
+$ ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
+Initiating ec2-metadata-mock for EC2 Scheduled Events on port 1338
 Serving the following routes: ... (truncated for readability)
 
 ```
@@ -366,7 +364,7 @@ AEMM supports [both versions](https://docs.aws.amazon.com/AWSEC2/latest/UserGuid
 1.) **Starting AEMM with IMDSv2 only:** session tokens are required for all requests; v1 requests will return **401 - Unauthorized:**
 
 ```
-$ amazon-ec2-metadata-mock --imdsv2
+$ ec2-metadata-mock --imdsv2
 ```
 Send a v1 request:
 ```
@@ -417,7 +415,7 @@ Examples of static metadata include *all* [metadata categories](https://docs.aws
 
 1.) **Requesting static metadata `instance-id`**:
 ```
-$ amazon-ec2-metadata-mock
+$ ec2-metadata-mock
 ```
 
 Send the request:

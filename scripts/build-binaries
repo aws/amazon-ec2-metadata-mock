@@ -47,10 +47,10 @@ for os_arch in "${PLATFORMS[@]}"; do
     arch=$(echo $os_arch | cut -d'/' -f2)
     container_name="extract-aemm-$os-$arch"
     repo_name="aemm-bin"
-    bin_name="amazon-ec2-metadata-mock-$os-$arch"
+    bin_name="ec2-metadata-mock-$os-$arch"
 
     docker container rm $container_name || :
     $SCRIPTPATH/build-docker-images -p $os_arch -v $VERSION -r $repo_name $PASS_THRU_ARGS
     docker container create --rm --name $container_name "$repo_name:$VERSION-$os-$arch"
-    docker container cp $container_name:/amazon-ec2-metadata-mock $SCRIPTPATH/../build/bin/$bin_name
+    docker container cp $container_name:/ec2-metadata-mock $SCRIPTPATH/../build/bin/$bin_name
 done

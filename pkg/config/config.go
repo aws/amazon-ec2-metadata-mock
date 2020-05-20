@@ -29,7 +29,7 @@ import (
 const (
 	defaultCfgFileName = "aemm-config"
 	defaultCfgFileExt  = "json"
-	finalCfgDir        = ".amazon-ec2-metadata-mock"
+	finalCfgDir        = ".ec2-metadata-mock"
 	finalCfgFile       = ".aemm-config-used.json"
 	cfgFileEnvKey      = "AEMM_CONFIG_FILE"
 )

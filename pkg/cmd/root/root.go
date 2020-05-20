@@ -57,14 +57,14 @@ func initializeConfig() {
 // NewCmd returns a new root command after setting it up
 func NewCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:               "amazon-ec2-metadata-mock <command> [arguments]",
+		Use:               cmdutil.BinName + " <command> [arguments]",
 		SuggestFor:        []string{"mock", "ec2-mock", "ec2-metadata-mock"},
-		Example:           "  amazon-ec2-metadata-mock --mock-delay-sec 10\tmocks all metadata paths\n  amazon-ec2-metadata-mock spotitn --instance-action terminate\tmocks spot ITN only",
+		Example:           fmt.Sprintf("  %s --mock-delay-sec 10\tmocks all metadata paths\n  %s spotitn --instance-action terminate\tmocks spot ITN only", cmdutil.BinName, cmdutil.BinName),
 		PersistentPreRunE: setupAndSaveConfig, // persistentPreRun runs before PreRun
 		PreRunE:           preRun,
 		Run:               run,
 		Short:             "Tool to mock Amazon EC2 instance metadata",
-		Long:              "amazon-ec2-metadata-mock is a tool to mock Amazon EC2 instance metadata.",
+		Long:              cmdutil.BinName + " is a tool to mock Amazon EC2 instance metadata.",
 	}
 
 	// global flags
@@ -145,7 +145,7 @@ func validateConfig() []string {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	log.Println("Initiating amazon-ec2-metadata-mock for all mocks on port", c.Server.Port)
+	log.Printf("Initiating %s for all mocks on port %s\n", cmdutil.BinName, c.Server.Port)
 	cmdutil.PrintFlags(cmd.Flags())
 	cmdutil.RegisterHandlers(cmd, c)
 	r.Mock(c)

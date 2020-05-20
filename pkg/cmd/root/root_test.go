@@ -25,7 +25,7 @@ import (
 )
 
 func TestNewCmdName(t *testing.T) {
-	expected := "amazon-ec2-metadata-mock"
+	expected := "ec2-metadata-mock"
 	actual := NewCmd().Name()
 
 	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for root command to be %s, but was %s", expected, actual))

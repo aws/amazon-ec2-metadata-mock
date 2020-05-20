@@ -32,6 +32,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// BinName is the name of this tool's binary
+const BinName = "ec2-metadata-mock"
+
 // handlerPair holds a tuple of a path and its associated handler
 type handlerPair struct {
 	path    string

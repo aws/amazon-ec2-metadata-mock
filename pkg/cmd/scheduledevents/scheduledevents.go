@@ -15,6 +15,7 @@ package scheduledevents
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -92,7 +93,7 @@ func newCmd() *cobra.Command {
 		Use:     "scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline]",
 		Aliases: []string{"se", "scheduled-events", "scheduledEvents"},
 		PreRunE: preRun,
-		Example: "  amazon-ec2-metadata-mock scheduledevents -h \tscheduledevents help \n  amazon-ec2-metadata-mock scheduledevents -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time",
+		Example: fmt.Sprintf("  %s scheduledevents -h \tscheduledevents help \n  %s scheduledevents -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
 		Short:   "Mock EC2 Scheduled Events",
 		Long:    "Mock EC2 Scheduled Events",
@@ -159,7 +160,7 @@ func ValidateLocalConfig() []string {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	log.Println("Initiating amazon-ec2-metadata-mock for EC2 Scheduled Events on port", c.Server.Port)
+	log.Printf("Initiating %s for EC2 Scheduled Events on port %s\n", cmdutil.BinName, c.Server.Port)
 	cmdutil.PrintFlags(cmd.Flags())
 	cmdutil.RegisterHandlers(cmd, c)
 	se.Mock(c)

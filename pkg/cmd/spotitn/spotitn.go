@@ -15,6 +15,7 @@ package spotitn
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -68,7 +69,7 @@ func newCmd() *cobra.Command {
 		Use:     "spotitn [--instance-action ACTION]",
 		Aliases: []string{"spot", "spot-itn", "spotItn"},
 		PreRunE: preRun,
-		Example: "  amazon-ec2-metadata-mock spotitn -h \tspotitn help \n  amazon-ec2-metadata-mock spotitn -d 5 --instance-action terminate\t\tmocks spot interruption only",
+		Example: fmt.Sprintf("  %s spotitn -h \tspotitn help \n  %s spotitn -d 5 --instance-action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
 		Short:   "Mock EC2 Spot interruption notice",
 		Long:    "Mock EC2 Spot interruption notice",
@@ -119,7 +120,7 @@ func ValidateLocalConfig() []string {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	log.Println("Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port", c.Server.Port)
+	log.Printf("Initiating %s for EC2 Spot interruption notice on port %s\n", cmdutil.BinName, c.Server.Port)
 	cmdutil.PrintFlags(cmd.Flags())
 	cmdutil.RegisterHandlers(cmd, c)
 	s.Mock(c)
