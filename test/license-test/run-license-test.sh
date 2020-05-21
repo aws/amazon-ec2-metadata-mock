@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 BUILD_BIN="$SCRIPTPATH/../../build/bin"
 
-BINARY_NAME="amazon-ec2-metadata-mock-linux-amd64"
+BINARY_NAME="ec2-metadata-mock-linux-amd64"
 LICENSE_TEST_TAG="aemm-license-test"
 
 SUPPORTED_PLATFORMS="linux/amd64" make -s -f $SCRIPTPATH/../../Makefile build-binaries

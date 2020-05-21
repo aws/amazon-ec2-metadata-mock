@@ -23,7 +23,7 @@ The resulting binary will be in the generated `build/` dir
 $ make build
 
 $ ls build/
-amazon-ec2-metadata-mock
+ec2-metadata-mock
 ```
 
 ## Test

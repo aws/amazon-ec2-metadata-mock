@@ -26,15 +26,15 @@ if [[ "$METADATA_VERSION" == "v2" ]]; then
   echo "🥑 Starting imdsv2 integration tests."
   echo "======================================================================================================"
 
-  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  $SCRIPTPATH/../../build/$BIN --imdsv2 --port $AEMM_PORT &
   IMDSV2_PID=$!
   test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/root_paths.golden" "21600" "imdsv2::valid_token"
 
-  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  $SCRIPTPATH/../../build/$BIN --imdsv2 --port $AEMM_PORT &
   IMDSV2_PID=$!
   test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/400_bad_request.golden" "0" "imdsv2::invalid_token"
 
-  $SCRIPTPATH/../../build/amazon-ec2-metadata-mock --imdsv2 --port $AEMM_PORT &
+  $SCRIPTPATH/../../build/$BIN --imdsv2 --port $AEMM_PORT &
   IMDSV2_PID=$!
   test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/401_response.golden" "1" "imdsv2::expired_token"
 fi

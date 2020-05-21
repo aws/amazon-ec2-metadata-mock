@@ -5,7 +5,7 @@ This page serves as documentation for AEMM's advanced use cases and behavior.
 ## Commands
 AEMM's supported commands (`spotitn`, `scheduledevents`) are viewed using `--help`:
 ```
-$ amazon-ec2-metadata-mock --help
+$ ec2-metadata-mock --help
 
 ...
 Available Commands:
@@ -28,18 +28,18 @@ Metadata categories that are always available, irrespective of the CLI command r
 ### Spot Interruption
 To view the available flags for the Spot Interruption command use `spotitn --help`:
 ```
-$ amazon-ec2-metadata-mock spotitn --help
+$ ec2-metadata-mock spotitn --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  amazon-ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
+  ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
 
 Aliases:
   spotitn, spot, spot-itn, spotItn
 
 Examples:
-  amazon-ec2-metadata-mock spotitn -h 	spotitn help
-  amazon-ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spotitn -h 	spotitn help
+  ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
 
 Flags:
   -h, --help                      help for spotitn
@@ -53,13 +53,13 @@ Global Flags:
   -I, --imdsv2                whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
   -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
   -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -s, --save-config-to-file   whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
 1.) **Overriding `spotitn::instance-action` via CLI flag**:
 
 ```
-$ amazon-ec2-metadata-mock spotitn -a stop
+$ ec2-metadata-mock spotitn -a stop
 Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
@@ -81,18 +81,18 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 Similar to spotitn, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
 
 ```
-$ amazon-ec2-metadata-mock scheduledevents --help
+$ ec2-metadata-mock scheduledevents --help
 Mock EC2 Scheduled Events
 
 Usage:
-  amazon-ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
+  ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
 
 Aliases:
   scheduledevents, se, scheduled-events, scheduledEvents
 
 Examples:
-  amazon-ec2-metadata-mock scheduledevents -h 	scheduledevents help
-  amazon-ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
+  ec2-metadata-mock scheduledevents -h 	scheduledevents help
+  ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
 
 Flags:
   -o, --code string                  event code in the scheduled event (default: system-reboot)
@@ -110,7 +110,7 @@ Flags:
 1.) **Starting AEMM with `scheduledevents` invalid flag overrides**: as noted above, all commands have validation logic for overrides via CLI flags. If the user attempts to pass an invalid override value, then AEMM will panic, kill the server, and return an error message with what went wrong:
 
 ```
-$ amazon-ec2-metadata-mock scheduledevents --code FOO
+$ ec2-metadata-mock scheduledevents --code FOO
 
 panic: Fatal error while executing the root command: Invalid CLI input "FOO" for flag code. 
 Allowed value(s): instance-reboot,system-reboot,system-maintenance,instance-retirement,instance-stop.
@@ -151,7 +151,7 @@ Applying overrides to these *placeholder values* will automatically update paths
 * start the server with overrides:
 
 ```
-$ amazon-ec2-metadata-mock -c config-overrides.json
+$ ec2-metadata-mock -c config-overrides.json
 Initiating amazon-ec2-metadata-mock for all mocks on port 1338
 
 Flags:

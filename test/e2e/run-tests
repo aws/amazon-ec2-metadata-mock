@@ -6,6 +6,7 @@ SCRIPTPATH="$(
   cd "$(dirname "$0")"
   pwd -P
 )"
+BIN="ec2-metadata-mock"
 HOSTNAME="localhost"
 SPOTITN_DATE_REGEX='^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z'
 SPOTITN_INSTANCE_ACTION_DEFAULT='terminate'
@@ -96,7 +97,7 @@ function create_cmd() {
   imds_version=$1
   shift # shifts all params down by one. $3 -> $2; $2 -> $1
   cmd_args="$*"
-  cmd="$SCRIPTPATH/../../build/amazon-ec2-metadata-mock $cmd_args"
+  cmd="$SCRIPTPATH/../../build/$BIN $cmd_args"
   if [[ "$imds_version" == "v2" ]]; then
     cmd="$cmd --imdsv2"
   fi
@@ -116,9 +117,9 @@ function fail_and_clean_up() {
   echo "❌ One or more tests failed ❌"
   echo "======================================================================================================"
 
-  pids=$(pgrep -f amazon-ec2-metadata-mock || :)
+  pids=$(pgrep -f $BIN || :)
   if [[ $pids ]]; then
-    echo "🧹 Cleaning up amazon-ec2-metadata-mock PIDs 🧹"
+    echo "🧹 Cleaning up $BIN PIDs 🧹"
     for pid in $pids; do
       echo "Killing pid: $pid"
       kill "$pid" || :
@@ -129,6 +130,7 @@ function fail_and_clean_up() {
 }
 
 ### exported vars and funcs that tests can use
+export BIN
 export SCRIPTPATH
 export RED
 export GREEN
