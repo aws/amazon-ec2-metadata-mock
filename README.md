@@ -73,21 +73,21 @@ Download binary from the latest release:
 
 ### MacOS/Linux
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
 ```
 
 ### ARM Linux
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-linux-arm
 ```
 
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-linux-arm64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-linux-arm64
 ```
 
 ### Windows
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.0/amazon-ec2-metadata-mock-windows-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-windows-amd64
 ```
 
 ## Starting AEMM
