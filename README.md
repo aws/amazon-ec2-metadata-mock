@@ -90,6 +90,18 @@ curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/relea
 curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-windows-amd64
 ```
 
+### Docker
+```
+docker pull amazon/amazon-ec2-metadata-mock
+```
+
+Note, when running on Windows or Mac, you will need to change the default bind hostname from localhost because the binary runs in
+a virtual machine, e.g.,
+
+```
+docker run -it --rm amazon/amazon-ec2-metadata-mock --hostname 0.0.0.0
+```
+
 ## Starting AEMM
 Use `ec2-metadata-mock --help` to view examples and explanations of supported flags and commands:
 
