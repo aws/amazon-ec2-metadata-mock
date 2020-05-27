@@ -99,7 +99,7 @@ Note, when running on Windows or Mac, you will need to change the default bind h
 a virtual machine, e.g.,
 
 ```
-docker run -it --rm amazon/amazon-ec2-metadata-mock:v0.9.3 --hostname 0.0.0.0
+docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v0.9.3 --hostname 0.0.0.0
 ```
 
 ## Starting AEMM
