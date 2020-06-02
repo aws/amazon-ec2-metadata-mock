@@ -77,15 +77,10 @@ setup_ct_container() {
 }
 
 install_kind() {
-    exists=$(kind --version)
-    if [ -z "$exists" ]; then
-        c_echo "Installing kind..."
-        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.0/kind-$(uname)-amd64
-        chmod +x ./kind
-        mv ./kind /usr/local/bin/kind
-    else
-        c_echo "Using existing $exists\n"
-    fi
+    c_echo "Installing kind..."
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$(uname)-amd64
+    chmod +x ./kind
+    mv ./kind /usr/local/bin/kind
 }
 
 create_kind_cluster() {
