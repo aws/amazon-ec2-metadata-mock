@@ -1,0 +1,9 @@
+chart-dirs:
+- helm
+check-version-increment: true
+validate-chart-schema: false
+validate-maintainers: true
+target-branch: master
+debug: false
+remote: upstream
+helm-extra-args: "--timeout 600s --namespace default --kubeconfig /root/.kube/config"
