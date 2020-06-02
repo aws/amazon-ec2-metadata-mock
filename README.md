@@ -16,6 +16,9 @@
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
    </a>
+   <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
+   <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&include_prereleases&label=latest%20release&sort=semver" alt="latest release">
+   </a>
 </p>
 
 # Table of Contents
