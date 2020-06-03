@@ -77,6 +77,12 @@ validate-json:
 validate-readme:
 	${MAKEFILE_PATH}/test/readme-validator
 
+helm-lint-test:
+	${MAKEFILE_PATH}/test/helm/chart-test.sh -l
+
+helm-e2e-test:
+	${MAKEFILE_PATH}/test/helm/chart-test.sh
+
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
 
@@ -85,4 +91,4 @@ go-report-card-test:
 
 release: create-build-dir build-binaries build-docker-images push-docker-images generate-k8s-yaml upload-resources-to-github
 
-test: unit-test e2e-test license-test go-report-card-test
+test: unit-test e2e-test helm-e2e-test license-test go-report-card-test
