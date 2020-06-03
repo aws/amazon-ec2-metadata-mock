@@ -4,7 +4,8 @@
 ## YAML validity
 ## chart deployability
 ## chart version increment when chart is changed
-## chart installation on Kubernetes
+## chart installation on Kind cluster
+## run helm tests that make http requests to AEMM service running on the test cluster
 
 # Prerequisites:
 ## Docker
@@ -12,9 +13,13 @@
 set -euo pipefail
 
 # KIND / Kubernetes
-KIND_VERSION="v0.8.1"
 readonly K8s_1_18="v1.18.2"
+readonly K8s_1_17="v1.17.5"
+readonly K8s_1_16="v1.16.9"
+readonly K8s_1_15="v1.15.11"
+readonly K8s_1_14="v1.14.10"
 KIND_IMAGE="$K8s_1_18"
+readonly KIND_VERSION="v0.8.1"
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
 readonly CLUSTER_CONFIG="$REPO_PATH/test/helm/kind-config.yaml"
@@ -39,11 +44,11 @@ Usage:
 
 Examples:
   chart-test -l                       Run the test for linting only for default Kubernetes version
-  chart-test -k v1.17.5               Run the test for linting and installation for Kubernetes v1.18.2
+  chart-test -k 1.17                  Run the test for linting and installation for Kubernetes version 1.17
   chart-test -r -c v3.0.0-rc.1        Run the test for linting and installation for default Kubernetes version, and reuse previously provisioned test environment
 
 Options:
-  -k     Kubernetes version / kindest node image tag to use for the test
+  -k     Kubernetes version / kindest node image tag to use for the test (default: 1.18) (options: 1.14, 1.15, 1.16, 1.17)
   -c     chart-testing image tag to use for the test
   -l     test charts for linting only (helm lint, version checking, YAML validation, maintainer validation)
   -p     preserve the provisioned environment after test runs
@@ -153,6 +158,8 @@ test_charts() {
     fi
 
     c_echo "Linting and validating helm charts"
+    git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
+    git fetch upstream
     $CT_EXEC ct lint
 
     [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts linted successfully${RESET_FMT}"
@@ -177,8 +184,8 @@ test_charts() {
 
 # $1=message to echo; [$2]=indication of sub-echo
 c_echo() {
-    DEF_PREFIX="🥑"
-    PREFIX="${2:-$DEF_PREFIX}"
+    DEFAULT_PREFIX="🥑"
+    PREFIX="${2:-$DEFAULT_PREFIX}"
     echo -e "${MAGENTA}${PREFIX} ${1}${RESET_FMT}"
 }
 
@@ -202,7 +209,8 @@ process_args() {
               REUSE_ENV=true
               ;;
             k )
-              KIND_IMAGE=$OPTARG
+              OPTARG="K8s_$(echo $OPTARG | sed 's/\./\_/g')"
+              KIND_IMAGE="${!OPTARG}"
               ;;
             c )
               CT_TAG=$OPTARG
