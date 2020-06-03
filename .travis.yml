@@ -4,6 +4,15 @@ language: minimal
 services:
 - docker
 
+env:
+- K8S_VERSION=1.18
+- K8S_VERSION=1.17
+- K8S_VERSION=1.16
+- K8S_VERSION=1.15
+- K8S_VERSION=1.14
+
+script: test/helm/chart-test.sh -k $K8S_VERSION
+
 matrix:
   include:
     - stage: Test
@@ -11,7 +20,6 @@ matrix:
       go: "1.14.x"
       script: make unit-test
       env: GO111MODULE=on
-      after_success: bash <(curl -s https://codecov.io/bash) -v
     - stage: Test
       script: test/go-report-card-test/run-report-card-test.sh
       env: GO_REPORT_CARD=true
@@ -35,4 +43,3 @@ matrix:
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_USERNAME) IS present
       script: make release
       env: RELEASE_ASSETS=true
-
