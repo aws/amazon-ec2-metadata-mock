@@ -18,8 +18,8 @@ KIND_IMAGE="$K8s_1_18"
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
 readonly CLUSTER_CONFIG="$REPO_PATH/test/helm/kind-config.yaml"
-readonly KUBECONFIG_TMP_DIR="$REPO_PATH/build/tmp-$CLUSTER_NAME"
-readonly KUBECONFIG_TMP_PATH="$KUBECONFIG_TMP_DIR/kubeconfig"
+readonly TMP_DIR="$REPO_PATH/build/tmp-$CLUSTER_NAME"
+readonly KUBECONFIG_TMP_PATH="$TMP_DIR/kubeconfig"
 readonly KIND_EXEC_ARGS="--context kind-$CLUSTER_NAME --kubeconfig $KUBECONFIG_TMP_PATH"
 
 # Helm/chart-testing
@@ -58,13 +58,13 @@ DEBUG=false
 PRESERVE=false
 REUSE_ENV=false
 
-RESOURCES_CREATED=[]
-
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 MAGENTA=$(tput setaf 5)
 RESET_FMT=$(tput sgr 0)
 BOLD=$(tput bold)
+
+mkdir -p $TMP_DIR
 
 setup_ct_container() {
     c_echo "Provisioning and running chart-testing container named $CT_CONTAINER_NAME..."
@@ -80,12 +80,13 @@ install_kind() {
     c_echo "Installing kind..."
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$(uname)-amd64
     chmod +x ./kind
-    mv ./kind /usr/local/bin/kind
+    mv ./kind $TMP_DIR/kind
+    export PATH=$TMP_DIR:$PATH
 }
 
 create_kind_cluster() {
     c_echo "Creating kind Kubernetes cluster with kubeconfig in $KUBECONFIG_TMP_PATH"
-    mkdir -p $KUBECONFIG_TMP_DIR
+    mkdir -p $TMP_DIR
     kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "kindest/node:$KIND_IMAGE" --kubeconfig $KUBECONFIG_TMP_PATH --wait 60s
 
     c_echo "Copying kubeconfig to container..."
@@ -107,7 +108,7 @@ handle_errors_and_cleanup() {
         else
             c_echo "List kind cluster: kind get clusters" $MSG_PREFIX
             c_echo "Cluster config can be found in $KUBECONFIG_TMP_PATH" $MSG_PREFIX
-            c_echo "Cleanup commands:\n  * docker kill ct > /dev/null 2>&1\n  * kind delete cluster --name $CLUSTER_NAME\n  * rm -r $KUBECONFIG_TMP_DIR" $MSG_PREFIX   
+            c_echo "Cleanup commands:\n  * docker kill ct > /dev/null 2>&1\n  * kind delete cluster --name $CLUSTER_NAME\n  * rm -r $TMP_DIR" $MSG_PREFIX
             c_echo "Kubectl commands:\n  * kubectl get pods $KIND_EXEC_ARGS" $MSG_PREFIX
         fi
     else
@@ -119,8 +120,8 @@ handle_errors_and_cleanup() {
             c_echo "Deleting kind cluster $CLUSTER_NAME..." $MSG_PREFIX
             kind delete cluster --name $CLUSTER_NAME --quiet
 
-            c_echo "Deleting tmp dir '$KUBECONFIG_TMP_DIR'" $MSG_PREFIX
-            rm -r $KUBECONFIG_TMP_DIR
+            c_echo "Deleting tmp dir '$TMP_DIR'" $MSG_PREFIX
+            rm -r $TMP_DIR
         fi
     fi
 
@@ -131,7 +132,7 @@ handle_errors_and_cleanup() {
         exit 1
     fi
 
-    echo -e "✅ ${GREEN}All tests passed${RESET_FMT} ✅\n"
+    echo -e "\n✅✅ ${GREEN}All tests passed and cleaned up${RESET_FMT} ✅✅\n"
 }
 
 test_charts() {
@@ -154,7 +155,7 @@ test_charts() {
     c_echo "Linting and validating helm charts"
     $CT_EXEC ct lint
 
-    [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts linted successfully${RESET_FMT} ✅"
+    [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts linted successfully${RESET_FMT}"
     c_echo "------------------------------------------------------------------------------------------------------------------------"
 
     if [[ $LINT_ONLY == false ]]; then
@@ -166,7 +167,7 @@ test_charts() {
         else
             $CT_EXEC ct install
         fi
-        [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts installed and tested successfully${RESET_FMT} ✅"
+        [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts installed and tested successfully${RESET_FMT}"
     fi
 
     if [ $DEBUG == true ]; then
