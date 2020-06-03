@@ -13,7 +13,7 @@ The helm chart can be installed from several sources. To install the chart with 
 1. Local chart archive: 
 Download the chart archive from the latest release and run 
 ```sh
-helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.1.0.tgz \
+helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-1.0.0.tgz \
   --namespace default
 ```
 
@@ -93,7 +93,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
     or
 
     ```
-    kubectl port-forward service/amazon-ec2-metadata-mock 1338
+    kubectl port-forward service/amazon-ec2-metadata-mock-service 1338
     ```
 
     ii. Access AEMM from your application using the ClusterIP / DNS of the service or the pod directly.
@@ -114,7 +114,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
     # From inside the cluster:
     # ClusterIP and port for the service should be availble in the application pod's environment, if it was created after the AEMM service.
 
-    curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_PORT/latest/meta-data/spot/instance-action
+    curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_PORT/latest/meta-data/spot/instance-action
     {
         "instance-action": "terminate",
         "time": "2020-05-04T18:11:37Z"
@@ -124,7 +124,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
     ```sh
     # From inside the cluster:
 
-    curl http://amazon-ec2-metadata-mock.default.svc.cluster.local:1338/latest/meta-data/spot/instance-action
+    curl http://amazon-ec2-metadata-mock-service.default.svc.cluster.local:1338/latest/meta-data/spot/instance-action
     {
         "instance-action": "terminate",
         "time": "2020-05-04T18:11:37Z"
@@ -143,6 +143,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 The following tables lists the configurable parameters of the chart and their default values.
 
+### General
 Parameter | Description | Default
 --- | --- | --- 
 `image.repository` | image repository | `amazon/amazon-ec2-metadata-mock` 
@@ -163,8 +164,17 @@ Parameter | Description | Default
 `configMap` | name of the Kubernetes ConfigMap to use to pass a config file for AEMM overrides | `""`
 `configMapFileName` | name of the file used to create the Kubernetes ConfigMap | `aemm-config.json`
 `servicePort` | port to run AEMM K8s Service on | `1338`
+`serviceName` | name of the AEMM K8s Service | `amazon-ec2-metadata-mock-service`
 
-NOTE: A selective list of AEMM parameters are configurable via Helm CLI and values.yaml file. 
+### Helm chart tests
+Parameter | Description | Default
+--- | --- | ---
+`test.image` | test image to use in the test pod |  `centos`
+`test.imageTag` | test image tag |  `latest`
+`test.pullPolicy` | test image pull policy |  `IfNotPresent`
+
+### AEMM parameters
+A selective list of AEMM parameters are configurable via Helm CLI and values.yaml file.
 Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-values-for-aemm-configuration) to configure [other AEMM parameters](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/test/e2e/testdata/output/aemm-config-used.json). 
 
 Parameter | Description | Default in Helm | Default AEMM configuration
