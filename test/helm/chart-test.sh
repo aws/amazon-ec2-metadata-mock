@@ -63,6 +63,7 @@ DEBUG=false
 PRESERVE=false
 REUSE_ENV=false
 
+export TERM="xterm"
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 MAGENTA=$(tput setaf 5)
