@@ -361,7 +361,7 @@ $ curl localhost:1338/latest/meta-data/events/maintenance/scheduled
 	"Code": "instance-reboot",
 	"Description": "The instance is scheduled for instance-reboot",
 	"State": "completed",
-	"EventID": "instance-event-1234567890abcdef0",
+	"EventId": "instance-event-1234567890abcdef0",
 	"NotBefore": "1 Jan 2020 01:03:47 GMT",
 	"NotAfter": "7 Jan 2020 01:03:47 GMT",
 	"NotBeforeDeadline": "10 Jan 2020 01:03:47 GMT"
