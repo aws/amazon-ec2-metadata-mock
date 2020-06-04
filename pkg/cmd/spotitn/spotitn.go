@@ -66,10 +66,10 @@ func initConfig() {
 
 func newCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:     "spotitn [--instance-action ACTION]",
-		Aliases: []string{"spot", "spot-itn", "spotItn"},
+		Use:     "spot [--instance-action ACTION]",
+		Aliases: []string{"spotitn"},
 		PreRunE: preRun,
-		Example: fmt.Sprintf("  %s spotitn -h \tspotitn help \n  %s spotitn -d 5 --instance-action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
+		Example: fmt.Sprintf("  %s spot -h \tspot help \n  %s spot -d 5 --instance-action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
 		Short:   "Mock EC2 Spot interruption notice",
 		Long:    "Mock EC2 Spot interruption notice",

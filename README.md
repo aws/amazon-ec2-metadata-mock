@@ -114,12 +114,12 @@ Usage:
 
 Examples:
   ec2-metadata-mock --mock-delay-sec 10	mocks all metadata paths
-  ec2-metadata-mock spotitn --instance-action terminate	mocks spot ITN only
+  ec2-metadata-mock spot --instance-action terminate	mocks spot ITN only
 
 Available Commands:
   help            Help about any command
   scheduledevents Mock EC2 Scheduled Events
-  spotitn         Mock EC2 Spot interruption notice
+  spot            Mock EC2 Spot interruption notice
 
 Flags:
   -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)
@@ -225,23 +225,23 @@ AEMM is primarily used as a developer tool to help test behavior related to Meta
 and requesting static metadata. This section outlines the common use cases of AEMM; advanced usage and behavior are documented [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md).
 
 ## Spot Interruption
-To view the available flags for the Spot Interruption command use `spotitn --help`:
+To view the available flags for the Spot Interruption command use `spot --help`:
 ```
-$ ec2-metadata-mock spotitn --help
+$ ec2-metadata-mock spot --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
+  ec2-metadata-mock spot [--instance-action ACTION] [flags]
 
 Aliases:
-  spotitn, spot, spot-itn, spotItn
+  spot, spotitn
 
 Examples:
-  ec2-metadata-mock spotitn -h 	spotitn help
-  ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spot -h 	spot help
+  ec2-metadata-mock spot -d 5 --instance-action terminate		mocks spot interruption only
 
 Flags:
-  -h, --help                      help for spotitn
+  -h, --help                      help for spot
   -a, --instance-action string    instance action in the spot interruption notice (default: terminate)
                                   instance-action can be one of the following: terminate,hibernate,stop
   -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
@@ -255,9 +255,9 @@ Global Flags:
   -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
-1.) **Starting AEMM with `spotitn`**:  `spotitn` routes available immediately:
+1.) **Starting AEMM with `spot`**:  `spot` routes available immediately:
 ```
-$ ec2-metadata-mock spotitn
+$ ec2-metadata-mock spot
 Initiating ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 Serving the following routes: ... (truncated for readability)
 ```
@@ -271,10 +271,10 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 ```
 
 
-2.) **Starting AEMM with `spotitn` after Delay**: Users can apply a *delay* duration in seconds for when the `spotitn` metadata will become available:
+2.) **Starting AEMM with `spot` after Delay**: Users can apply a *delay* duration in seconds for when the `spot` metadata will become available:
 
 ```
-$ ec2-metadata-mock spotitn -d 10
+$ ec2-metadata-mock spot -d 10
 Initiating ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
@@ -283,7 +283,7 @@ mock-delay-sec: 10
 Serving the following routes: ... (truncated for readability)
 ```
 
-Sending a request to `spotitn` paths before the delay has passed will return **404 - Not Found:**
+Sending a request to `spot` paths before the delay has passed will return **404 - Not Found:**
 ```
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 
@@ -304,7 +304,7 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 Delaying the response by 10s as requested. The mock response will be avaiable in 2s. Returning `notFoundResponse` for now
 ```
 
-Once the delay is complete, querying `spotitn` paths return expected results:
+Once the delay is complete, querying `spot` paths return expected results:
 ```
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 
@@ -316,7 +316,7 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 ```
 
 ## Scheduled Events
-Similar to spotitn, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
+Similar to spot, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
 
 ```
 $ ec2-metadata-mock scheduledevents --help
@@ -345,7 +345,7 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spotitn` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
+1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spot` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
 
 ```
 $ ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed

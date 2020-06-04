@@ -85,7 +85,7 @@ echo "==========================================================================
 echo "🥑 Starting spotitn integration tests $METADATA_VERSION"
 echo "======================================================================================================"
 
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT)
 $start_cmd &
 SPOTITN_PID=$!
 test_spotitn_paths $SPOTITN_PID
@@ -95,14 +95,14 @@ SPOTITN_PID=$!
 test_spotitn_ia_defaults $SPOTITN_PID
 
 # flag overrides
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
 $start_cmd &
 SPOTITN_PID=$!
 test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
 
 # flag + env overrides
 export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
 $start_cmd &
 SPOTITN_PID=$!
 test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME

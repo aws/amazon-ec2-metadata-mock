@@ -143,13 +143,13 @@ test_scheduledevents_time_conversions $SCHEDEV_PID
 # validate flag/env precedence; can't override scheduled-events via config
 export AEMM_SCHEDULED_EVENTS_STATE="completed"
 export AEMM_SCHEDULED_EVENTS_CODE="instance-reboot"
-start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT --state canceled)
+start_cmd=$(create_cmd $METADATA_VERSION se --port $AEMM_PORT --state canceled)
 $start_cmd &
 SCHEDEV_PID=$!
 test_scheduledevents_config_precedence $SCHEDEV_PID
 
 # paths for other subcommands should be disabled
-start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION se --port $AEMM_PORT)
 $start_cmd &
 SCHEDEV_PID=$!
 test_scheduledevents_subcommand_paths_404 $SCHEDEV_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action" "spot-instance-action"
