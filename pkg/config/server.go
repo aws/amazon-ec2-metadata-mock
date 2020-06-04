@@ -20,7 +20,7 @@ import (
 var (
 	serverCfgPrefix   = "server."
 	serverCfgDefaults = map[string]interface{}{
-		serverCfgPrefix + "hostname": "localhost",
+		serverCfgPrefix + "hostname": "0.0.0.0",
 		serverCfgPrefix + "port":     "1338",
 	}
 )
