@@ -4,6 +4,9 @@
 
 <br/>
 <p>
+   <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
+   <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&label=latest%20release&sort=semver" alt="latest release">
+   </a>
    <a href="https://golang.org/doc/go1.14">
    <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
    </a>
@@ -15,9 +18,6 @@
    </a>
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
-   </a>
-   <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
-   <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&include_prereleases&label=latest%20release&sort=semver" alt="latest release">
    </a>
 </p>
 
@@ -76,7 +76,8 @@ Download binary from the latest release:
 
 ### MacOS/Linux
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-$(uname | tr '[:upper:]' '[:lower:]')-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-`uname | tr '[:upper:]' '[:lower:]'`-amd64
+chmod +x ec2-metadata-mock
 ```
 
 ### ARM Linux
@@ -90,19 +91,13 @@ curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/relea
 
 ### Windows
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-windows-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/ec2-metadata-mock-windows-amd64.exe
 ```
 
 ### Docker
 ```
 docker pull amazon/amazon-ec2-metadata-mock:v0.9.3
-```
-
-Note, when running on Windows or Mac, you will need to change the default bind hostname from localhost because the binary runs in
-a virtual machine, e.g.,
-
-```
-docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v0.9.3 --hostname 0.0.0.0
+docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v0.9.3
 ```
 
 ## Starting AEMM

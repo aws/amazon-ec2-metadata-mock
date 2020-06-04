@@ -47,7 +47,12 @@ for os_arch in "${PLATFORMS[@]}"; do
     arch=$(echo $os_arch | cut -d'/' -f2)
     container_name="extract-aemm-$os-$arch"
     repo_name="aemm-bin"
-    bin_name="ec2-metadata-mock-$os-$arch"
+
+    if [[ $os == "windows" ]]; then
+        bin_name="ec2-metadata-mock-$os-$arch.exe"
+    else
+        bin_name="ec2-metadata-mock-$os-$arch"
+    fi
 
     docker container rm $container_name || :
     $SCRIPTPATH/build-docker-images -p $os_arch -v $VERSION -r $repo_name $PASS_THRU_ARGS
