@@ -69,8 +69,6 @@ MAGENTA=$(tput setaf 5)
 RESET_FMT=$(tput sgr 0)
 BOLD=$(tput bold)
 
-mkdir -p $TMP_DIR
-
 setup_ct_container() {
     c_echo "Provisioning and running chart-testing container named $CT_CONTAINER_NAME..."
     docker run --rm --interactive --detach --network host --name $CT_CONTAINER_NAME \
@@ -91,7 +89,6 @@ install_kind() {
 
 create_kind_cluster() {
     c_echo "Creating kind Kubernetes cluster with kubeconfig in $KUBECONFIG_TMP_PATH"
-    mkdir -p $TMP_DIR
     kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "kindest/node:$KIND_IMAGE" --kubeconfig $KUBECONFIG_TMP_PATH --wait 60s
 
     c_echo "Copying kubeconfig to container..."
@@ -152,6 +149,7 @@ test_charts() {
 
         if [[ $LINT_ONLY == false ]]; then
             # setup env for chart installation
+            mkdir -p $TMP_DIR
             install_kind
             create_kind_cluster
         fi
@@ -167,8 +165,10 @@ test_charts() {
 
     if [[ $LINT_ONLY == false ]]; then
         c_echo "Installing helm charts and running tests...\n"
+
         git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
         git fetch upstream
+
         if [[ $DEBUG == true ]]; then
             $CT_EXEC ct install --debug
         else
@@ -229,8 +229,12 @@ main() {
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
 
-    c_echo "Testing Helm charts on a newly provisioned kind cluster"
-    c_echo "Options set:\n${BOLD}  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+    c_echo "Testing Helm charts in a newly provisioned test environment"
+    if [[ $LINT_ONLY == true ]]; then
+        c_echo "Using:\n${BOLD}  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+    else
+        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+    fi
 
     test_charts
 }

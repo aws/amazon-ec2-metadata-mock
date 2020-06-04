@@ -139,6 +139,18 @@ helm uninstall amazon-ec2-metadata-mock
 ```
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
+## Contributing to the Chart
+While developing, use test/helm/chart-test.sh to test your changes. Preserve and reuse test environment, by using -p and -r options to run tests quickly.
+```
+/test/helm/chart-test.sh -h
+```
+
+Alternatively, the same tests can be run using:
+```
+make helm-lint-test # for linting only
+make helm-e2e-test  # for e2e tests, including linting
+```
+
 ## Configuration
 
 The following tables lists the configurable parameters of the chart and their default values.
@@ -179,7 +191,7 @@ Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-valu
 
 Parameter | Description | Default in Helm | Default AEMM configuration
 --- | --- | --- | ---
-`aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `localhost`
+`aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `0.0.0.0`
 `aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
 `aemm.spotItn.instanceAction` | instance action in the spot interruption notice | `""` | `terminate`
