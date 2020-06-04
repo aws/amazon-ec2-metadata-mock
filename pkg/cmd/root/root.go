@@ -68,7 +68,7 @@ func NewCmd() *cobra.Command {
 	}
 
 	// global flags
-	cmd.PersistentFlags().StringP(gf.HostNameFlag, "n", "", "the HTTP hostname for the mock url (default: localhost)")
+	cmd.PersistentFlags().StringP(gf.HostNameFlag, "n", "", "the HTTP hostname for the mock url (default: 0.0.0.0)")
 	cmd.PersistentFlags().StringP(gf.PortFlag, "p", "", "the HTTP port where the mock runs (default: 1338)")
 	cmd.PersistentFlags().StringP(gf.ConfigFileFlag, "c", "", "config file for cli input parameters in json format (default: "+cfg.GetDefaultCfgFileName()+")")
 	cmd.PersistentFlags().BoolP(gf.SaveConfigToFileFlag, "s", false, "whether to save processed config from all input sources in "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
