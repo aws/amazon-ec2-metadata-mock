@@ -3,7 +3,7 @@ This page serves as documentation for AEMM's advanced use cases and behavior.
 
 
 ## Commands
-AEMM's supported commands (`spotitn`, `scheduledevents`) are viewed using `--help`:
+AEMM's supported commands (`spot`, `scheduledevents`) are viewed using `--help`:
 ```
 $ ec2-metadata-mock --help
 
@@ -11,13 +11,13 @@ $ ec2-metadata-mock --help
 Available Commands:
   help            Help about any command
   scheduledevents Mock EC2 Scheduled Events
-  spotitn         Mock EC2 Spot interruption notice
+  spot            Mock EC2 Spot interruption notice
 
 ...
 ```
 commands are designed as follows:
 * Run independently from other commands
-  * i.e. when AEMM is started with `scheduledevents` subcommand, `spotitn` routes will **NOT** be available and vice-versa 
+  * i.e. when AEMM is started with `scheduledevents` subcommand, `spot` routes will **NOT** be available and vice-versa 
 * Local flag availability so that commands can be configured directly via CLI parameters
     * With validation checks
 * Contain additional `--help` documentation
@@ -26,23 +26,23 @@ commands are designed as follows:
 Metadata categories that are always available, irrespective of the CLI command run are referred to as **static metadata**.
 
 ### Spot Interruption
-To view the available flags for the Spot Interruption command use `spotitn --help`:
+To view the available flags for the Spot Interruption command use `spot --help`:
 ```
-$ ec2-metadata-mock spotitn --help
+$ ec2-metadata-mock spot --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  ec2-metadata-mock spotitn [--instance-action ACTION] [flags]
+  ec2-metadata-mock spot [--instance-action ACTION] [flags]
 
 Aliases:
-  spotitn, spot, spot-itn, spotItn
+  spot, spotitn
 
 Examples:
-  ec2-metadata-mock spotitn -h 	spotitn help
-  ec2-metadata-mock spotitn -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spot -h 	spot help
+  ec2-metadata-mock spot -d 5 --instance-action terminate		mocks spot interruption only
 
 Flags:
-  -h, --help                      help for spotitn
+  -h, --help                      help for spot
   -a, --instance-action string    instance action in the spot interruption notice (default: terminate)
                                   instance-action can be one of the following: terminate,hibernate,stop
   -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
@@ -56,10 +56,10 @@ Global Flags:
   -s, --save-config-to-file   whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
-1.) **Overriding `spotitn::instance-action` via CLI flag**:
+1.) **Overriding `spot::instance-action` via CLI flag**:
 
 ```
-$ ec2-metadata-mock spotitn -a stop
+$ ec2-metadata-mock spot -a stop
 Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
@@ -78,7 +78,7 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 ```
 
 ### Scheduled Events
-Similar to spotitn, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
+Similar to spot, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
 
 ```
 $ ec2-metadata-mock scheduledevents --help
@@ -88,7 +88,7 @@ Usage:
   ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
 
 Aliases:
-  scheduledevents, se, scheduled-events, scheduledEvents
+  scheduledevents, se
 
 Examples:
   ec2-metadata-mock scheduledevents -h 	scheduledevents help
