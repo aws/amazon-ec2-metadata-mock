@@ -71,7 +71,7 @@ func getMetadata() t.Event {
 	eventResp := t.Event{
 		Code:              se.EventCode,
 		Description:       descriptionPrefix + se.EventCode,
-		EventId:           md.EventId,
+		EventID:           md.EventID,
 		State:             se.EventState,
 		NotBefore:         b.Format(timeLayout),
 		NotAfter:          a.Format(timeLayout),

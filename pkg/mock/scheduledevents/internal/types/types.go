@@ -18,7 +18,7 @@ type Event struct {
 	Code              string `mapstructure:"code"`
 	Description       string `mapstructure:"description"`
 	State             string `mapstructure:"state"` // State of the scheduled event
-	EventId           string `mapstructure:"event-id"`
+	EventID           string `mapstructure:"event-id" json:"EventId"`
 	NotBefore         string `mapstructure:"not-before"`                    // The earliest start time for the scheduled event
 	NotAfter          string `mapstructure:"not-after,omitempty"`           // The latest end time for the scheduled event
 	NotBeforeDeadline string `mapstructure:"not-before-deadline,omitempty"` // The deadline for starting the event
