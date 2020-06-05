@@ -100,6 +100,16 @@ docker pull amazon/amazon-ec2-metadata-mock:v0.9.3
 docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v0.9.3
 ```
 
+### On Kubernetes
+#### Supported versions
+* Kubernetes >= 1.14
+
+#### Helm
+[See Helm README here.](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/helm/amazon-ec2-metadata-mock/README.md)
+
+#### kubectl
+kubectl apply -f https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v0.9.3/all-resources.yaml
+
 ## Starting AEMM
 Use `ec2-metadata-mock --help` to view examples and explanations of supported flags and commands:
 

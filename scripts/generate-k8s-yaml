@@ -58,8 +58,10 @@ $BUILD_DIR/helm template amazon-ec2-metadata-mock \
 
 # remove helm annotations from template
 for i in $INDV_RESOURCES_DIR/amazon-ec2-metadata-mock/templates/*; do
-  cat $i | grep -v 'helm.sh\|app.kubernetes.io/managed-by: Helm' > $BUILD_DIR/helm_annotations_removed.yaml
-  mv $BUILD_DIR/helm_annotations_removed.yaml $i
+    if [ -f $i ]; then # ignore helm tests
+        cat $i | grep -v 'helm.sh\|app.kubernetes.io/managed-by: Helm' > $BUILD_DIR/helm_annotations_removed.yaml
+        mv $BUILD_DIR/helm_annotations_removed.yaml $i
+    fi
 done
 
 cd $INDV_RESOURCES_DIR/amazon-ec2-metadata-mock/ && tar cvf $TAR_RESOURCES_FILE templates/*

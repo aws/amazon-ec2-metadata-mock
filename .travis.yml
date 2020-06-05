@@ -11,7 +11,7 @@ env:
 - K8S_VERSION=1.15
 - K8S_VERSION=1.14
 
-script: test/helm/chart-test.sh -k $K8S_VERSION
+script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
 
 matrix:
   include:
