@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Script to update versions in various files as part of release prep:
+## AEMM version in:
+### README.md
+## * helm chart's values.yaml
+## * helm chart's Chart.yaml
+## helm chart version in:
+## * helm chart's Chart.yaml
+## * helm chart's README.md
+
+set -euo pipefail
+
+REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
+MY_NAME=`basename "$0"`
+NEW_VERSION=$(git tag | tail -1)
+OLD_VERSION=$(git tag | tail -2 | head -1)
+BUILD_DIR=$REPO_ROOT_PATH/build/$NEW_VERSION
+TMP_DIR=$BUILD_DIR/tmp-$MY_NAME
+mkdir -p $TMP_DIR
+
+CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
+CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
+
+FILES=($REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml  $REPO_ROOT_PATH/README.md  $CHART)
+
+FILES_CHANGED=()
+
+# $1: file 
+update_release_version() {
+    sed -i '' "s/$OLD_VERSION/$NEW_VERSION/g" $1
+    FILES_CHANGED+=($1)
+}
+
+update_versions_in_chart() {
+    # update versions, only if appVersion is not up-to-date
+    # we rely on helm chart linting to catch the case when the app version is updated but chart version is not incremented 
+    curr_app_version=$(sed -n 's/appVersion: //p' $CHART)
+    if [[ $curr_app_version == $NEW_VERSION ]]; then
+        echo "The chart is already updated. Not touching any versions in the chart dir."
+        return
+    fi
+    # update appVersion
+    sed -i '' 's/appVersion: $curr_app_version/appVersion: $NEW_VERSION/g' $CHART
+    FILES_CHANGED+=($CHART)
+
+    # update chart version
+    old_chart_version=$(sed -n 's/version: //p' $CHART)
+    old_major_v=$(echo $old_chart_version | tr '.' '\n' | head -1)
+    old_minor_v=$(echo $old_chart_version | tr '.' '\n' | head -2 | tail -1)
+    old_patch_v=$(echo $old_chart_version | tr '.' '\n' | tail -1)
+    new_patch_v=$(echo $(($old_patch_v + 1))) # increment patch version
+    new_chart_version=$(echo $old_major_v.$old_minor_v.$new_patch_v)
+
+    sed -i '' "s/version: $old_chart_version/version: $new_chart_version/g" $CHART
+    sed -i '' "s/amazon-ec2-metadata-mock-$old_chart_version.tgz/amazon-ec2-metadata-mock-$new_chart_version.tgz/g" $CHART_README
+    echo -e "\nUpdated chart version from $old_chart_version to $new_chart_version in files: \n$CHART\n$CHART_README"
+}
+
+main() {
+    echo "Attempting to update AEMM and Helm chart versions.\nOld AEMM version: $OLD_VERSION ---> New AEMM version: $NEW_VERSION"
+
+    for f in ${FILES[@]}; do
+        if [[ $f == $CHART ]]; then
+            update_versions_in_chart
+        else
+            update_release_version $f
+        fi
+    done
+
+    echo -e "\nUpdated latest release version in files: \n$(echo ${FILES_CHANGED[@]} | tr ' ' '\n')"
+}
+
+main $@
