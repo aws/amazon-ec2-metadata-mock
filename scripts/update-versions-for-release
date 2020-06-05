@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# **Run this script and commit changes BEFORE creating a new release tag in Github**
 # Script to update versions in various files as part of release prep:
 ## AEMM version in:
 ### README.md
@@ -13,7 +14,8 @@ set -euo pipefail
 
 REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
 MY_NAME=`basename "$0"`
-NEW_VERSION=$(git tag | tail -1)
+MAKEFILEPATH=$REPOPATH/Makefile
+NEW_VERSION=$(make -s -f $MAKEFILEPATH LATEST_TAG)
 OLD_VERSION=$(git tag | tail -2 | head -1)
 BUILD_DIR=$REPO_ROOT_PATH/build/$NEW_VERSION
 TMP_DIR=$BUILD_DIR/tmp-$MY_NAME
