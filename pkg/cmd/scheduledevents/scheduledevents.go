@@ -91,7 +91,7 @@ func initConfig() {
 func newCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     "scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline]",
-		Aliases: []string{"se", "scheduled-events", "scheduledEvents"},
+		Aliases: []string{"se"},
 		PreRunE: preRun,
 		Example: fmt.Sprintf("  %s scheduledevents -h \tscheduledevents help \n  %s scheduledevents -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,

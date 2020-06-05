@@ -126,7 +126,7 @@ func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interfa
 		case viper.ConfigFileNotFoundError:
 			log.Println("Warning: ", err)
 		default:
-			log.Printf("Error while attempting to read config from %s: %s\n", viper.ConfigFileUsed(), err)
+			log.Fatalf("Error while attempting to apply overrides from %s: %s\n", viper.ConfigFileUsed(), err)
 		}
 	} else {
 		fmt.Println("Using configuration from file: ", viper.ConfigFileUsed())

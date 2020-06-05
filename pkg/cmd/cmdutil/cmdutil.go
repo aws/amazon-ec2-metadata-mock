@@ -114,17 +114,17 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 		{path: "/latest/meta-data/", handler: listmocks.Handler},
 	}
 
-	isSpot := strings.Contains(cmd.Name(), "spotitn")
+	isSpot := strings.Contains(cmd.Name(), "spot")
 	isSchedEvents := strings.Contains(cmd.Name(), "scheduledevents")
 
 	subCommandHandlers := map[string][]handlerPair{
-		"spotitn": {{path: config.Metadata.Paths.SpotItn, handler: spotitn.Handler},
+		"spot": {{path: config.Metadata.Paths.SpotItn, handler: spotitn.Handler},
 			{path: config.Metadata.Paths.SpotItnTerminationTime, handler: spotitn.Handler}},
 		"scheduledevents": {{path: config.Metadata.Paths.ScheduledEvents, handler: scheduledevents.Handler}},
 	}
 
 	if isSpot {
-		handlerPairs = append(handlerPairs, subCommandHandlers["spotitn"]...)
+		handlerPairs = append(handlerPairs, subCommandHandlers["spot"]...)
 	} else if isSchedEvents {
 		handlerPairs = append(handlerPairs, subCommandHandlers["scheduledevents"]...)
 	} else {

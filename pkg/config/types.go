@@ -116,7 +116,7 @@ type Values struct {
 	BlockDeviceMappingSwap       string                            `mapstructure:"block-device-mapping-swap"`
 	ElasticInferenceAccelerator  types.ElasticInferenceAccelerator `mapstructure:"elastic-inference-accelerator"`
 	ElasticInferenceAssociations string                            `mapstructure:"elastic-inference-associations"`
-	EventID                      string                            `mapstructure:"event-id"`
+	EventID                      string                            `mapstructure:"event-id" json:"EventId"`
 	Hostname                     string                            `mapstructure:"hostname"`
 	IamInformation               types.IamInformation              `mapstructure:"iam-info"`
 	IamSecurityCredentialsRole   string                            `mapstructure:"iam-security-credentials-role"`
