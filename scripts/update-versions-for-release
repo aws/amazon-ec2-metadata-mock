@@ -14,8 +14,8 @@ set -euo pipefail
 
 REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
 MY_NAME=`basename "$0"`
-MAKEFILEPATH=$REPOPATH/Makefile
-NEW_VERSION=$(make -s -f $MAKEFILEPATH LATEST_TAG)
+MAKEFILEPATH=$REPO_ROOT_PATH/Makefile
+NEW_VERSION=$(make -s -f $MAKEFILEPATH latest-tag)
 OLD_VERSION=$(git tag | tail -2 | head -1)
 BUILD_DIR=$REPO_ROOT_PATH/build/$NEW_VERSION
 TMP_DIR=$BUILD_DIR/tmp-$MY_NAME
@@ -43,7 +43,7 @@ update_versions_in_chart() {
         return
     fi
     # update appVersion
-    sed -i '' 's/appVersion: $curr_app_version/appVersion: $NEW_VERSION/g' $CHART
+    sed -i '' "s/appVersion: $curr_app_version/appVersion: $NEW_VERSION/g" $CHART
     FILES_CHANGED+=($CHART)
 
     # update chart version

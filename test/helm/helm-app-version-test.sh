@@ -7,7 +7,7 @@ set -euo pipefail
 
 REPOPATH="$( cd "$(dirname "$0")"; cd ../../; pwd -P )"
 MAKEFILEPATH=$REPOPATH/Makefile
-RELEASE_VERSION=$(make -s -f $MAKEFILEPATH LATEST_TAG)
+RELEASE_VERSION=$(make -s -f $MAKEFILEPATH latest-tag)
 HELM_CHART_PATH=$REPOPATH/helm
 
 for c in $HELM_CHART_PATH/*; do

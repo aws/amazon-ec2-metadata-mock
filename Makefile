@@ -56,6 +56,9 @@ push-docker-images:
 version:
 	@echo ${VERSION}
 
+latest-tag:
+	@echo ${LATEST_TAG}
+
 image:
 	@echo ${IMG_W_TAG}
 
@@ -90,7 +93,7 @@ helm-app-version-test:
 	${MAKEFILE_PATH}/test/helm/helm-app-version-test.sh
 
 helm-tests:
-	helm-e2e-test helm-app-version-test
+	helm-app-version-test helm-e2e-test
 
 gen-helm-chart-archives:
 	${MAKEFILE_PATH}/scripts/generate-helm-chart-archives
@@ -101,7 +104,7 @@ license-test:
 go-report-card-test:
 	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
 
-test: unit-test e2e-test helm-e2e-test helm-app-version-test license-test go-report-card-test
+test: unit-test e2e-test helm-app-version-test helm-e2e-test license-test go-report-card-test
 
 update-versions-for-release:
 	${MAKEFILE_PATH}/scripts/update-versions-for-release
