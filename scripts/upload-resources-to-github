@@ -7,6 +7,7 @@ BUILD_DIR=$SCRIPTPATH/../build/k8s-resources/$VERSION
 INDV_RESOURCES_DIR=$BUILD_DIR/individual-resources
 TAR_RESOURCES_FILE=$BUILD_DIR/individual-resources.tar
 AGG_RESOURCES_YAML=$BUILD_DIR/all-resources.yaml
+HELM_ARCHIVES_DIR=$BUILD_DIR/helm-chart-archives
 
 RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/aws/amazon-ec2-metadata-mock/releases | \
