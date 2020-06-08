@@ -1,4 +1,5 @@
 VERSION = $(shell git describe --tags --always --dirty)
+LATEST_TAG=$(shell git tag | tail -1)
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -55,6 +56,9 @@ push-docker-images:
 version:
 	@echo ${VERSION}
 
+latest-tag:
+	@echo ${LATEST_TAG}
+
 image:
 	@echo ${IMG_W_TAG}
 
@@ -85,12 +89,24 @@ helm-lint-test:
 helm-e2e-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh
 
+helm-app-version-test:
+	${MAKEFILE_PATH}/test/helm/helm-app-version-test.sh
+
+helm-tests:
+	helm-app-version-test helm-e2e-test
+
+gen-helm-chart-archives:
+	${MAKEFILE_PATH}/scripts/generate-helm-chart-archives
+
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
 
 go-report-card-test:
 	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
 
-test: unit-test e2e-test helm-e2e-test license-test go-report-card-test
+test: unit-test e2e-test helm-app-version-test helm-e2e-test license-test go-report-card-test
 
-release: create-build-dir build-binaries build-docker-images push-docker-images generate-k8s-yaml upload-resources-to-github
+update-versions-for-release:
+	${MAKEFILE_PATH}/scripts/update-versions-for-release
+
+release: create-build-dir build-binaries build-docker-images push-docker-images generate-k8s-yaml gen-helm-chart-archives upload-resources-to-github

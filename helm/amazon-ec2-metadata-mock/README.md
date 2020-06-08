@@ -13,7 +13,7 @@ The helm chart can be installed from several sources. To install the chart with 
 1. Local chart archive: 
 Download the chart archive from the latest release and run 
 ```sh
-helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-1.0.0.tgz \
+helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.5.1.tgz \
   --namespace default
 ```
 
@@ -150,6 +150,12 @@ Alternatively, the same tests can be run using:
 make helm-lint-test # for linting only
 make helm-e2e-test  # for e2e tests, including linting
 ```
+
+### Versioning
+Increment the chart version when one or more files in the helm chart directory changes:
+* Increment patch version for readme changes
+* Increment minor version for backward compatible changes / new minor version of the app (appVersion)
+* Increment major version for incompatible changes / new major version of the app (appVersion)
 
 ## Configuration
 

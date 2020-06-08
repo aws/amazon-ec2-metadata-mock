@@ -23,6 +23,9 @@ done
 
 ## Upload k8s yaml
 resourceFiles=($TAR_RESOURCES_FILE $AGG_RESOURCES_YAML)
+for archive in $HELM_ARCHIVES_DIR; do
+    resourceFiles+=($archive)
+done
 for resourceFile in "${resourceFiles[@]}"; do
     curl \
         -H "Authorization: token $GITHUB_TOKEN" \
