@@ -11,7 +11,7 @@ metadata:
   name: "{{ .Release.Name }}-helm-e2e-test"
   annotations:
     "helm.sh/hook": "test"
-    "helm.sh/hook-delete-policy": "hook-succeeded"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
     "helm.sh/hook-weight": "1" # create config-map first
 spec:
   restartPolicy: Never
