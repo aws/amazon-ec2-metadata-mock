@@ -48,7 +48,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 * Passing custom values to Helm via CLI arguments
 ```sh
 helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
-  --namespace default --set aemm.spotItn.instanceAction="stop",aemm.mockDelaySec=120
+  --namespace default --set aemm.spotItn.action="stop",aemm.mockDelaySec=120
 ```
 
 * Passing a config file to AEMM
@@ -200,8 +200,8 @@ Parameter | Description | Default in Helm | Default AEMM configuration
 `aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `0.0.0.0`
 `aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
-`aemm.spotItn.instanceAction` | instance action in the spot interruption notice | `""` | `terminate`
-`aemm.spotItn.terminationTime` | termination time in the spot interruption notice | `""` | HTTP request time + 2 minutes
+`aemm.spotItn.action` | action in the spot interruption notice | `""` | `terminate`
+`aemm.spotItn.time` | time in the spot interruption notice | `""` | HTTP request time + 2 minutes
 `aemm.scheduledEvents.code` | event code in the scheduled event | `""` | `system-reboot`
 `aemm.scheduledEvents.notAfter` | the latest end time for the scheduled event | `""` | Start time of AEMM  + 7 days
 `aemm.scheduledEvents.notBefore` | the earliest start time for the scheduled event | `""` | Start time of AEMM

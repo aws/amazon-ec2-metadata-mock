@@ -254,7 +254,7 @@ Flags:
   -h, --help                      help for spot
   -a, --action string             action in the spot interruption notice (default: terminate)
                                   action can be one of the following: terminate,hibernate,stop
-  -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
+  -t, --time string               time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
   -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)

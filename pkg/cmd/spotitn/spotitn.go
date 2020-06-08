@@ -32,7 +32,7 @@ const (
 
 	// local flags
 	instanceActionFlagName  = "action"
-	terminationTimeFlagName = "termination-time"
+	terminationTimeFlagName = "time"
 
 	// instance actions
 	terminate = "terminate"
@@ -110,7 +110,7 @@ func ValidateLocalConfig() []string {
 		)
 	}
 
-	// validate termination-time, if override provided
+	// validate time, if override provided
 	if c.TerminationTime != "" {
 		if err := cmdutil.ValidateRFC3339TimeFormat(terminationTimeFlagName, c.TerminationTime); err != nil {
 			errStrings = append(errStrings, err.Error())

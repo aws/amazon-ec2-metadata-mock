@@ -38,7 +38,7 @@ function test_spotitn_ia_defaults() {
   assert_format "$actual_ia_time" $SPOTITN_DATE_REGEX 'Default spotitn_ia::time format'
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::termination-time val'
+  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::time val'
 
   clean_up $pid
 }
@@ -59,7 +59,7 @@ function test_spotitn_ia_overrides() {
   assert_value "$actual_ia_time" $expected_term_time 'Override spotitn_ia::time'
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::termination-time val'
+  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::time val'
 
   clean_up $pid
 }

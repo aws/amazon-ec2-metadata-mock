@@ -59,7 +59,7 @@ func NewCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:               cmdutil.BinName + " <command> [arguments]",
 		SuggestFor:        []string{"mock", "ec2-mock", "ec2-metadata-mock"},
-		Example:           fmt.Sprintf("  %s --mock-delay-sec 10\tmocks all metadata paths\n  %s spotitn --action terminate\tmocks spot ITN only", cmdutil.BinName, cmdutil.BinName),
+		Example:           fmt.Sprintf("  %s --mock-delay-sec 10\tmocks all metadata paths\n  %s spot --action terminate\tmocks spot ITN only", cmdutil.BinName, cmdutil.BinName),
 		PersistentPreRunE: setupAndSaveConfig, // persistentPreRun runs before PreRun
 		PreRunE:           preRun,
 		Run:               run,

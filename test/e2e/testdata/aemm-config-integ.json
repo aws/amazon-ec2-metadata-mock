@@ -10,6 +10,6 @@
   },
   "spot-itn": {
     "action": "terminate",
-    "termination-time": "2020-01-07T01:03:47Z"
+    "time": "2020-01-07T01:03:47Z"
   }
 }
