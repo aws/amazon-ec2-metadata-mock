@@ -15,6 +15,6 @@ package types
 
 // InstanceActionResponse metadata structure for mock json response parsing
 type InstanceActionResponse struct {
-	InstanceAction string `json:"instance-action"`
-	Time           string `json:"time"`
+	Action string `json:"action"`
+	Time   string `json:"time"`
 }

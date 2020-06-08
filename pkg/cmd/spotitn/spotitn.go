@@ -31,7 +31,7 @@ const (
 	cfgPrefix = "spot-itn."
 
 	// local flags
-	instanceActionFlagName  = "instance-action"
+	instanceActionFlagName  = "action"
 	terminationTimeFlagName = "termination-time"
 
 	// instance actions
@@ -66,17 +66,17 @@ func initConfig() {
 
 func newCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:     "spot [--instance-action ACTION]",
+		Use:     "spot [--action ACTION]",
 		Aliases: []string{"spotitn"},
 		PreRunE: preRun,
-		Example: fmt.Sprintf("  %s spot -h \tspot help \n  %s spot -d 5 --instance-action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
+		Example: fmt.Sprintf("  %s spot -h \tspot help \n  %s spot -d 5 --action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
 		Short:   "Mock EC2 Spot interruption notice",
 		Long:    "Mock EC2 Spot interruption notice",
 	}
 
 	// local flags
-	cmd.Flags().StringP(instanceActionFlagName, "a", "", "instance action in the spot interruption notice (default: terminate)\ninstance-action can be one of the following: "+strings.Join(validInstanceActions, ","))
+	cmd.Flags().StringP(instanceActionFlagName, "a", "", "action in the spot interruption notice (default: terminate)\naction can be one of the following: "+strings.Join(validInstanceActions, ","))
 	cmd.Flags().StringP(terminationTimeFlagName, "t", "", "termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)")
 
 	// bind local flags to config

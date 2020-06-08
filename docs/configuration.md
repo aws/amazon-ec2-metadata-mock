@@ -11,11 +11,11 @@ The tool can be configured in various ways:
 2. Env variables
     ```
     $ export AEMM_MOCK_DELAY_SEC=12
-    $ export AEMM_SPOT_ITN_INSTANCE_ACTION=stop
+    $ export AEMM_SPOT_ITN_ACTION=stop
     $ env | grep AEMM     // To list the tool's env variables
     ```
 
-    > NOTE the translation of config key `spot-itn.instance-action` to `AEMM_SPOT_ITN_INSTANCE_ACTION` env variable.
+    > NOTE the translation of config key `spot-itn.action` to `AEMM_SPOT_ITN_ACTION` env variable.
 
 3. Configuration file in JSON format at `path/to/config-overrides.json`
 ```
@@ -30,7 +30,7 @@ The tool can be configured in various ways:
     }
   },
   "spot-itn": {
-    "instance-action": "terminate",
+    "action": "terminate",
     "time": "2020-01-07T01:03:47Z"
   }
 }
@@ -64,7 +64,7 @@ $ cat $HOME/.ec2-metadata-mock/.aemm-config-used.json
     "port": "1338"
   },
   "spot-itn": {
-    "instance-action": "stop",
+    "action": "stop",
     "time": "2020-01-07T01:03:47Z"
   }
 }
@@ -90,13 +90,13 @@ Defaults in code:
     "mock-delay-sec": 0,
     "save-config-to-file": false,
     "spot-itn": {
-       "instance-action": "terminate"
+       "action": "terminate"
     }
 }
 
 Env variables:
 export AEMM_MOCK_DELAY_SEC=12
-export AEMM_SPOT_ITN_INSTANCE_ACTION=hibernate
+export AEMM_SPOT_ITN_ACTION=hibernate
 export AEMM_CONFIG_FILE=/path/to/my-custom-aemm-config.json
 
 Config File (at /path/to/my-custom-aemm-config.json):
@@ -106,7 +106,7 @@ Config File (at /path/to/my-custom-aemm-config.json):
          "port": "1550"
     },
     "spot-itn": {
-       "instance-action": "stop"
+       "action": "stop"
     }
 }
 
@@ -122,7 +122,7 @@ The resulting config will have the following values (non-overriden values are tr
     "mock-delay-sec": 8,                                        # from CLI flag
     "config-file": "/path/to/my-custom-aemm-config.json",       # from env
     "spot-itn": {
-        "instance-action": "hibernate"                          # from env
+        "action": "hibernate"                          # from env
    }
     "imdsv2": true,                                             # from custom config file at /path/to/my-custom-aemm-config.json
      "server": {

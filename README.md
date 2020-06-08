@@ -124,7 +124,7 @@ Usage:
 
 Examples:
   ec2-metadata-mock --mock-delay-sec 10	mocks all metadata paths
-  ec2-metadata-mock spot --instance-action terminate	mocks spot ITN only
+  ec2-metadata-mock spot --action terminate	mocks spot ITN only
 
 Available Commands:
   help            Help about any command
@@ -241,19 +241,19 @@ $ ec2-metadata-mock spot --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  ec2-metadata-mock spot [--instance-action ACTION] [flags]
+  ec2-metadata-mock spot [--action ACTION] [flags]
 
 Aliases:
   spot, spotitn
 
 Examples:
   ec2-metadata-mock spot -h 	spot help
-  ec2-metadata-mock spot -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spot -d 5 --action terminate		mocks spot interruption only
 
 Flags:
   -h, --help                      help for spot
-  -a, --instance-action string    instance action in the spot interruption notice (default: terminate)
-                                  instance-action can be one of the following: terminate,hibernate,stop
+  -a, --action string             action in the spot interruption notice (default: terminate)
+                                  action can be one of the following: terminate,hibernate,stop
   -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
@@ -275,7 +275,7 @@ Send the request:
 ```
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 {
-	"instance-action": "terminate",
+	"action": "terminate",
 	"time": "2020-04-24T17:11:44Z"
 }
 ```
@@ -319,7 +319,7 @@ Once the delay is complete, querying `spot` paths return expected results:
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 
 {
-	"instance-action": "terminate",
+	"action": "terminate",
 	"time": "2020-04-24T17:19:32Z"
 }
 

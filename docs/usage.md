@@ -32,19 +32,19 @@ $ ec2-metadata-mock spot --help
 Mock EC2 Spot interruption notice
 
 Usage:
-  ec2-metadata-mock spot [--instance-action ACTION] [flags]
+  ec2-metadata-mock spot [--action ACTION] [flags]
 
 Aliases:
   spot, spotitn
 
 Examples:
   ec2-metadata-mock spot -h 	spot help
-  ec2-metadata-mock spot -d 5 --instance-action terminate		mocks spot interruption only
+  ec2-metadata-mock spot -d 5 --action terminate		mocks spot interruption only
 
 Flags:
   -h, --help                      help for spot
-  -a, --instance-action string    instance action in the spot interruption notice (default: terminate)
-                                  instance-action can be one of the following: terminate,hibernate,stop
+  -a, --action string             action in the spot interruption notice (default: terminate)
+                                  action can be one of the following: terminate,hibernate,stop
   -t, --termination-time string   termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
@@ -56,14 +56,14 @@ Global Flags:
   -s, --save-config-to-file   whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
-1.) **Overriding `spot::instance-action` via CLI flag**:
+1.) **Overriding `spot::action` via CLI flag**:
 
 ```
 $ ec2-metadata-mock spot -a stop
 Initiating amazon-ec2-metadata-mock for EC2 Spot interruption notice on port 1338
 
 Flags:
-instance-action: stop
+action: stop
 
 Serving the following routes: ... (truncated for readability)
 ```
@@ -72,7 +72,7 @@ Send the request:
 ```
 $ curl localhost:1338/latest/meta-data/spot/instance-action
 {
-	"instance-action": "stop",
+	"action": "stop",
 	"time": "2020-04-24T17:11:44Z"
 }
 ```

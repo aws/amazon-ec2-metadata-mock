@@ -13,7 +13,7 @@ The helm chart can be installed from several sources. To install the chart with 
 1. Local chart archive: 
 Download the chart archive from the latest release and run 
 ```sh
-helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.5.1.tgz \
+helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.5.2.tgz \
   --namespace default
 ```
 
@@ -105,7 +105,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://localhost:1338/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
@@ -116,7 +116,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_PORT/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
@@ -126,7 +126,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://amazon-ec2-metadata-mock-service.default.svc.cluster.local:1338/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
