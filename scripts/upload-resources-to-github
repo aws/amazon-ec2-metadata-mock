@@ -14,6 +14,7 @@ RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     jq --arg VERSION "$VERSION" '.[] | select(.tag_name==$VERSION) | .id')
 
 for binary in $SCRIPTPATH/../build/bin/*; do
+    echo "Uploading $binary"
     curl \
         -H "Authorization: token $GITHUB_TOKEN" \
         -H "Content-Type: $(file -b --mime-type $binary)" \
@@ -22,12 +23,13 @@ for binary in $SCRIPTPATH/../build/bin/*; do
 done
 
 
-## Upload k8s yaml
+## Upload k8s resources
 resourceFiles=($TAR_RESOURCES_FILE $AGG_RESOURCES_YAML)
-for archive in $HELM_ARCHIVES_DIR; do
+for archive in $HELM_ARCHIVES_DIR/*; do
     resourceFiles+=($archive)
 done
 for resourceFile in "${resourceFiles[@]}"; do
+    echo "Uploading $resourceFile"
     curl \
         -H "Authorization: token $GITHUB_TOKEN" \
         -H "Content-Type: $(file -b --mime-type $resourceFile)" \
