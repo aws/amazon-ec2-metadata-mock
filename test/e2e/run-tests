@@ -54,6 +54,24 @@ function assert_value() {
   fi
 }
 
+function assert_value_within_range() {
+  # assert actual == expected within specified range
+  # intended for time comparisons
+  actual=$1
+  expected=$2
+  range=$3
+  difference=$(($actual - $expected))
+  if [[ $difference -lt 0 ]]; then
+    difference=$(expr $difference \* -1)
+  fi
+  if [[ $difference -le $range ]]; then
+    echo "✅ Verified actual and expected are within range"
+  else
+    echo "❌ actual and expected are NOT within range"
+    EXIT_CODE_TO_RETURN=1
+  fi
+}
+
 function assert_not_equal() {
   # assert actual != expected
   if [[ $1 != $2 ]]; then
@@ -104,8 +122,21 @@ function create_cmd() {
   echo "$cmd"
 }
 
+function convert_RFC3339_to_sec() {
+  RFC3339_timestamp=$1
+  time_in_sec=""
+  os=$(uname)
+  if [[ "$os" == "Darwin" ]]; then
+    time_in_sec=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$RFC3339_timestamp" +"%s")
+  elif [[ "$os" == "Linux" ]]; then
+    time_in_sec=$(date -d"$RFC3339_timestamp" +"%s")
+  fi
+  echo "$time_in_sec"
+}
+
 function clean_up() {
   kill $@ || :
+  sleep 1
   echo "======================================================================================================"
   echo "💀 Killed server 💀"
   echo "======================================================================================================"
@@ -148,13 +179,16 @@ export SPOTITN_DATE_REGEX
 export JSON_VALUE_EXTRACTION_REGEX
 export MAX_TOKEN_TTL
 export EXIT_CODE_TO_RETURN
+
 export -f health_check
 export -f assert_value
+export -f assert_value_within_range
 export -f assert_not_equal
 export -f assert_format
 export -f get_value
 export -f get_v2Token
 export -f create_cmd
+export -f convert_RFC3339_to_sec
 export -f clean_up
 
 trap "fail_and_clean_up" INT TERM ERR

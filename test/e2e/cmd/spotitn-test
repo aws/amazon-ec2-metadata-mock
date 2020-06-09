@@ -38,7 +38,12 @@ function test_spotitn_ia_defaults() {
   assert_format "$actual_ia_time" $SPOTITN_DATE_REGEX 'Default spotitn_ia::time format'
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::time val'
+
+  actual_term_time_sec=$(convert_RFC3339_to_sec $actual_term_time)
+  actual_ia_time_sec=$(convert_RFC3339_to_sec $actual_ia_time)
+
+  # times should be within 5 second range
+  assert_value_within_range $actual_term_time_sec $actual_ia_time_sec 5
 
   clean_up $pid
 }
@@ -56,10 +61,18 @@ function test_spotitn_ia_overrides() {
   actual_ia_time=$(get_value '"time"' "$response")
 
   assert_value "$actual_inst_action" $expected_inst_action 'Override spotitn_ia::action'
-  assert_value "$actual_ia_time" $expected_term_time 'Override spotitn_ia::time'
+
+  actual_ia_time_sec=$(convert_RFC3339_to_sec $actual_ia_time)
+  expected_term_time_sec=$(convert_RFC3339_to_sec $expected_term_time)
+
+  # times should be within 5 second range
+  assert_value_within_range $actual_ia_time_sec $expected_term_time_sec 5
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::time val'
+  actual_term_time_sec=$(convert_RFC3339_to_sec $actual_term_time)
+
+  # times should be within 5 second range
+  assert_value_within_range $actual_term_time_sec $actual_ia_time_sec 5
 
   clean_up $pid
 }
