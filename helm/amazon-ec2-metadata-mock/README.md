@@ -13,7 +13,7 @@ The helm chart can be installed from several sources. To install the chart with 
 1. Local chart archive: 
 Download the chart archive from the latest release and run 
 ```sh
-helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.5.1.tgz \
+helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-0.5.2.tgz \
   --namespace default
 ```
 
@@ -48,7 +48,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 * Passing custom values to Helm via CLI arguments
 ```sh
 helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
-  --namespace default --set aemm.spotItn.instanceAction="stop",aemm.mockDelaySec=120
+  --namespace default --set aemm.spotItn.action="stop",aemm.mockDelaySec=120
 ```
 
 * Passing a config file to AEMM
@@ -105,7 +105,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://localhost:1338/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
@@ -116,7 +116,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_PORT/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
@@ -126,7 +126,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 
     curl http://amazon-ec2-metadata-mock-service.default.svc.cluster.local:1338/latest/meta-data/spot/instance-action
     {
-        "instance-action": "terminate",
+        "action": "terminate",
         "time": "2020-05-04T18:11:37Z"
     }
     ```
@@ -200,8 +200,8 @@ Parameter | Description | Default in Helm | Default AEMM configuration
 `aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `0.0.0.0`
 `aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
-`aemm.spotItn.instanceAction` | instance action in the spot interruption notice | `""` | `terminate`
-`aemm.spotItn.terminationTime` | termination time in the spot interruption notice | `""` | HTTP request time + 2 minutes
+`aemm.spotItn.action` | action in the spot interruption notice | `""` | `terminate`
+`aemm.spotItn.time` | time in the spot interruption notice | `""` | HTTP request time + 2 minutes
 `aemm.scheduledEvents.code` | event code in the scheduled event | `""` | `system-reboot`
 `aemm.scheduledEvents.notAfter` | the latest end time for the scheduled event | `""` | Start time of AEMM  + 7 days
 `aemm.scheduledEvents.notBefore` | the earliest start time for the scheduled event | `""` | Start time of AEMM

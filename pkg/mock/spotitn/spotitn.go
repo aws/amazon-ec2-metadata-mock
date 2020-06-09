@@ -75,7 +75,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 func getInstanceActionResponse(time string) t.InstanceActionResponse {
 	return t.InstanceActionResponse{
-		InstanceAction: c.SpotItnConfig.InstanceAction,
-		Time:           time,
+		Action: c.SpotItnConfig.InstanceAction,
+		Time:   time,
 	}
 }

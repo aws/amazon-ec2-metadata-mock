@@ -31,14 +31,14 @@ function test_spotitn_ia_defaults() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
-  actual_inst_action=$(get_value '"instance-action"' "$response")
+  actual_inst_action=$(get_value '"action"' "$response")
   actual_ia_time=$(get_value '"time"' "$response")
 
-  assert_value "$actual_inst_action" $SPOTITN_INSTANCE_ACTION_DEFAULT 'Default spotitn_ia::instance-action val'
+  assert_value "$actual_inst_action" $SPOTITN_INSTANCE_ACTION_DEFAULT 'Default spotitn_ia::action val'
   assert_format "$actual_ia_time" $SPOTITN_DATE_REGEX 'Default spotitn_ia::time format'
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::termination-time val'
+  assert_value "$actual_term_time" "$actual_ia_time" 'Default spotitn::time val'
 
   clean_up $pid
 }
@@ -52,14 +52,14 @@ function test_spotitn_ia_overrides() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
-  actual_inst_action=$(get_value '"instance-action"' "$response")
+  actual_inst_action=$(get_value '"action"' "$response")
   actual_ia_time=$(get_value '"time"' "$response")
 
-  assert_value "$actual_inst_action" $expected_inst_action 'Override spotitn_ia::instance-action'
+  assert_value "$actual_inst_action" $expected_inst_action 'Override spotitn_ia::action'
   assert_value "$actual_ia_time" $expected_term_time 'Override spotitn_ia::time'
 
   actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
-  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::termination-time val'
+  assert_value "$actual_term_time" "$actual_ia_time" 'Override spotitn::time val'
 
   clean_up $pid
 }
@@ -101,21 +101,21 @@ SPOTITN_PID=$!
 test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
 
 # flag + env overrides
-export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+export AEMM_SPOT_ITN_ACTION="stop"
 start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
 $start_cmd &
 SPOTITN_PID=$!
 test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
 
 # env + config overrides
-export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+export AEMM_SPOT_ITN_ACTION="stop"
 start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -c $TEST_CONFIG_FILE)
 $start_cmd &
 SPOTITN_PID=$!
 test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
 
 # flag + env + config overrides
-export AEMM_SPOT_ITN_INSTANCE_ACTION="stop"
+export AEMM_SPOT_ITN_ACTION="stop"
 start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -c $TEST_CONFIG_FILE)
 $start_cmd &
 SPOTITN_PID=$!

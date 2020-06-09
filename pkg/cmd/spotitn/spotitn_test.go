@@ -29,7 +29,7 @@ func TestNewCmdName(t *testing.T) {
 	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for spotitn command to be %s, but was %s", expected, actual))
 }
 func TestNewCmdLocalFlags(t *testing.T) {
-	expectedFlags := []string{"instance-action", "termination-time"}
+	expectedFlags := []string{"action", "time"}
 
 	cmd := newCmd()
 	actualFlagSet := cmd.LocalFlags()

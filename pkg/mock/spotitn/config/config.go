@@ -15,6 +15,6 @@ package config
 
 // Config represents the configuration for the mock
 type Config struct {
-	InstanceAction  string `mapstructure:"instance-action"`
-	TerminationTime string `mapstructure:"termination-time"`
+	InstanceAction  string `mapstructure:"action"`
+	TerminationTime string `mapstructure:"time"`
 }

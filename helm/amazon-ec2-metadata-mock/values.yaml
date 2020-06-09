@@ -58,8 +58,8 @@ aemm:
   mockDelaySec: 0
   imdsv2: false
   spotItn:
-    instanceAction: ""
-    terminationTime: ""
+    action: ""
+    time: ""
   scheduledEvents:
     code: ""
     notAfter: ""
