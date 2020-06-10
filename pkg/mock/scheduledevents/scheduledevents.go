@@ -61,7 +61,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	server.FormatAndReturnJSONResponse(res, getMetadata())
 }
 
-func getMetadata() t.Event {
+func getMetadata() []t.Event {
 	md := c.Metadata.Values
 	se := c.SchEventsConfig
 
@@ -77,5 +77,6 @@ func getMetadata() t.Event {
 		NotAfter:          a.Format(timeLayout),
 		NotBeforeDeadline: bd.Format(timeLayout),
 	}
-	return eventResp
+	// supports 1 scheduled event for now
+	return []t.Event{eventResp}
 }

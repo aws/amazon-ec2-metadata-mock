@@ -108,6 +108,7 @@
       "iam-security-credentials": {
         "Code": "Success",
         "LastUpdated" : "2020-04-02T18:50:40Z",
+        "Type": "AWS-HMAC",
         "AccessKeyId" : "12345678901",
         "SecretAccessKey" : "v/12345678901",
         "Token" : "TEST92test48TEST+y6RpoTEST92test48TEST/8oWVAiBqTEsT5Ky7ty2tEStxC1T==",

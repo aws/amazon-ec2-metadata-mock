@@ -15,21 +15,21 @@ package types
 
 // IamInformation metadata structure for mock json response parsing
 type IamInformation struct {
-	Code               string `json:"code"`
-	LastUpdated        string `json:"last-updated"`
-	InstanceProfileArn string `json:"instance-profile-arn"`
-	InstanceProfileId  string `json:"instance-profile-id"`
+	Code               string `json:"Code"`
+	LastUpdated        string `json:"LastUpdated"`
+	InstanceProfileArn string `json:"InstanceProfileArn"`
+	InstanceProfileId  string `json:"InstanceProfileId"`
 }
 
 // IamSecurityCredentials metadata structure for mock json response parsing
 type IamSecurityCredentials struct {
-	Code            string `json:"code"`
-	LastUpdated     string `json:"last-updated"`
-	Type            string `json:"type"`
-	AccessKeyId     string `json:"access-key-id"`
-	SecretAccessKey string `json:"secret-access-key"`
-	Token           string `json:"token"`
-	Expiration      string `json:"expiration"`
+	Code            string `json:"Code"`
+	LastUpdated     string `json:"LastUpdated"`
+	Type            string `json:"Type"`
+	AccessKeyId     string `json:"AccessKeyId"`
+	SecretAccessKey string `json:"SecretAccessKey"`
+	Token           string `json:"Token"`
+	Expiration      string `json:"Expiration"`
 }
 
 // ElasticInferenceAccelerator metadata structure for mock json response parsing
