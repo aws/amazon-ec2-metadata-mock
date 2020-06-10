@@ -3,21 +3,21 @@ This page serves as documentation for AEMM's advanced use cases and behavior.
 
 
 ## Commands
-AEMM's supported commands (`spot`, `scheduledevents`) are viewed using `--help`:
+AEMM's supported commands (`spot`, `events`) are viewed using `--help`:
 ```
 $ ec2-metadata-mock --help
 
 ...
 Available Commands:
+  events          Mock EC2 maintenance events
   help            Help about any command
-  scheduledevents Mock EC2 Scheduled Events
   spot            Mock EC2 Spot interruption notice
 
 ...
 ```
 commands are designed as follows:
 * Run independently from other commands
-  * i.e. when AEMM is started with `scheduledevents` subcommand, `spot` routes will **NOT** be available and vice-versa 
+  * i.e. when AEMM is started with `events` subcommand, `spot` routes will **NOT** be available and vice-versa 
 * Local flag availability so that commands can be configured directly via CLI parameters
     * With validation checks
 * Contain additional `--help` documentation
@@ -77,27 +77,27 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 }
 ```
 
-### Scheduled Events
-Similar to spot, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
+### Events
+Similar to spot, the `events` command, view the local flags using `events --help`:
 
 ```
-$ ec2-metadata-mock scheduledevents --help
+$ ec2-metadata-mock events --help
 Mock EC2 Scheduled Events
 
 Usage:
-  ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
+  ec2-metadata-mock events [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
 
 Aliases:
-  scheduledevents, se
+  events, se, scheduledevents
 
 Examples:
-  ec2-metadata-mock scheduledevents -h 	scheduledevents help
-  ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
+  ec2-metadata-mock events -h 	events help
+  ec2-metadata-mock events -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
 
 Flags:
   -o, --code string                  event code in the scheduled event (default: system-reboot)
                                      event-code can be one of the following: instance-reboot,system-reboot,system-maintenance,instance-retirement,instance-stop
-  -h, --help                         help for scheduledevents
+  -h, --help                         help for events
   -a, --not-after string             the latest end time for the scheduled event in RFC3339 format E.g. 2020-01-07T01:03:47Z default: application start time + 7 days in UTC))
   -b, --not-before string            the earliest start time for the scheduled event in RFC3339 format E.g. 2020-01-07T01:03:47Z (default: application start time in UTC)
   -l, --not-before-deadline string   the deadline for starting the event in RFC3339 format E.g. 2020-01-07T01:03:47Z (default: application start time + 9 days in UTC)
@@ -107,10 +107,10 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `scheduledevents` invalid flag overrides**: as noted above, all commands have validation logic for overrides via CLI flags. If the user attempts to pass an invalid override value, then AEMM will panic, kill the server, and return an error message with what went wrong:
+1.) **Starting AEMM with `events` invalid flag overrides**: as noted above, all commands have validation logic for overrides via CLI flags. If the user attempts to pass an invalid override value, then AEMM will panic, kill the server, and return an error message with what went wrong:
 
 ```
-$ ec2-metadata-mock scheduledevents --code FOO
+$ ec2-metadata-mock events --code FOO
 
 panic: Fatal error while executing the root command: Invalid CLI input "FOO" for flag code. 
 Allowed value(s): instance-reboot,system-reboot,system-maintenance,instance-retirement,instance-stop.

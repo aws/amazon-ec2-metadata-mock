@@ -90,13 +90,13 @@ func initConfig() {
 
 func newCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:     "scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline]",
-		Aliases: []string{"se"},
+		Use:     "events [--code CODE] [--state STATE] [--not-after] [--not-before-deadline]",
+		Aliases: []string{"se", "scheduledevents"},
 		PreRunE: preRun,
 		Example: fmt.Sprintf("  %s scheduledevents -h \tscheduledevents help \n  %s scheduledevents -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
-		Short:   "Mock EC2 Scheduled Events",
-		Long:    "Mock EC2 Scheduled Events",
+		Short:   "Mock EC2 maintenance events",
+		Long:    "Mock EC2 maintenance events",
 	}
 
 	// local flags

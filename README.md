@@ -35,7 +35,7 @@
       * [Overrides](#overrides)
    * [Usage](#usage)
       * [Spot Interruption](#spot-interruption)
-      * [Scheduled Events](#scheduled-events)
+      * [Scheduled Events](#events)
       * [Instance Metadata Service Versions](#instance-metadata-service-versions)
       * [Static Metadata](#static-metadata)
    * [Troubleshooting](#troubleshooting)
@@ -127,8 +127,8 @@ Examples:
   ec2-metadata-mock spot --action terminate	mocks spot ITN only
 
 Available Commands:
+  events          Mock EC2 maintenance events
   help            Help about any command
-  scheduledevents Mock EC2 Scheduled Events
   spot            Mock EC2 Spot interruption notice
 
 Flags:
@@ -224,7 +224,7 @@ Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **Metadata mock responses**
   * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/defaults/aemm-metadata-default-values.json)
 * **Commands**
-  * [scheduledevents](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/scheduledevents/scheduledevents.go#L72) 
+  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/scheduledevents/scheduledevents.go#L72) 
 
 ## Overrides
 AEMM supports configuration from various sources including: cli flags, env variables, and config files. Details regarding
@@ -325,27 +325,27 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 
 ```
 
-## Scheduled Events
-Similar to spot, the `scheduledevents` command, view the local flags using `scheduledevents --help`:
+## Events
+Similar to spot, the `events` command, view the local flags using `events --help`:
 
 ```
-$ ec2-metadata-mock scheduledevents --help
+$ ec2-metadata-mock events --help
 Mock EC2 Scheduled Events
 
 Usage:
-  ec2-metadata-mock scheduledevents [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
+  ec2-metadata-mock events [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]
 
 Aliases:
-  scheduledevents, se, scheduled-events, scheduledEvents
+  events, se, scheduledevents
 
 Examples:
-  ec2-metadata-mock scheduledevents -h 	scheduledevents help
-  ec2-metadata-mock scheduledevents -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
+  ec2-metadata-mock events -h 	events help
+  ec2-metadata-mock events -o instance-stop --state active -d		mocks an active and upcoming scheduled event for instance stop with a deadline for the event start time
 
 Flags:
   -o, --code string                  event code in the scheduled event (default: system-reboot)
                                      event-code can be one of the following: instance-reboot,system-reboot,system-maintenance,instance-retirement,instance-stop
-  -h, --help                         help for scheduledevents
+  -h, --help                         help for events
   -a, --not-after string             the latest end time for the scheduled event in RFC3339 format E.g. 2020-01-07T01:03:47Z default: application start time + 7 days in UTC))
   -b, --not-before string            the earliest start time for the scheduled event in RFC3339 format E.g. 2020-01-07T01:03:47Z (default: application start time in UTC)
   -l, --not-before-deadline string   the deadline for starting the event in RFC3339 format E.g. 2020-01-07T01:03:47Z (default: application start time + 9 days in UTC)
@@ -355,10 +355,10 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `scheduledevents`**: `scheduledevents` route available immediately and `spot` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
+1.) **Starting AEMM with `events`**: `events` route available immediately and `spot` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
 
 ```
-$ ec2-metadata-mock scheduledevents --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
+$ ec2-metadata-mock events --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
 Initiating ec2-metadata-mock for EC2 Scheduled Events on port 1338
 Serving the following routes: ... (truncated for readability)
 

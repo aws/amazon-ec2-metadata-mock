@@ -115,18 +115,18 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")
-	isSchedEvents := strings.Contains(cmd.Name(), "scheduledevents")
+	isSchedEvents := strings.Contains(cmd.Name(), "events")
 
 	subCommandHandlers := map[string][]handlerPair{
 		"spot": {{path: config.Metadata.Paths.SpotItn, handler: spotitn.Handler},
 			{path: config.Metadata.Paths.SpotItnTerminationTime, handler: spotitn.Handler}},
-		"scheduledevents": {{path: config.Metadata.Paths.ScheduledEvents, handler: scheduledevents.Handler}},
+		"events": {{path: config.Metadata.Paths.ScheduledEvents, handler: scheduledevents.Handler}},
 	}
 
 	if isSpot {
 		handlerPairs = append(handlerPairs, subCommandHandlers["spot"]...)
 	} else if isSchedEvents {
-		handlerPairs = append(handlerPairs, subCommandHandlers["scheduledevents"]...)
+		handlerPairs = append(handlerPairs, subCommandHandlers["events"]...)
 	} else {
 		// root registers all subcommands
 		for k := range subCommandHandlers {
