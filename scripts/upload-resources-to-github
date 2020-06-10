@@ -1,38 +1,86 @@
 #!/bin/bash
 set -euo pipefail
 
+# Script to upload release assets to Github.  
+# This script cleans up after itself in cases of parital failures. i.e. either all assets are uploaded or none
+
+
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 VERSION=$(make -s -f $SCRIPTPATH/../Makefile version)
 BUILD_DIR=$SCRIPTPATH/../build/k8s-resources/$VERSION
-INDV_RESOURCES_DIR=$BUILD_DIR/individual-resources
-TAR_RESOURCES_FILE=$BUILD_DIR/individual-resources.tar
-AGG_RESOURCES_YAML=$BUILD_DIR/all-resources.yaml
+BINARY_DIR=$SCRIPTPATH/../build/bin
+INDV_K8S_RESOURCES=$BUILD_DIR/individual-resources.tar
+AGG_K8S_RESOURCES=$BUILD_DIR/all-resources.yaml
 HELM_ARCHIVES_DIR=$BUILD_DIR/helm-chart-archives
 
 RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/aws/amazon-ec2-metadata-mock/releases | \
     jq --arg VERSION "$VERSION" '.[] | select(.tag_name==$VERSION) | .id')
 
-for binary in $SCRIPTPATH/../build/bin/*; do
-    echo "Uploading $binary"
-    curl \
-        -H "Authorization: token $GITHUB_TOKEN" \
-        -H "Content-Type: $(file -b --mime-type $binary)" \
-        --data-binary @$binary \
-        "https://uploads.github.com/repos/aws/amazon-ec2-metadata-mock/releases/$RELEASE_ID/assets?name=$(basename $binary)"
-done
+export TERM="xterm"
+RED=$(tput setaf 1)
+RESET_FMT=$(tput sgr 0)
 
+ASSET_IDS_UPLOADED=()
 
-## Upload k8s resources
-resourceFiles=($TAR_RESOURCES_FILE $AGG_RESOURCES_YAML)
-for archive in $HELM_ARCHIVES_DIR/*; do
-    resourceFiles+=($archive)
-done
-for resourceFile in "${resourceFiles[@]}"; do
-    echo "Uploading $resourceFile"
-    curl \
+trap 'handle_errors_and_cleanup $?' EXIT
+
+handle_errors_and_cleanup() {
+    if [ $1 -eq "0" ]; then
+        exit 0
+    fi
+
+    if [[ ${#ASSET_IDS_UPLOADED[@]} -ne 0 ]]; then
+        echo -e "\nCleaning up assets uploaded in the current execution of the script"
+        for asset_id in $ASSET_IDS_UPLOADED; do
+            echo "Deleting asset $asset_id"
+            curl -X DELETE \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/aws/amazon-ec2-metadata-mock/releases/assets/$asset_id"
+        done
+        exit $1
+    fi
+}
+
+gather_assets_to_upload() {
+    local resources=($INDV_K8S_RESOURCES $AGG_K8S_RESOURCES)
+    for archive in $HELM_ARCHIVES_DIR/*; do
+        resources+=($archive)
+    done
+
+    for binary in $BINARY_DIR/*; do
+        resources+=($binary)
+    done
+    echo ${resources[@]}
+}
+
+# $1: absolute path to asset
+upload_asset() {
+    resp=$(curl --write-out %{http_code} --silent \
         -H "Authorization: token $GITHUB_TOKEN" \
-        -H "Content-Type: $(file -b --mime-type $resourceFile)" \
-        --data-binary @$resourceFile \
-        "https://uploads.github.com/repos/aws/amazon-ec2-metadata-mock/releases/$RELEASE_ID/assets?name=$(basename $resourceFile)"
+        -H "Content-Type: $(file -b --mime-type $1)" \
+        --data-binary @$1 \
+        "https://uploads.github.com/repos/aws/amazon-ec2-metadata-mock/releases/$RELEASE_ID/assets?name=$(basename $1)")
+
+    response_code=$(echo $resp | sed 's/\(.*\)}//')
+    response_content=$(echo $resp | sed "s/$response_code//")
+
+    # HTTP success code expected - 201 Created
+    if [[ $response_code -eq 201 ]]; then
+        asset_id=$(echo $response_content | jq '.id')
+        ASSET_IDS_UPLOADED+=($asset_id)
+        echo "Created asset ID $asset_id successfully"
+    else
+        echo -e "❌ ${RED}Upload failed with response code $response_code and message \n$response_content${RESET_FMT} ❌"
+        exit 1
+    fi
+}
+
+ASSETS=$(gather_assets_to_upload)
+COUNT=1
+echo -e "\nUploading release assets for release id '$RELEASE_ID' to Github"
+for asset in $ASSETS; do
+    name=$(echo $asset | tr '/' '\n' | tail -1)
+    echo -e "\n  $((COUNT++)). $name"
+    upload_asset $asset
 done
