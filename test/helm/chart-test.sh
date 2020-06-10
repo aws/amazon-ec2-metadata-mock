@@ -30,6 +30,7 @@ readonly KIND_EXEC_ARGS="--context kind-$CLUSTER_NAME --kubeconfig $KUBECONFIG_T
 # Helm/chart-testing
 CT_TAG="v3.0.0-rc.1"
 readonly CT_CONFIG="test/helm/ct.yaml"
+AEMM_DOCKER_IMG="amazon/amazon-ec2-metadata-mock:$(make latest-tag)"
 
 # chart-testing container
 readonly CT_CONTAINER_NAME="ct"
@@ -92,11 +93,29 @@ create_kind_cluster() {
     c_echo "Creating kind Kubernetes cluster with kubeconfig in $KUBECONFIG_TMP_PATH"
     kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "kindest/node:$KIND_IMAGE" --kubeconfig $KUBECONFIG_TMP_PATH --wait 60s
 
+    build_and_load_docker_image
+
     c_echo "Copying kubeconfig to container..."
     $CT_EXEC mkdir -p /root/.kube
     docker cp $KUBECONFIG_TMP_PATH ct:/root/.kube/config
 
     c_echo "Cluster ready!\n"
+}
+
+# build and load Docker image for AEMM to be able to install the latest
+build_and_load_docker_image() {
+
+    ## pre-pull golang builder to prevent intermittent timeouts from dockerhub
+    timeout 120 docker pull golang:1.14-- || :
+
+    c_echo "🥑 Building the amazon-ec2-metadata-mock docker image"
+    docker build -t $AEMM_DOCKER_IMG "$REPO_PATH" 
+    c_echo "👍 Built the amazon-ec2-metadata-mock docker image"
+    c_echo "$AEMM_DOCKER_IMG" > $TMP_DIR/aemm-docker-img
+
+    c_echo "🥑 Loading AEMM image into the cluster"
+    kind load docker-image --name $CLUSTER_NAME --nodes=$CLUSTER_NAME-worker,$CLUSTER_NAME-control-plane $AEMM_DOCKER_IMG
+    c_echo "👍 Loaded AEMM image into the cluster"
 }
 
 handle_errors_and_cleanup() {
