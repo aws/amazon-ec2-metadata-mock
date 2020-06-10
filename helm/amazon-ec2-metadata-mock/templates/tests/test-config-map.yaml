@@ -15,5 +15,5 @@ metadata:
 data:
   {{ .Values.configMapFileName }}: |
     spot-itn:
-      termination-time: "1994-05-15T00:00:00Z"
+      time: "1994-05-15T00:00:00Z"
 {{- end }}
