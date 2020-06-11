@@ -83,25 +83,25 @@ spec:
         - name: AEMM_IMDSV2
           value: {{ .Values.aemm.imdsv2| quote }}
         {{- end }}
-        {{- if .Values.aemm.scheduledEvents.code }}
-        - name: AEMM_SCHEDULED_EVENTS_CODE
-          value: {{ .Values.aemm.scheduledEvents.code | quote }}
+        {{- if .Values.aemm.events.code }}
+        - name: AEMM_EVENTS_CODE
+          value: {{ .Values.aemm.events.code | quote }}
         {{- end }}
-        {{- if .Values.aemm.scheduledEvents.notAfter }}
-        - name: AEMM_SCHEDULED_EVENTS_NOT_AFTER
-          value: {{ .Values.aemm.scheduledEvents.notAfter | quote }}
+        {{- if .Values.aemm.events.notAfter }}
+        - name: AEMM_EVENTS_NOT_AFTER
+          value: {{ .Values.aemm.events.notAfter | quote }}
         {{- end }}
-        {{- if .Values.aemm.scheduledEvents.notBefore }}
-        - name: AEMM_SCHEDULED_EVENTS_NOT_BEFORE
-          value: {{ .Values.aemm.scheduledEvents.notBefore | quote }}
+        {{- if .Values.aemm.events.notBefore }}
+        - name: AEMM_EVENTS_NOT_BEFORE
+          value: {{ .Values.aemm.events.notBefore | quote }}
         {{- end }}
-        {{- if .Values.aemm.scheduledEvents.notBeforeDeadline }}
-        - name: AEMM_SCHEDULED_EVENTS_NOT_BEFORE_DEADLINE
-          value: {{ .Values.aemm.scheduledEvents.notBeforeDeadline | quote }}
+        {{- if .Values.aemm.events.notBeforeDeadline }}
+        - name: AEMM_EVENTS_NOT_BEFORE_DEADLINE
+          value: {{ .Values.aemm.events.notBeforeDeadline | quote }}
         {{- end }}
-        {{- if .Values.aemm.scheduledEvents.state }}
-        - name: AEMM_SCHEDULED_EVENTS_STATE
-          value: {{ .Values.aemm.scheduledEvents.state | quote }}
+        {{- if .Values.aemm.events.state }}
+        - name: AEMM_EVENTS_STATE
+          value: {{ .Values.aemm.events.state | quote }}
         {{- end }}
         {{- if .Values.aemm.spot.action }}
         - name: AEMM_SPOT_ACTION

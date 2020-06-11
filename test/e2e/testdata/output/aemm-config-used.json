@@ -1,5 +1,12 @@
 {
   "config-file": "$HOME/aemm-config.json",
+  "events": {
+    "code": "system-reboot",
+    "not-after": "2020-06-18T13:35:03-05:00",
+    "not-before": "2020-06-11T13:35:03-05:00",
+    "not-before-deadline": "2020-06-20T13:35:03-05:00",
+    "state": "active"
+  },
   "imdsv2": false,
   "metadata": {
     "paths": {
@@ -13,6 +20,7 @@
       "block-device-mapping-swap": "/latest/meta-data/block-device-mapping/swap",
       "elastic-inference-accelerator": "/latest/meta-data/elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1",
       "elastic-inference-associations": "/latest/meta-data/elastic-inference/associations",
+      "events": "/latest/meta-data/events/maintenance/scheduled",
       "hostname": "/latest/meta-data/hostname",
       "iam-info": "/latest/meta-data/iam/info",
       "iam-security-credentials": "/latest/meta-data/iam/security-credentials/baskinc-role",
@@ -48,12 +56,11 @@
       "public-ipv4": "/latest/meta-data/public-ipv4",
       "public-key": "/latest/meta-data/public-keys/0/openssh-key",
       "reservation-id": "/latest/meta-data/reservation-id",
-      "scheduled-events": "/latest/meta-data/events/maintenance/scheduled",
       "security-groups": "/latest/meta-data/security-groups",
       "services-domain": "/latest/meta-data/services/domain",
       "services-partition": "/latest/meta-data/services/partition",
-      "spot-itn": "/latest/meta-data/spot/instance-action",
-      "spot-itn-termination-time": "/latest/meta-data/spot/termination-time"
+      "spot": "/latest/meta-data/spot/instance-action",
+      "spot-termination-time": "/latest/meta-data/spot/termination-time"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",
@@ -85,7 +92,8 @@
         "expiration": "2020-04-02T00:49:51Z",
         "lastupdated": "2020-04-02T18:50:40Z",
         "secretaccesskey": "v/12345678901",
-        "token": "TEST92test48TEST+y6RpoTEST92test48TEST/8oWVAiBqTEsT5Ky7ty2tEStxC1T=="
+        "token": "TEST92test48TEST+y6RpoTEST92test48TEST/8oWVAiBqTEsT5Ky7ty2tEStxC1T==",
+        "type": "AWS-HMAC"
       },
       "iam-security-credentials-role": "baskinc-role",
       "instance-action": "none",
@@ -126,18 +134,11 @@
   },
   "mock-delay-sec": 0,
   "save-config-to-file": true,
-  "scheduled-events": {
-    "code": "system-reboot",
-    "not-after": "2020-06-15T15:55:49-05:00",
-    "not-before": "2020-06-08T15:55:49-05:00",
-    "not-before-deadline": "2020-06-17T15:55:49-05:00",
-    "state": "active"
-  },
   "server": {
     "hostname": "0.0.0.0",
     "port": "1338"
   },
-  "spot-itn": {
+  "spot": {
     "action": "terminate",
     "time": ""
   }

@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package scheduledevents
+package events
 
 import (
 	"errors"
@@ -23,13 +23,13 @@ import (
 	cmdutil "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
-	se "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents"
+	se "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 
 	"github.com/spf13/cobra"
 )
 
 const (
-	cfgPrefix = "scheduled-events."
+	cfgPrefix = "events."
 
 	// local flags
 	eventCodeFlagName         = "code"
@@ -93,7 +93,7 @@ func newCmd() *cobra.Command {
 		Use:     "events [--code CODE] [--state STATE] [--not-after] [--not-before-deadline]",
 		Aliases: []string{"se", "scheduledevents"},
 		PreRunE: preRun,
-		Example: fmt.Sprintf("  %s scheduledevents -h \tscheduledevents help \n  %s scheduledevents -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time", cmdutil.BinName, cmdutil.BinName),
+		Example: fmt.Sprintf("  %s events -h \tevents help \n  %s events -o instance-stop --state active -d\t\tmocks an active and upcoming scheduled event for instance stop with a deadline for the event start time", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
 		Short:   "Mock EC2 maintenance events",
 		Long:    "Mock EC2 maintenance events",
@@ -126,7 +126,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 // ValidateLocalConfig validates all local config and returns a slice of error messages
 func ValidateLocalConfig() []string {
 	var errStrings []string
-	c := c.SchEventsConfig
+	c := c.EventsConfig
 
 	// validate event code
 	if ok := cmdutil.Contains(validEventCodes, c.EventCode); !ok {
@@ -160,7 +160,7 @@ func ValidateLocalConfig() []string {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	log.Printf("Initiating %s for EC2 Scheduled Events on port %s\n", cmdutil.BinName, c.Server.Port)
+	log.Printf("Initiating %s for EC2 Events on port %s\n", cmdutil.BinName, c.Server.Port)
 	cmdutil.PrintFlags(cmd.Flags())
 	cmdutil.RegisterHandlers(cmd, c)
 	se.Mock(c)

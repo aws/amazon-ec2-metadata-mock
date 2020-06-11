@@ -48,16 +48,10 @@ spec:
     - "bash"
     - "-c"
     - |
-      set -x
       SERVICE_NAME=$(echo {{ .Values.serviceName }} | tr '-' '_' | tr [:lower:] [:upper:])
-      set -x
       HOST_VAR=$(echo "${SERVICE_NAME}_SERVICE_HOST")
-      set -x
       PORT_VAR=$(echo "${SERVICE_NAME}_SERVICE_PORT")
-      set -x
       ACTUAL=$(curl http://${!HOST_VAR}:${!PORT_VAR}/latest/meta-data/spot/termination-time)
-      set -x
       EXPECTED="1994-05-15T00:00:00Z"
-      set -x
       [[ "$ACTUAL" == "$EXPECTED" ]] && exit 0 || exit 1
   {{- end }}

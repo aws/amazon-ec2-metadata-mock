@@ -14,7 +14,7 @@
 package config
 
 import (
-	scheduledevents "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents/config"
+	events "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events/config"
 	spot "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static/types"
 )
@@ -33,8 +33,8 @@ type Config struct {
 	Imdsv2Required   bool   `mapstructure:"imdsv2"`
 
 	// config keys for subcommands
-	SpotConfig      spot.Config            `mapstructure:"spot"`
-	SchEventsConfig scheduledevents.Config `mapstructure:"scheduled-events"`
+	SpotConfig   spot.Config   `mapstructure:"spot"`
+	EventsConfig events.Config `mapstructure:"events"`
 }
 
 // Server represents server config
@@ -61,6 +61,7 @@ type Paths struct {
 	BlockDeviceMappingSwap       string `mapstructure:"block-device-mapping-swap"`
 	ElasticInferenceAccelerator  string `mapstructure:"elastic-inference-accelerator"`
 	ElasticInferenceAssociations string `mapstructure:"elastic-inference-associations"`
+	Events                       string `mapstructure:"events"`
 	Hostname                     string `mapstructure:"hostname"`
 	IamInformation               string `mapstructure:"iam-info"`
 	IamSecurityCredentialsRole   string `mapstructure:"iam-security-credentials-role"`
@@ -96,7 +97,6 @@ type Paths struct {
 	PublicIpv4                   string `mapstructure:"public-ipv4"`
 	PublicKey                    string `mapstructure:"public-key"`
 	ReservationID                string `mapstructure:"reservation-id"`
-	ScheduledEvents              string `mapstructure:"scheduled-events"`
 	SecurityGroups               string `mapstructure:"security-groups"`
 	ServicesDomain               string `mapstructure:"services-domain"`
 	ServicesPartition            string `mapstructure:"services-partition"`

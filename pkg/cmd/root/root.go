@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/events"
 	gf "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root/globalflags"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/scheduledevents"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/spot"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	r "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/root"
@@ -76,7 +76,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().BoolP(gf.Imdsv2Flag, "I", false, "whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)")
 
 	// add subcommands
-	cmd.AddCommand(spot.Command, scheduledevents.Command)
+	cmd.AddCommand(spot.Command, events.Command)
 
 	// bind all non-metadata flags at top level
 	var topLevelGFlags []*pflag.Flag
@@ -124,7 +124,7 @@ func saveConfigToFile() {
 func setConfig(config cfg.Config) {
 	c = config
 	spot.SetConfig(config)
-	scheduledevents.SetConfig(config)
+	events.SetConfig(config)
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -139,7 +139,7 @@ func validateConfig() []string {
 
 	// validate subcommands' config
 	errStrings = append(errStrings, spot.ValidateLocalConfig()...)
-	errStrings = append(errStrings, scheduledevents.ValidateLocalConfig()...)
+	errStrings = append(errStrings, events.ValidateLocalConfig()...)
 
 	return errStrings
 }

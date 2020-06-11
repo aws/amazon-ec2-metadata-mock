@@ -82,7 +82,7 @@ Similar to spot, the `events` command, view the local flags using `events --help
 
 ```
 $ ec2-metadata-mock events --help
-Mock EC2 Scheduled Events
+Mock EC2 Events
 
 Usage:
   ec2-metadata-mock events [--code CODE] [--state STATE] [--not-after] [--not-before-deadline] [flags]

@@ -18,7 +18,7 @@ NETWORK_INTERFACE_ID_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interf
 IPV4_ASSOCIATIONS_PATH_DEFAULT="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_DEFAULT/ipv4-associations/$PUBLIC_IPV4_DEFAULT"
 IPV4_ASSOCIATIONS_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_OVERRIDDEN/ipv4-associations/$PUBLIC_IPV4_OVERRIDDEN"
 SPOT_TEST_PATH="$ROOT_PATH/latest/meta-data/spot/instance-action"
-SCHED_EVENTS_TEST_PATH="$ROOT_PATH/latest/meta-data/events/maintenance/scheduled"
+EVENTS_TEST_PATH="$ROOT_PATH/latest/meta-data/events/maintenance/scheduled"
 
 function test_static_metadata_available() {
   pid=$1
@@ -83,10 +83,10 @@ $start_cmd &
 STATIC_PID=$!
 test_static_metadata_available $STATIC_PID $SPOT_TEST_PATH "static_metadata::spot"
 
-start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --code instance-stop --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION events --code instance-stop --port $AEMM_PORT)
 $start_cmd &
 STATIC_PID=$!
-test_static_metadata_available $STATIC_PID $SCHED_EVENTS_TEST_PATH "static_metadata::scheduledevents"
+test_static_metadata_available $STATIC_PID $EVENTS_TEST_PATH "static_metadata::events"
 
 # Static metadata paths should reflect updated placeholder values
 start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT -c $TEST_CONFIG_FILE)

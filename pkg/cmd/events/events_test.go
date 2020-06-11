@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package scheduledevents
+package events
 
 import (
 	"bytes"
@@ -26,7 +26,7 @@ import (
 func TestNewCmdName(t *testing.T) {
 	expected := "events"
 	actual := newCmd().Name()
-	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for scheduledevents command to be %s, but was %s", expected, actual))
+	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for events command to be %s, but was %s", expected, actual))
 }
 func TestNewCmdLocalFlags(t *testing.T) {
 	expectedFlags := []string{"code", "state", "not-before", "not-after", "not-before-deadline"}
@@ -44,16 +44,16 @@ func TestNewCmdLocalFlags(t *testing.T) {
 
 func TestNewCmdHasPreRunE(t *testing.T) {
 	pre := newCmd().PreRunE
-	h.Assert(t, pre != nil, "Expected a non nil PreRunE for the scheduledevents command")
+	h.Assert(t, pre != nil, "Expected a non nil PreRunE for the events command")
 }
 
 func TestNewCmdHasRun(t *testing.T) {
 	run := newCmd().Run
-	h.Assert(t, run != nil, "Expected a non nil Run for the scheduledevents command")
+	h.Assert(t, run != nil, "Expected a non nil Run for the events command")
 }
 func TestNewCmdHasExample(t *testing.T) {
 	hasExample := newCmd().HasExample()
-	h.Assert(t, hasExample, "Expected scheduledevents command to have an example, but wasn't found")
+	h.Assert(t, hasExample, "Expected events command to have an example, but wasn't found")
 }
 func TestExecuteHelpExists(t *testing.T) {
 	cmd := newCmd()
@@ -64,5 +64,5 @@ func TestExecuteHelpExists(t *testing.T) {
 	h.Ok(t, err)
 
 	output := buf.String()
-	h.Assert(t, output != "", "Expected help subcommand for scheduledevents, but wasn't found")
+	h.Assert(t, output != "", "Expected help subcommand for events, but wasn't found")
 }

@@ -60,7 +60,7 @@ aemm:
   spot:
     action: ""
     time: ""
-  scheduledEvents:
+  events:
     code: ""
     notAfter: ""
     notBefore: ""
