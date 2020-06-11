@@ -23,7 +23,7 @@ import (
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/listmocks"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/versions"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
@@ -118,8 +118,8 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 	isSchedEvents := strings.Contains(cmd.Name(), "events")
 
 	subCommandHandlers := map[string][]handlerPair{
-		"spot": {{path: config.Metadata.Paths.SpotItn, handler: spotitn.Handler},
-			{path: config.Metadata.Paths.SpotItnTerminationTime, handler: spotitn.Handler}},
+		"spot": {{path: config.Metadata.Paths.Spot, handler: spot.Handler},
+			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler}},
 		"events": {{path: config.Metadata.Paths.ScheduledEvents, handler: scheduledevents.Handler}},
 	}
 

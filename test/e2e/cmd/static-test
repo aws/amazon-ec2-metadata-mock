@@ -17,7 +17,7 @@ NETWORK_INTERFACE_ID_PATH_DEFAULT="$ROOT_PATH/latest/meta-data/network/interface
 NETWORK_INTERFACE_ID_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_OVERRIDDEN/interface-id"
 IPV4_ASSOCIATIONS_PATH_DEFAULT="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_DEFAULT/ipv4-associations/$PUBLIC_IPV4_DEFAULT"
 IPV4_ASSOCIATIONS_PATH_OVERRIDDEN="$ROOT_PATH/latest/meta-data/network/interfaces/macs/$MAC_ADDRESS_OVERRIDDEN/ipv4-associations/$PUBLIC_IPV4_OVERRIDDEN"
-SPOTITN_TEST_PATH="$ROOT_PATH/latest/meta-data/spot/instance-action"
+SPOT_TEST_PATH="$ROOT_PATH/latest/meta-data/spot/instance-action"
 SCHED_EVENTS_TEST_PATH="$ROOT_PATH/latest/meta-data/events/maintenance/scheduled"
 
 function test_static_metadata_available() {
@@ -78,10 +78,10 @@ $start_cmd &
 STATIC_PID=$!
 test_static_metadata_available $STATIC_PID $ROOT_PATH "static_metadata::root"
 
-start_cmd=$(create_cmd $METADATA_VERSION spotitn -a hibernate --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION spot -a hibernate --port $AEMM_PORT)
 $start_cmd &
 STATIC_PID=$!
-test_static_metadata_available $STATIC_PID $SPOTITN_TEST_PATH "static_metadata::spotitn"
+test_static_metadata_available $STATIC_PID $SPOT_TEST_PATH "static_metadata::spot"
 
 start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --code instance-stop --port $AEMM_PORT)
 $start_cmd &

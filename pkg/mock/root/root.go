@@ -16,7 +16,7 @@ package root
 import (
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
@@ -25,7 +25,7 @@ import (
 func Mock(config cfg.Config) {
 
 	// set configs for subcommands
-	spotitn.SetConfig(config)
+	spot.SetConfig(config)
 	scheduledevents.SetConfig(config)
 
 	server.ListenAndServe(config.Server.HostName, config.Server.Port)

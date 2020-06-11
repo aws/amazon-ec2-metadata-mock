@@ -103,11 +103,11 @@ spec:
         - name: AEMM_SCHEDULED_EVENTS_STATE
           value: {{ .Values.aemm.scheduledEvents.state | quote }}
         {{- end }}
-        {{- if .Values.aemm.spotItn.action }}
-        - name: AEMM_SPOT_ITN_ACTION
-          value: {{ .Values.aemm.spotItn.action | quote }}
+        {{- if .Values.aemm.spot.action }}
+        - name: AEMM_SPOT_ACTION
+          value: {{ .Values.aemm.spot.action | quote }}
         {{- end }}
-        {{- if .Values.aemm.spotItn.time }}
-        - name: AEMM_SPOT_ITN_TIME
-          value: {{ .Values.aemm.spotItn.time | quote }}
+        {{- if .Values.aemm.spot.time }}
+        - name: AEMM_SPOT_TIME
+          value: {{ .Values.aemm.spot.time | quote }}
         {{- end }}

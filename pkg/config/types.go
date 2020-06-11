@@ -15,7 +15,7 @@ package config
 
 import (
 	scheduledevents "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents/config"
-	spotitn "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn/config"
+	spot "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static/types"
 )
 
@@ -33,7 +33,7 @@ type Config struct {
 	Imdsv2Required   bool   `mapstructure:"imdsv2"`
 
 	// config keys for subcommands
-	SpotItnConfig   spotitn.Config         `mapstructure:"spot-itn"`
+	SpotConfig      spot.Config            `mapstructure:"spot"`
 	SchEventsConfig scheduledevents.Config `mapstructure:"scheduled-events"`
 }
 
@@ -100,8 +100,8 @@ type Paths struct {
 	SecurityGroups               string `mapstructure:"security-groups"`
 	ServicesDomain               string `mapstructure:"services-domain"`
 	ServicesPartition            string `mapstructure:"services-partition"`
-	SpotItn                      string `mapstructure:"spot-itn"`
-	SpotItnTerminationTime       string `mapstructure:"spot-itn-termination-time"`
+	Spot                         string `mapstructure:"spot"`
+	SpotTerminationTime          string `mapstructure:"spot-termination-time"`
 }
 
 // Values represents config used in the mock responses

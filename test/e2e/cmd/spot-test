@@ -3,41 +3,41 @@
 set -euo pipefail
 
 TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
-SPOTITN_IA_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action"
-SPOTITN_TT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time"
+SPOT_IA_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action"
+SPOT_TT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time"
 FLAG_OVERRIDDEN_INSTANCE_ACTION="hibernate"
 ENV_OVERRIDDEN_INSTANCE_ACTION="stop"
 FLAG_OVERRIDDEN_TERMINATION_TIME="2025-05-05T05:05:55Z"
 CONFIG_OVERRIDDEN_TERMINATION_TIME="2020-01-07T01:03:47Z"
 
-function test_spotitn_paths() {
+function test_spot_paths() {
   pid=$1
   tput setaf $MAGENTA
-  health_check $SPOTITN_IA_TEST_PATH
+  health_check $SPOT_IA_TEST_PATH
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
-  expected_paths=$(cat $SCRIPTPATH/golden/spotitn_paths.golden)
+  expected_paths=$(cat $SCRIPTPATH/golden/spot_paths.golden)
 
-  assert_value "$actual_paths" "$expected_paths" "test_spotitn_paths"
+  assert_value "$actual_paths" "$expected_paths" "test_spot_paths"
 
   clean_up $pid
 }
 
-function test_spotitn_ia_defaults() {
+function test_spot_ia_defaults() {
   pid=$1
   tput setaf $MAGENTA
-  health_check $SPOTITN_IA_TEST_PATH
+  health_check $SPOT_IA_TEST_PATH
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
-  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
   actual_inst_action=$(get_value '"action"' "$response")
   actual_ia_time=$(get_value '"time"' "$response")
 
-  assert_value "$actual_inst_action" $SPOTITN_INSTANCE_ACTION_DEFAULT 'Default spotitn_ia::action val'
-  assert_format "$actual_ia_time" $SPOTITN_DATE_REGEX 'Default spotitn_ia::time format'
+  assert_value "$actual_inst_action" $SPOT_INSTANCE_ACTION_DEFAULT 'Default spot_ia::action val'
+  assert_format "$actual_ia_time" $SPOT_DATE_REGEX 'Default spot_ia::time format'
 
-  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
+  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TT_TEST_PATH)
 
   actual_term_time_sec=$(convert_RFC3339_to_sec $actual_term_time)
   actual_ia_time_sec=$(convert_RFC3339_to_sec $actual_ia_time)
@@ -48,19 +48,19 @@ function test_spotitn_ia_defaults() {
   clean_up $pid
 }
 
-function test_spotitn_ia_overrides() {
+function test_spot_ia_overrides() {
   pid=$1
   expected_inst_action=$2
   expected_term_time=$3
   tput setaf $MAGENTA
-  health_check $SPOTITN_IA_TEST_PATH
+  health_check $SPOT_IA_TEST_PATH
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
-  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_IA_TEST_PATH)
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
   actual_inst_action=$(get_value '"action"' "$response")
   actual_ia_time=$(get_value '"time"' "$response")
 
-  assert_value "$actual_inst_action" $expected_inst_action 'Override spotitn_ia::action'
+  assert_value "$actual_inst_action" $expected_inst_action 'Override spot_ia::action'
 
   actual_ia_time_sec=$(convert_RFC3339_to_sec $actual_ia_time)
   expected_term_time_sec=$(convert_RFC3339_to_sec $expected_term_time)
@@ -68,7 +68,7 @@ function test_spotitn_ia_overrides() {
   # times should be within 5 second range
   assert_value_within_range $actual_ia_time_sec $expected_term_time_sec 5
 
-  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOTITN_TT_TEST_PATH)
+  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TT_TEST_PATH)
   actual_term_time_sec=$(convert_RFC3339_to_sec $actual_term_time)
 
   # times should be within 5 second range
@@ -77,13 +77,13 @@ function test_spotitn_ia_overrides() {
   clean_up $pid
 }
 
-function test_spotitn_subcommand_paths_404() {
+function test_spot_subcommand_paths_404() {
   pid=$1
   test_url="$2"
   test_name="$3"
   expected_response=$(cat $SCRIPTPATH/golden/404_response.golden)
   tput setaf $MAGENTA
-  health_check $SPOTITN_IA_TEST_PATH
+  health_check $SPOT_IA_TEST_PATH
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $test_url)
@@ -95,49 +95,49 @@ function test_spotitn_subcommand_paths_404() {
 
 tput setaf $MAGENTA
 echo "======================================================================================================"
-echo "🥑 Starting spotitn integration tests $METADATA_VERSION"
+echo "🥑 Starting spot integration tests $METADATA_VERSION"
 echo "======================================================================================================"
 
 start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_paths $SPOTITN_PID
+SPOT_PID=$!
+test_spot_paths $SPOT_PID
 
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_ia_defaults $SPOTITN_PID
+SPOT_PID=$!
+test_spot_ia_defaults $SPOT_PID
 
 # flag overrides
 start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
+SPOT_PID=$!
+test_spot_ia_overrides $SPOT_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
 
 # flag + env overrides
-export AEMM_SPOT_ITN_ACTION="stop"
+export AEMM_SPOT_ACTION="stop"
 start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
+SPOT_PID=$!
+test_spot_ia_overrides $SPOT_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $FLAG_OVERRIDDEN_TERMINATION_TIME
 
 # env + config overrides
-export AEMM_SPOT_ITN_ACTION="stop"
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+export AEMM_SPOT_ACTION="stop"
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -c $TEST_CONFIG_FILE)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_ia_overrides $SPOTITN_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
+SPOT_PID=$!
+test_spot_ia_overrides $SPOT_PID $ENV_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
 
 # flag + env + config overrides
-export AEMM_SPOT_ITN_ACTION="stop"
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -c $TEST_CONFIG_FILE)
+export AEMM_SPOT_ACTION="stop"
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -a $FLAG_OVERRIDDEN_INSTANCE_ACTION -c $TEST_CONFIG_FILE)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_ia_overrides $SPOTITN_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
+SPOT_PID=$!
+test_spot_ia_overrides $SPOT_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
 
 # paths for other subcommands should be disabled
-start_cmd=$(create_cmd $METADATA_VERSION spotitn --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT)
 $start_cmd &
-SPOTITN_PID=$!
-test_spotitn_subcommand_paths_404 $SPOTITN_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/maintenance/scheduled" "scheduled-maintenance-events"
+SPOT_PID=$!
+test_spot_subcommand_paths_404 $SPOT_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/maintenance/scheduled" "scheduled-maintenance-events"
 
 exit $EXIT_CODE_TO_RETURN

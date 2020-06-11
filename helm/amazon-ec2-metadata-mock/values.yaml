@@ -57,7 +57,7 @@ aemm:
     hostname: ""
   mockDelaySec: 0
   imdsv2: false
-  spotItn:
+  spot:
     action: ""
     time: ""
   scheduledEvents:

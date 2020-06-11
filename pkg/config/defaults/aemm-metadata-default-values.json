@@ -50,8 +50,8 @@
       "security-groups": "/latest/meta-data/security-groups",
       "services-domain": "/latest/meta-data/services/domain",
       "services-partition": "/latest/meta-data/services/partition",
-      "spot-itn": "/latest/meta-data/spot/instance-action",
-      "spot-itn-termination-time": "/latest/meta-data/spot/termination-time"
+      "spot": "/latest/meta-data/spot/instance-action",
+      "spot-termination-time": "/latest/meta-data/spot/termination-time"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",

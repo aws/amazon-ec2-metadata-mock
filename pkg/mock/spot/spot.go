@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package spotitn
+package spot
 
 import (
 	"log"
@@ -19,7 +19,7 @@ import (
 	"time"
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
-	t "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn/internal/types"
+	t "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot/internal/types"
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
@@ -60,8 +60,8 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	// default time to requestTime + 2min, unless overridden
 	timePlus2Min := time.Now().UTC().Add(time.Minute * time.Duration(2)).Format(time.RFC3339)
 	mockResponseTime := timePlus2Min
-	if c.SpotItnConfig.TerminationTime != "" {
-		mockResponseTime = c.SpotItnConfig.TerminationTime
+	if c.SpotConfig.TerminationTime != "" {
+		mockResponseTime = c.SpotConfig.TerminationTime
 	}
 
 	// return mock response after the delay has elapsed
@@ -75,7 +75,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 func getInstanceActionResponse(time string) t.InstanceActionResponse {
 	return t.InstanceActionResponse{
-		Action: c.SpotItnConfig.InstanceAction,
+		Action: c.SpotConfig.InstanceAction,
 		Time:   time,
 	}
 }
