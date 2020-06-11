@@ -121,7 +121,7 @@ echo "==========================================================================
 echo "🥑 Starting scheduledevents integration tests $METADATA_VERSION"
 echo "======================================================================================================"
 
-start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT)
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT)
 $start_cmd &
 SCHEDEV_PID=$!
 test_scheduledevents_paths $SCHEDEV_PID
@@ -130,7 +130,7 @@ $start_cmd &
 SCHEDEV_PID=$!
 test_scheduledevents_defaults $SCHEDEV_PID
 
-start_cmd=$(create_cmd $METADATA_VERSION scheduledevents --port $AEMM_PORT --code instance-stop --state canceled)
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT --code instance-stop --state canceled)
 $start_cmd &
 SCHEDEV_PID=$!
 test_scheduledevents_code_and_state $SCHEDEV_PID

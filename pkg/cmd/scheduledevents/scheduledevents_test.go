@@ -24,7 +24,7 @@ import (
 )
 
 func TestNewCmdName(t *testing.T) {
-	expected := "scheduledevents"
+	expected := "events"
 	actual := newCmd().Name()
 	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for scheduledevents command to be %s, but was %s", expected, actual))
 }

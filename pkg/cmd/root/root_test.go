@@ -43,7 +43,7 @@ func TestNewCmdFlags(t *testing.T) {
 	h.ItemsMatch(t, expectedFlags, actualFlags)
 }
 func TestNewCmdHasSubcommands(t *testing.T) {
-	expSubcommandNames := []string{"spot", "scheduledevents"}
+	expSubcommandNames := []string{"spot", "events"}
 
 	cmd := NewCmd()
 	actSubcommands := cmd.Commands()
