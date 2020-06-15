@@ -111,6 +111,19 @@ func FormatAndReturnTextResponse(res http.ResponseWriter, data string) {
 	return
 }
 
+// FormatAndReturnJSONTextResponse formats the given data into JSON and returns a plaintext response
+func FormatAndReturnJSONTextResponse(res http.ResponseWriter, data interface{}) {
+	res.Header().Set("Content-Type", "text/plain")
+	var err error
+	var metadataPrettyJSON []byte
+	if metadataPrettyJSON, err = json.Marshal(data); err != nil {
+		log.Fatalf("Error while attempting to format data %s for response: %s", data, err)
+	}
+	res.Write(metadataPrettyJSON)
+	log.Println("Returned JSON text/plain mock response successfully.")
+	return
+}
+
 // ReturnNotFoundResponse returns response with 404 Not Found
 func ReturnNotFoundResponse(w http.ResponseWriter) {
 	http.Error(w, notFoundResponse, http.StatusNotFound)
