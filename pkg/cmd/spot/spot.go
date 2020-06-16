@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package spotitn
+package spot
 
 import (
 	"errors"
@@ -22,13 +22,13 @@ import (
 	cmdutil "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
-	s "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn"
+	s "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 
 	"github.com/spf13/cobra"
 )
 
 const (
-	cfgPrefix = "spot-itn."
+	cfgPrefix = "spot."
 
 	// local flags
 	instanceActionFlagName  = "action"
@@ -67,7 +67,7 @@ func initConfig() {
 func newCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     "spot [--action ACTION]",
-		Aliases: []string{"spotitn"},
+		Aliases: []string{"spot"},
 		PreRunE: preRun,
 		Example: fmt.Sprintf("  %s spot -h \tspot help \n  %s spot -d 5 --action terminate\t\tmocks spot interruption only", cmdutil.BinName, cmdutil.BinName),
 		Run:     run,
@@ -99,7 +99,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 // ValidateLocalConfig validates all local config and returns a slice of error messages
 func ValidateLocalConfig() []string {
 	var errStrings []string
-	c := c.SpotItnConfig
+	c := c.SpotConfig
 
 	// validate instance-action
 	if ok := cmdutil.Contains(validInstanceActions, c.InstanceAction); !ok {

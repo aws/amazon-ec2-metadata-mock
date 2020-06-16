@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package scheduledevents
+package events
 
 import (
 	"log"
@@ -19,7 +19,7 @@ import (
 	"time"
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
-	t "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents/internal/types"
+	t "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events/internal/types"
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
@@ -46,7 +46,7 @@ func SetConfig(config cfg.Config) {
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Println("Received request to mock EC2 scheduled event:", req.URL.Path)
+	log.Println("Received request to mock EC2 event:", req.URL.Path)
 
 	delayInSeconds := c.MockDelayInSec
 	requestTime := time.Now().Unix()
@@ -63,7 +63,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 func getMetadata() []t.Event {
 	md := c.Metadata.Values
-	se := c.SchEventsConfig
+	se := c.EventsConfig
 
 	b, _ := time.Parse(time.RFC3339, se.NotBefore)
 	a, _ := time.Parse(time.RFC3339, se.NotAfter)

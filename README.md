@@ -224,7 +224,7 @@ Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **Metadata mock responses**
   * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/defaults/aemm-metadata-default-values.json)
 * **Commands**
-  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/scheduledevents/scheduledevents.go#L72) 
+  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/events/events.go#L72) 
 
 ## Overrides
 AEMM supports configuration from various sources including: cli flags, env variables, and config files. Details regarding
@@ -359,7 +359,7 @@ Flags:
 
 ```
 $ ec2-metadata-mock events --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
-Initiating ec2-metadata-mock for EC2 Scheduled Events on port 1338
+Initiating ec2-metadata-mock for EC2 Events on port 1338
 Serving the following routes: ... (truncated for readability)
 
 ```

@@ -20,10 +20,10 @@ import (
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/listmocks"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/scheduledevents"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spotitn"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/versions"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
@@ -115,17 +115,17 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")
-	isSchedEvents := strings.Contains(cmd.Name(), "events")
+	isEvents := strings.Contains(cmd.Name(), "events")
 
 	subCommandHandlers := map[string][]handlerPair{
-		"spot": {{path: config.Metadata.Paths.SpotItn, handler: spotitn.Handler},
-			{path: config.Metadata.Paths.SpotItnTerminationTime, handler: spotitn.Handler}},
-		"events": {{path: config.Metadata.Paths.ScheduledEvents, handler: scheduledevents.Handler}},
+		"spot": {{path: config.Metadata.Paths.Spot, handler: spot.Handler},
+			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler}},
+		"events": {{path: config.Metadata.Paths.Events, handler: events.Handler}},
 	}
 
 	if isSpot {
 		handlerPairs = append(handlerPairs, subCommandHandlers["spot"]...)
-	} else if isSchedEvents {
+	} else if isEvents {
 		handlerPairs = append(handlerPairs, subCommandHandlers["events"]...)
 	} else {
 		// root registers all subcommands

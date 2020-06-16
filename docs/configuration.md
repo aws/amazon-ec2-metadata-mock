@@ -15,7 +15,7 @@ The tool can be configured in various ways:
     $ env | grep AEMM     // To list the tool's env variables
     ```
 
-    > NOTE the translation of config key `spot-itn.action` to `AEMM_SPOT_ITN_ACTION` env variable.
+    > NOTE the translation of config key `spot.action` to `AEMM_SPOT_ACTION` env variable.
 
 3. Configuration file in JSON format at `path/to/config-overrides.json`
 ```
@@ -29,7 +29,7 @@ The tool can be configured in various ways:
       "public-ipv4": "54.92.157.77"
     }
   },
-  "spot-itn": {
+  "spot": {
     "action": "terminate",
     "time": "2020-01-07T01:03:47Z"
   }
@@ -63,7 +63,7 @@ $ cat $HOME/.ec2-metadata-mock/.aemm-config-used.json
     "hostname": "localhost",
     "port": "1338"
   },
-  "spot-itn": {
+  "spot": {
     "action": "stop",
     "time": "2020-01-07T01:03:47Z"
   }
@@ -89,7 +89,7 @@ Defaults in code:
     },
     "mock-delay-sec": 0,
     "save-config-to-file": false,
-    "spot-itn": {
+    "spot": {
        "action": "terminate"
     }
 }
@@ -105,7 +105,7 @@ Config File (at /path/to/my-custom-aemm-config.json):
     "server": {
          "port": "1550"
     },
-    "spot-itn": {
+    "spot": {
        "action": "stop"
     }
 }
@@ -121,7 +121,7 @@ The resulting config will have the following values (non-overriden values are tr
  {
     "mock-delay-sec": 8,                                        # from CLI flag
     "config-file": "/path/to/my-custom-aemm-config.json",       # from env
-    "spot-itn": {
+    "spot": {
         "action": "hibernate"                          # from env
    }
     "imdsv2": true,                                             # from custom config file at /path/to/my-custom-aemm-config.json

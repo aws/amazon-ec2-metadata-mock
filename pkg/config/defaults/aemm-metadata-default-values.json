@@ -11,6 +11,7 @@
       "block-device-mapping-swap": "/latest/meta-data/block-device-mapping/swap",
       "elastic-inference-associations": "/latest/meta-data/elastic-inference/associations",
       "elastic-inference-accelerator": "/latest/meta-data/elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1",
+      "events": "/latest/meta-data/events/maintenance/scheduled",
       "hostname": "/latest/meta-data/hostname",
       "iam-info": "/latest/meta-data/iam/info",
       "iam-security-credentials-role": "/latest/meta-data/iam/security-credentials",
@@ -46,12 +47,11 @@
       "public-ipv4": "/latest/meta-data/public-ipv4",
       "public-key": "/latest/meta-data/public-keys/0/openssh-key",
       "reservation-id": "/latest/meta-data/reservation-id",
-      "scheduled-events": "/latest/meta-data/events/maintenance/scheduled",
       "security-groups": "/latest/meta-data/security-groups",
       "services-domain": "/latest/meta-data/services/domain",
       "services-partition": "/latest/meta-data/services/partition",
-      "spot-itn": "/latest/meta-data/spot/instance-action",
-      "spot-itn-termination-time": "/latest/meta-data/spot/termination-time"
+      "spot": "/latest/meta-data/spot/instance-action",
+      "spot-termination-time": "/latest/meta-data/spot/termination-time"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",

@@ -8,11 +8,11 @@ SCRIPTPATH="$(
 )"
 BIN="ec2-metadata-mock"
 HOSTNAME="localhost"
-SPOTITN_DATE_REGEX='^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z'
-SPOTITN_INSTANCE_ACTION_DEFAULT='terminate'
-SCHEDULED_EVENTS_DATE_REGEX='^[0-9]{1,2} [A-Z]{1}[a-z]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT'
-SCHEDULED_EVENTS_CODE_DEFAULT='system-reboot'
-SCHEDULED_EVENTS_STATE_DEFAULT='active'
+SPOT_DATE_REGEX='^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z'
+SPOT_INSTANCE_ACTION_DEFAULT='terminate'
+EVENTS_DATE_REGEX='^[0-9]{1,2} [A-Z]{1}[a-z]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT'
+EVENTS_CODE_DEFAULT='system-reboot'
+EVENTS_STATE_DEFAULT='active'
 JSON_VALUE_EXTRACTION_REGEX='(\d*?,|.*[^\\]")'
 MAX_TOKEN_TTL="21600"
 EXIT_CODE_SUCCESSS=0
@@ -68,6 +68,7 @@ function assert_value_within_range() {
     echo "✅ Verified actual and expected are within range"
   else
     echo "❌ actual and expected are NOT within range"
+    echo "actual: $actual   expected: $expected"
     EXIT_CODE_TO_RETURN=1
   fi
 }
@@ -171,11 +172,11 @@ export MAGENTA
 export CYAN
 export ORANGE
 export HOSTNAME
-export SPOTITN_INSTANCE_ACTION_DEFAULT
-export SCHEDULED_EVENTS_STATE_DEFAULT
-export SCHEDULED_EVENTS_CODE_DEFAULT
-export SCHEDULED_EVENTS_DATE_REGEX
-export SPOTITN_DATE_REGEX
+export SPOT_INSTANCE_ACTION_DEFAULT
+export EVENTS_STATE_DEFAULT
+export EVENTS_CODE_DEFAULT
+export EVENTS_DATE_REGEX
+export SPOT_DATE_REGEX
 export JSON_VALUE_EXTRACTION_REGEX
 export MAX_TOKEN_TTL
 export EXIT_CODE_TO_RETURN

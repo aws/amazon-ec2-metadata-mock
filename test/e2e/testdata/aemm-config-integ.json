@@ -8,7 +8,7 @@
       "public-ipv4": "54.92.157.77"
     }
   },
-  "spot-itn": {
+  "spot": {
     "action": "terminate",
     "time": "2020-01-07T01:03:47Z"
   }
