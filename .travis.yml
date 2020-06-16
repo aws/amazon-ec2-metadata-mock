@@ -33,21 +33,6 @@ jobs:
       language: go
       go: 1.14.x
       script: make e2e-test
-    - name: Helm E2E tests for K8s v1.18
-      script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
-      env: K8S_VERSION=1.18
-    - name: Helm E2E tests for K8s v1.17
-      script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
-      env: K8S_VERSION=1.17
-    - name: Helm E2E tests for K8s v1.16
-      script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
-      env: K8S_VERSION=1.16
-    - name: Helm E2E tests for K8s v1.15
-      script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
-      env: K8S_VERSION=1.15
-    - name: Helm E2E tests for K8s v1.14
-      script: make helm-app-version-test && test/helm/chart-test.sh -k $K8S_VERSION
-      env: K8S_VERSION=1.14
     - name: Build Github release assets
       if: env(GITHUB_TOKEN) IS present
       script: make build-release-assets
