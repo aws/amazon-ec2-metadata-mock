@@ -24,8 +24,9 @@ import (
 )
 
 var (
-	supportedPaths = make(map[string]interface{})
-	response       interface{}
+	supportedPaths   = make(map[string]interface{})
+	response         interface{}
+	jsonTextResponse = map[string]bool{"/latest/meta-data/elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1": true}
 )
 
 // Handler processes http requests
@@ -39,11 +40,15 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	switch response.(type) {
-	// static metadata values are either string or JSON
+	// static metadata values are either string or JSON EXCEPT FOR elastic-inference associations
 	case string:
 		server.FormatAndReturnTextResponse(res, response.(string))
 	default:
-		server.FormatAndReturnJSONResponse(res, response)
+		if jsonTextResponse[req.URL.Path] {
+			server.FormatAndReturnJSONTextResponse(res, response)
+		} else {
+			server.FormatAndReturnJSONResponse(res, response)
+		}
 	}
 }
 

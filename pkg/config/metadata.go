@@ -16,6 +16,8 @@ package config
 import (
 	"encoding/json"
 
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static/types"
+
 	"github.com/spf13/pflag"
 )
 
@@ -76,6 +78,11 @@ var (
 
 	// values in mock responses
 	mdValuesDefaults = map[string]interface{}{}
+
+	// mapping of metadata value keys to its nested struct
+	mdNestedValues = map[string]interface{}{
+		"metadata.values.elastic-inference-accelerator": types.ElasticInferenceAccelerator{},
+	}
 )
 
 // GetCfgMdValPrefix returns the prefix to use to access metadata values in config
@@ -112,6 +119,14 @@ func SetMetadataDefaults(jsonWithDefaults []byte) {
 		newKey := mdValuesCfgPrefix + k
 		// ex: "metadata.values.ami-id": "ami-0a887e401f7654935"
 		mdValuesDefaults[newKey] = v
+
+		// if mdvalue is a nested struct, then re-unmarshal json data to correct type
+		if nestedStruct, ok := mdNestedValues[newKey]; ok {
+			updatedVal, err := unmarshalToNestedStruct(v, nestedStruct)
+			if err == nil {
+				mdValuesDefaults[newKey] = updatedVal
+			}
+		}
 	}
 
 	LoadConfigFromDefaults(mdPathsDefaults)
@@ -126,4 +141,25 @@ func GetMetadataDefaults() (map[string]interface{}, map[string]interface{}) {
 // GetMetadataValueToPlaceholderPathsKeyMap returns collection of metadata values that are substituted into paths
 func GetMetadataValueToPlaceholderPathsKeyMap() map[string][]string {
 	return mdValueToPlaceholderPathsKeyMap
+}
+
+// unmarshalToNestedStruct returns a struct with its nested values populated correctly
+func unmarshalToNestedStruct(originalValue interface{}, unmarshalToStruct interface{}) (interface{}, error) {
+	valAsJson, err := json.Marshal(originalValue)
+	if err != nil {
+		return nil, err
+	}
+
+	// all supported nested structs
+	switch unmarshalToStruct.(type) {
+	case types.ElasticInferenceAccelerator:
+		nestedStruct, ok := unmarshalToStruct.(types.ElasticInferenceAccelerator)
+		if ok {
+			if err = json.Unmarshal(valAsJson, &nestedStruct); err != nil {
+				return nil, err
+			}
+			return nestedStruct, nil
+		}
+	}
+	return nil, nil
 }
