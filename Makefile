@@ -80,7 +80,7 @@ upload-resources-to-github:
 
 build-release-assets: create-build-dir build-binaries generate-k8s-yaml gen-helm-chart-archives
 
-release: upload-resources-to-github
+release: build-release-assets upload-resources-to-github
 
 build-docker-images:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS} -r ${IMG} -v ${VERSION}

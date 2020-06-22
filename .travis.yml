@@ -46,4 +46,4 @@ jobs:
     - stage: Docker Release
       name: Docker release
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_TOKEN) IS present
-      script: make push-docker-images && make sync-readme-to-dockerhub
+      script: make release-docker
