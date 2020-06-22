@@ -4,40 +4,46 @@ language: minimal
 services:
 - docker
 
-env:
-- K8S_VERSION=1.18
-- K8S_VERSION=1.17
-- K8S_VERSION=1.16
-- K8S_VERSION=1.15
-- K8S_VERSION=1.14
+stages:
+- Build and Test
+- Github Release
+- Docker Release
 
-matrix:
+jobs:
   include:
-    - stage: Test
+    - stage: Build and Test
+      name: Build
       language: go
-      go: "1.14.x"
+      go: 1.14.x
+      script: make build
+    - name: Unit tests
+      language: go
+      go: 1.14.x
       script: make unit-test
-      env: GO111MODULE=on
-    - stage: Test
-      script: test/go-report-card-test/run-report-card-test.sh
-      env: GO_REPORT_CARD=true
-    - stage: Test
+    - name: Go report card test
+      script: make go-report-card-test
+    - name: Readme length validator
       script: make validate-readme
-      env: VALIDATE_README=true
-    - stage: Test
+    - name: License test
       if: type = push AND env(GITHUB_TOKEN) IS present
-      script: test/license-test/run-license-test.sh
-      env: LICENSE_TEST=true
-    - stage: Test
+      script: make license-test
+    - name: Helm lint test
+      script: make helm-lint-test
+    - name: AEMM E2E tests
       language: go
-      go: "1.14.x"
+      go: 1.14.x
       script: make e2e-test
-      env: E2E_TEST=true GO111MODULE=on
-    - stage: Deploy
-      if: type = push AND env(DOCKERHUB_USERNAME) IS present
-      script: make sync-readme-to-dockerhub
-      env: SYNC_README_TO_DOCKERHUB=true
-    - stage: Deploy
-      if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_USERNAME) IS present
+    - name: Build Github release assets
+      if: env(GITHUB_TOKEN) IS present
+      script: make build-release-assets
+    - name: Build Docker images
+      if: env(DOCKERHUB_TOKEN) IS present
+      script: make build-docker-images
+    - stage: Github Release
+      name: Github release
+      if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(GITHUB_TOKEN) IS present
       script: make release
-      env: RELEASE_ASSETS=true
+    - stage: Docker Release
+      name: Docker release
+      if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_TOKEN) IS present
+      script: make push-docker-images && make sync-readme-to-dockerhub
