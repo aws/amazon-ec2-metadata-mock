@@ -44,6 +44,7 @@ rm -rf $BUILD_DIR/$PLATFORM-amd64
 chmod +x $BUILD_DIR/helm
 
 $BUILD_DIR/helm template amazon-ec2-metadata-mock \
+    --no-hooks \
     --namespace $NAMESPACE \
     $SCRIPTPATH/../helm/amazon-ec2-metadata-mock/ > $AGG_RESOURCES_YAML
 
@@ -52,6 +53,7 @@ cat $AGG_RESOURCES_YAML | grep -v 'helm.sh\|app.kubernetes.io/managed-by: Helm' 
 mv $BUILD_DIR/helm_annotations_removed.yaml $AGG_RESOURCES_YAML
 
 $BUILD_DIR/helm template amazon-ec2-metadata-mock \
+    --no-hooks \
     --namespace $NAMESPACE \
     --output-dir $INDV_RESOURCES_DIR/ \
     $SCRIPTPATH/../helm/amazon-ec2-metadata-mock/
@@ -70,3 +72,4 @@ cd $SCRIPTPATH
 echo "Generated amazon-ec2-metadata-mock kubernetes yaml resources files in:"
 echo "    - $AGG_RESOURCES_YAML"
 echo "    - $TAR_RESOURCES_FILE"
+
