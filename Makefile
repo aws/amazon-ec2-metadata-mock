@@ -1,4 +1,4 @@
-VERSION = $(shell git describe --tags --always --dirty)
+VERSION ?= $(shell git describe --tags --always --dirty)
 LATEST_TAG=$(shell git tag | tail -1)
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
@@ -16,6 +16,8 @@ METADATA_DEFAULTS_FILE=${MAKEFILE_PATH}/pkg/config/defaults/aemm-metadata-defaul
 ENCODED_METADATA_DEFAULTS=$(shell cat ${METADATA_DEFAULTS_FILE} | base64 | tr -d \\n)
 DEFAULT_VALUES_VAR=github.com/aws/amazon-ec2-metadata-mock/pkg/config/defaults.encodedDefaultValues
 
+$(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
+
 version:
 	@echo ${VERSION}
 
@@ -24,9 +26,6 @@ latest-tag:
 
 image:
 	@echo ${IMG_W_TAG}
-
-create-build-dir:
-	mkdir -p ${BUILD_DIR_PATH}
 
 clean:
 	rm -rf ${BUILD_DIR_PATH}
@@ -38,10 +37,10 @@ compile:
 validate-json:
 	${MAKEFILE_PATH}/test/json-validator
 
-build: create-build-dir validate-json compile
+build: validate-json compile
 
-unit-test: create-build-dir
-	go test ${MAKEFILE_PATH}/... -v -coverprofile=coverage.txt -covermode=atomic -outputdir=${BUILD_DIR_PATH}
+unit-test:
+	go test -bench=. ${MAKEFILE_PATH}/... -v -coverprofile=coverage.out -covermode=atomic -outputdir=${BUILD_DIR_PATH}
 
 validate-readme:
 	${MAKEFILE_PATH}/test/readme-validator
@@ -78,9 +77,7 @@ gen-helm-chart-archives:
 upload-resources-to-github:
 	${MAKEFILE_PATH}/scripts/upload-resources-to-github
 
-build-release-assets: create-build-dir build-binaries generate-k8s-yaml gen-helm-chart-archives
-
-release: build-release-assets upload-resources-to-github
+build-release-assets: build-binaries generate-k8s-yaml gen-helm-chart-archives
 
 build-docker-images:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS} -r ${IMG} -v ${VERSION}
@@ -92,12 +89,16 @@ push-docker-images:
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
+release-github: build-release-assets upload-resources-to-github
+
 release-docker: build-docker-images push-docker-images sync-readme-to-dockerhub
+
+release: release-github release-docker
 
 
 # Targets intended for local use 
 fmt:
-	goimports -w ./
+	goimports -w ./ && gofmt -s -w ./
 
 build-and-test: build test
 

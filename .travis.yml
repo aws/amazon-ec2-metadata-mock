@@ -34,15 +34,13 @@ jobs:
       go: 1.14.x
       script: make e2e-test
     - name: Build Github release assets
-      if: env(GITHUB_TOKEN) IS present
       script: make build-release-assets
     - name: Build Docker images
-      if: env(DOCKERHUB_TOKEN) IS present
       script: make build-docker-images
     - stage: Github Release
       name: Github release
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(GITHUB_TOKEN) IS present
-      script: make release
+      script: make release-github
     - stage: Docker Release
       name: Docker release
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_TOKEN) IS present
