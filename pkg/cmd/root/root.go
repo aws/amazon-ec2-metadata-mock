@@ -34,6 +34,7 @@ import (
 var (
 	c       cfg.Config
 	command *cobra.Command
+	version = "dev"
 
 	// defaults
 	cfgMdPrefix = cfg.GetCfgMdValPrefix()
@@ -59,6 +60,7 @@ func NewCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:               cmdutil.BinName + " <command> [arguments]",
 		SuggestFor:        []string{"mock", "ec2-mock", "ec2-metadata-mock"},
+		Version:           version,
 		Example:           fmt.Sprintf("  %s --mock-delay-sec 10\tmocks all metadata paths\n  %s spot --action terminate\tmocks spot ITN only", cmdutil.BinName, cmdutil.BinName),
 		PersistentPreRunE: setupAndSaveConfig, // persistentPreRun runs before PreRun
 		PreRunE:           preRun,
@@ -66,6 +68,7 @@ func NewCmd() *cobra.Command {
 		Short:             "Tool to mock Amazon EC2 instance metadata",
 		Long:              cmdutil.BinName + " is a tool to mock Amazon EC2 instance metadata.",
 	}
+	cmd.SetVersionTemplate(`{{.Version}}`)
 
 	// global flags
 	cmd.PersistentFlags().StringP(gf.HostNameFlag, "n", "", "the HTTP hostname for the mock url (default: 0.0.0.0)")
