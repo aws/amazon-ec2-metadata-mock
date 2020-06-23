@@ -118,3 +118,7 @@ docker-run:
 docker-push:
 	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
 	docker push ${IMG_W_TAG}
+
+help:
+	@grep -E '^[a-zA-Z_-]+:.*$$' $(MAKEFILE_LIST) | sort
+	
