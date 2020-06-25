@@ -4,34 +4,27 @@
 
 set -euo pipefail
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-MAKEFILEPATH=$SCRIPTPATH/../Makefile
-VERSION=$(make -s -f $MAKEFILEPATH version)
-HELM_CHART_PATH=$SCRIPTPATH/../helm
-BUILD_DIR=$SCRIPTPATH/../build/k8s-resources/$VERSION
+REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../ ; pwd -P )"
+MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
+VERSION=$(make -s -f $MAKEFILE_PATH version)
+HELM_CHART_PATH=$REPO_ROOT_PATH/helm
+BUILD_DIR=$REPO_ROOT_PATH/build/k8s-resources/$VERSION
 HELM_CHART_ARCHIVES_DIR=$BUILD_DIR/helm-chart-archives
 mkdir -p $HELM_CHART_ARCHIVES_DIR
 
-# $1: chart name, $2: chart version, $3: chart dir
-generate_chart_archive() {
-    cd $HELM_CHART_ARCHIVES_DIR && tar zcf $1-$2.tgz $3
-}
+for c in $HELM_CHART_PATH/*; do
+    if [ -d $c ]; then
+        chart_dir=$(echo $c | tr '/' '\n' | tail -1)
+        echo "Generating Helm archive for $chart_dir"
+        chart_version=`sed -n 's/version: //p' $c/Chart.yaml`
 
-main() {
-    for c in $HELM_CHART_PATH/*; do
-        chart_name=$(echo $c | tr '/' '\n' | tail -1)
-        if [ -d $c ]; then
-            chart_version=`sed -n 's/version: //p' $c/Chart.yaml`
-            app_version=`sed -n 's/appVersion: //p' $c/Chart.yaml`
+        archive_name="$chart_dir-$chart_version.tgz"
+        cd $HELM_CHART_ARCHIVES_DIR
+        tar -C $HELM_CHART_PATH -zcf $archive_name $chart_dir
+    fi
+done
 
-            generate_chart_archive $chart_name $chart_version $c
-        fi
-    done
-
-    echo -e "\nGenerated Helm chart archives in $HELM_CHART_ARCHIVES_DIR:"
-    for archive in $HELM_CHART_ARCHIVES_DIR/*; do
-        echo "    - $(echo $archive | tr '/' '\n' | tail -1)"
-    done
-}
-
-main $@
+echo -e "\nGenerated Helm chart archives in $HELM_CHART_ARCHIVES_DIR:"
+for archive in $HELM_CHART_ARCHIVES_DIR/*; do
+    echo "    - $(echo $archive | tr '/' '\n' | tail -1)"
+done
