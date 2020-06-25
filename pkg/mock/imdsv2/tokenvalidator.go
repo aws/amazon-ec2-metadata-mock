@@ -28,6 +28,7 @@ const (
 // ValidateToken is a wrapper to validate token before passing request to provided handler
 func ValidateToken(pathHandler server.HandlerType) server.HandlerType {
 	return func(res http.ResponseWriter, req *http.Request) {
+		log.Printf("ValidateToken Received request: %v", req)
 		providedToken := req.Header.Get(tokenRequestHeader)
 		if providedToken == "" {
 			log.Println("Token required; No token provided.")

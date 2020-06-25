@@ -42,6 +42,7 @@ type v2Token struct {
 
 // GenerateToken returns a token with the specified TTL used for IMDSv2 requests
 func GenerateToken(res http.ResponseWriter, req *http.Request) {
+	log.Printf("GenerateToken Received request: %v", req)
 	// only valid with PUT
 	if req.Method != http.MethodPut {
 		return
