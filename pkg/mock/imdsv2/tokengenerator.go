@@ -70,6 +70,7 @@ func GenerateToken(res http.ResponseWriter, req *http.Request) {
 		CreatedAt: time.Now(),
 	}
 	generatedTokens[token.Value] = token
+	res.Header().Set(tokenTTLHeader, strconv.Itoa(token.TTL))
 	server.FormatAndReturnTextResponse(res, token.Value)
 }
 
