@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -42,60 +43,71 @@ func TestGenerateToken(t *testing.T) {
 	req := httptest.NewRequest("PUT", testURL, nil)
 	req.Header.Set(tokenTTLHeader, "21500")
 	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
-	h.Assert(t, isTokenValid(generateTokenResp), fmt.Sprintf("Expected valid token generation, but was %s", generateTokenResp))
+	token, ttl := parseGenTokenResp(generateTokenResp)
+	h.Assert(t, isTokenValid(token), fmt.Sprintf("Expected valid token generation, but was %s", token))
+	h.Assert(t, ttl == 21500, fmt.Sprintf("Expected Token TTL header to equal requested value, but was %d", ttl))
 }
 func TestInvalidGenerateTokenRequestGet(t *testing.T) {
 	req := httptest.NewRequest("GET", testURL, nil)
 	req.Header.Set(tokenTTLHeader, "21500")
 	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
-	h.Assert(t, generateTokenResp == "", fmt.Sprintf("Expected no token, but was %s", generateTokenResp))
+	token, _ := parseGenTokenResp(generateTokenResp)
+	h.Assert(t, token == "", fmt.Sprintf("Expected no token, but was %s", token))
 }
 func TestInvalidGenerateTokenInvalidTTL(t *testing.T) {
 	req := httptest.NewRequest("PUT", testURL, nil)
 	req.Header.Set(tokenTTLHeader, "0")
 	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
-	h.Assert(t, strings.TrimSpace(generateTokenResp) == server.BadRequestResponse, fmt.Sprintf("Expected 400 -- Bad Request, but was %s", generateTokenResp))
+	respContent, _ := parseGenTokenResp(generateTokenResp)
+	h.Assert(t, respContent == server.BadRequestResponse, fmt.Sprintf("Expected 400 -- Bad Request, but was %s", respContent))
 }
 func TestInvalidGenerateTokenNoTTL(t *testing.T) {
 	req := httptest.NewRequest("PUT", testURL, nil)
 	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
-	h.Assert(t, generateTokenResp == server.BadRequestResponse, fmt.Sprintf("Expected 400 -- Bad Request, but was %s", generateTokenResp))
+	respContent, _ := parseGenTokenResp(generateTokenResp)
+	h.Assert(t, respContent == server.BadRequestResponse, fmt.Sprintf("Expected 400 -- Bad Request, but was %s", respContent))
 }
 
 // Token Validator Tests
 func TestValidateToken(t *testing.T) {
 	req := httptest.NewRequest("PUT", testURL, nil)
 	req.Header.Set(tokenTTLHeader, "21500")
-	validTestToken := executeTestHTTPRequest(req, GenerateToken)
+	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
+	validTestToken, _ := parseGenTokenResp(generateTokenResp)
 
 	req = httptest.NewRequest("GET", testURL, nil)
 	req.Header.Set(tokenRequestHeader, validTestToken)
 	validateTokenResp := executeTestHTTPRequest(req, http.HandlerFunc(ValidateToken(MockHandler)))
-	h.Assert(t, validateTokenResp == successMockResponse, fmt.Sprintf("Expected successful token validation, but was %s", validateTokenResp))
+	respContent, _ := ioutil.ReadAll(validateTokenResp.Body)
+	h.Assert(t, strings.TrimSpace(string(respContent)) == successMockResponse, fmt.Sprintf("Expected successful token validation, but was %s", respContent))
 }
 func TestValidateTokenNoToken(t *testing.T) {
 	req := httptest.NewRequest("GET", testURL, nil)
 	validateTokenResp := executeTestHTTPRequest(req, http.HandlerFunc(ValidateToken(MockHandler)))
-	h.Assert(t, validateTokenResp == server.UnauthorizedResponse, fmt.Sprintf("Expected 401 -- Unauthorized for no token, but was %s", validateTokenResp))
+	respContent, _ := ioutil.ReadAll(validateTokenResp.Body)
+	h.Assert(t, strings.TrimSpace(string(respContent)) == server.UnauthorizedResponse, fmt.Sprintf("Expected 401 -- Unauthorized for no token, but was %s", respContent))
 }
 func TestValidateTokenInvalidToken(t *testing.T) {
 	invalidTestToken := "ThisTokenIsNotValid!"
 	req := httptest.NewRequest("GET", testURL, nil)
 	req.Header.Set(tokenRequestHeader, invalidTestToken)
 	validateTokenResp := executeTestHTTPRequest(req, http.HandlerFunc(ValidateToken(MockHandler)))
-	h.Assert(t, validateTokenResp == server.UnauthorizedResponse, fmt.Sprintf("401 -- Unauthorized for invalid token, but was %s", validateTokenResp))
+	respContent, _ := ioutil.ReadAll(validateTokenResp.Body)
+	h.Assert(t, strings.TrimSpace(string(respContent)) == server.UnauthorizedResponse, fmt.Sprintf("401 -- Unauthorized for invalid token, but was %s", respContent))
 }
 func TestValidateTokenExpiredToken(t *testing.T) {
 	req := httptest.NewRequest("PUT", testURL, nil)
 	req.Header.Set(tokenTTLHeader, "1")
-	expiredTestToken := executeTestHTTPRequest(req, GenerateToken)
+	generateTokenResp := executeTestHTTPRequest(req, GenerateToken)
+	expiredTestToken, _ := parseGenTokenResp(generateTokenResp)
 
 	time.Sleep(1 * time.Second)
 
 	req = httptest.NewRequest("GET", testURL, nil)
 	req.Header.Set(tokenRequestHeader, expiredTestToken)
 	validateTokenResp := executeTestHTTPRequest(req, http.HandlerFunc(ValidateToken(MockHandler)))
-	h.Assert(t, validateTokenResp == server.UnauthorizedResponse, fmt.Sprintf("401 -- Unauthorized for expired token, but was %s", validateTokenResp))
+	respContent, _ := ioutil.ReadAll(validateTokenResp.Body)
+	h.Assert(t, strings.TrimSpace(string(respContent)) == server.UnauthorizedResponse, fmt.Sprintf("401 -- Unauthorized for expired token, but was %s", respContent))
 }
 
 // Test Helpers
@@ -103,10 +115,21 @@ func isTokenValid(token string) bool {
 	matched, _ := regexp.Match(tokenRegex, []byte(token))
 	return matched
 }
-func executeTestHTTPRequest(req *http.Request, handler http.HandlerFunc) string {
+
+func executeTestHTTPRequest(req *http.Request, handler http.HandlerFunc) *http.Response {
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
-	return strings.TrimSpace(string(body))
+	return resp
+}
+
+func parseGenTokenResp(resp *http.Response) (string, int) {
+	token, _ := ioutil.ReadAll(resp.Body)
+	tokenString := strings.TrimSpace(string(token))
+	ttl := resp.Header.Get(tokenTTLHeader)
+	ttlInt := -1
+	if ttl != "" {
+		ttlInt, _ = strconv.Atoi(ttl)
+	}
+	return tokenString, ttlInt
 }
