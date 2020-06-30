@@ -1,5 +1,6 @@
 VERSION ?= $(shell git describe --tags --always --dirty)
-LATEST_TAG=$(shell git tag | tail -1)
+LATEST_RELEASE_TAG=$(shell git tag | tail -1)
+PREVIOUS_RELEASE_TAG=$(shell git tag | tail -2 | head -1)
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -22,8 +23,11 @@ $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
 version:
 	@echo ${VERSION}
 
-latest-tag:
-	@echo ${LATEST_TAG}
+latest-release-tag:
+	@echo ${LATEST_RELEASE_TAG}
+
+previous-release-tag:
+	@echo ${PREVIOUS_RELEASE_TAG}
 
 image:
 	@echo ${IMG_W_TAG}
@@ -36,7 +40,7 @@ compile:
 	go build -a -tags aemm${GOOS} -ldflags '-X "${DEFAULT_VALUES_VAR}=${ENCODED_METADATA_DEFAULTS}" -X "${ROOT_VERSION_VAR}=${VERSION}"' -o ${BUILD_DIR_PATH}/${BINARY_NAME} ${MAKEFILE_PATH}/cmd/amazon-ec2-metadata-mock.go
 
 validate-json:
-	${MAKEFILE_PATH}/test/json-validator
+	${MAKEFILE_PATH}/scripts/validators/json-validator
 
 build: validate-json compile
 
@@ -44,16 +48,13 @@ unit-test:
 	go test -bench=. ${MAKEFILE_PATH}/... -v -coverprofile=coverage.out -covermode=atomic -outputdir=${BUILD_DIR_PATH}
 
 validate-readme:
-	${MAKEFILE_PATH}/test/readme-validator
+	${MAKEFILE_PATH}/scripts/validators/readme-validator
 
 e2e-test: build
 	${MAKEFILE_PATH}/test/e2e/run-tests
 
 helm-lint-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh -l
-
-helm-app-version-test:
-	${MAKEFILE_PATH}/test/helm/helm-app-version-test.sh
 
 helm-e2e-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh
@@ -64,7 +65,7 @@ license-test:
 go-report-card-test:
 	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
 
-test: unit-test e2e-test helm-app-version-test helm-e2e-test license-test go-report-card-test
+test: unit-test e2e-test helm-e2e-test license-test go-report-card-test
 
 build-binaries:
 	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS} -v ${VERSION}
@@ -90,6 +91,9 @@ push-docker-images:
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
+validate-release-version:
+	${MAKEFILE_PATH}/scripts/validators/release-version-validator
+
 release-github: build-release-assets upload-resources-to-github
 
 release-docker: build-docker-images push-docker-images sync-readme-to-dockerhub
@@ -105,9 +109,6 @@ build-and-test: build test
 
 update-versions-for-release:
 	${MAKEFILE_PATH}/scripts/update-versions-for-release
-
-helm-tests:
-	helm-app-version-test helm-e2e-test
 
 docker-build:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${GOOS}/${GOARCH} -r ${IMG} -v ${VERSION}
