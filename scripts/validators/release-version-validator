@@ -9,8 +9,8 @@ set -uo pipefail
 
 REPOPATH="$( cd "$(dirname "$0")"; cd ../../; pwd -P )"
 MAKEFILEPATH=$REPOPATH/Makefile
-LATEST_VERSION=$(make -s -f $MAKEFILEPATH latest-tag)
-SECOND_LATEST_VERSION=$(make -s -f $MAKEFILEPATH second-latest-tag)
+LATEST_VERSION=$(make -s -f $MAKEFILEPATH latest-release-tag)
+PREVIOUS_VERSION=$(make -s -f $MAKEFILEPATH previous-release-tag)
 
 print_note() {
     if [ $? != '0' ]; then
@@ -25,9 +25,9 @@ print_note() {
 trap 'print_note' EXIT
 
 # Verify version in README
-README_HAS_INCORRECT_TAG=$(cat $REPOPATH/README.md | grep $SECOND_LATEST_VERSION)
-if [[ ! -z  $README_HAS_INCORRECT_TAG ]]; then
-    echo "❌ Please update the AEMM version in README.md. Expected version $LATEST_VERSION, but got $SECOND_LATEST_VERSION ❌"
+README_HAS_INCORRECT_VERSION=$(cat $REPOPATH/README.md | grep $PREVIOUS_VERSION)
+if [[ ! -z  $README_HAS_INCORRECT_VERSION ]]; then
+    echo "❌ Please update the AEMM version in README.md. Expected version $LATEST_VERSION, but got $PREVIOUS_VERSION ❌"
 fi
 
 # Verify version in Helm charts 

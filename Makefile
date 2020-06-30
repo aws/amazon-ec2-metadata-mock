@@ -1,6 +1,6 @@
 VERSION ?= $(shell git describe --tags --always --dirty)
-LATEST_TAG=$(shell git tag | tail -1)
-SECOND_LATEST_TAG=$(shell git tag | tail -2 | head -1)
+LATEST_RELEASE_TAG=$(shell git tag | tail -1)
+PREVIOUS_RELEASE_TAG=$(shell git tag | tail -2 | head -1)
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -23,11 +23,11 @@ $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
 version:
 	@echo ${VERSION}
 
-latest-tag:
-	@echo ${LATEST_TAG}
+latest-release-tag:
+	@echo ${LATEST_RELEASE_TAG}
 
-second-latest-tag:
-	@echo ${SECOND_LATEST_TAG}
+previous-release-tag:
+	@echo ${PREVIOUS_RELEASE_TAG}
 
 image:
 	@echo ${IMG_W_TAG}
