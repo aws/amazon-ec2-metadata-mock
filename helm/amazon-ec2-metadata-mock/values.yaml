@@ -16,6 +16,12 @@ nodeSelector: {}
 
 podAnnotations: {}
 
+# tolerations specify taints that a pod tolerates so that it can be scheduled to a node with that taint
+tolerations: []
+
+# arguments represent CLI args to use when starting amazon-ec2-metadata-mock
+arguments: []
+
 # updateStrategy represents the update strategy for a DaemonSet
 updateStrategy: "RollingUpdate"
 
