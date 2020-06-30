@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# **Run this script and commit changes BEFORE creating a new release tag in Github**
+# **Run this script and commit changes AFTER creating a local tag for the new release and BEFORE creating a remote tag for the new release**
+# Pushing the local tag to remote / creating a new remote tag on Github will trigger the release process.
 # Script to update versions in various files as part of release prep:
 ## AEMM version in:
 ### README.md
@@ -39,7 +40,7 @@ update_versions_in_chart() {
     # we rely on helm chart linting to catch the case when the app version is updated but chart version is not incremented 
     curr_app_version=$(sed -n 's/appVersion: //p' $CHART)
     if [[ $curr_app_version == $NEW_VERSION ]]; then
-        echo "The chart is already updated. Not touching any versions in the chart dir."
+        echo "🥑 The chart is already updated. Not touching any versions in the chart dir."
         return
     fi
     # update appVersion
@@ -56,11 +57,11 @@ update_versions_in_chart() {
 
     sed -i '' "s/version: $old_chart_version/version: $new_chart_version/g" $CHART
     sed -i '' "s/amazon-ec2-metadata-mock-$old_chart_version.tgz/amazon-ec2-metadata-mock-$new_chart_version.tgz/g" $CHART_README
-    echo -e "\nUpdated chart version from $old_chart_version to $new_chart_version in files: \n$CHART\n$CHART_README"
+    echo -e "\n✅ Updated chart version from $old_chart_version to $new_chart_version in files: \n$CHART\n$CHART_README"
 }
 
 main() {
-    echo "Attempting to update AEMM and Helm chart versions.\nOld AEMM version: $OLD_VERSION ---> New AEMM version: $NEW_VERSION"
+    echo -e "🥑 Attempting to update AEMM and Helm chart versions where old version is referenced.\n   Old AEMM version: $OLD_VERSION ---> New AEMM version: $NEW_VERSION"
 
     for f in ${FILES[@]}; do
         if [[ $f == $CHART ]]; then
@@ -70,7 +71,11 @@ main() {
         fi
     done
 
-    echo -e "\nUpdated latest release version in files: \n$(echo ${FILES_CHANGED[@]} | tr ' ' '\n')"
+    if [[ ! -z $FILES_CHANGED ]]; then
+        echo -e "\n✅ Updated latest release version from $OLD_VERSION to $NEW_VERSION in files: \n$(echo ${FILES_CHANGED[@]} | tr ' ' '\n')"
+    else
+        echo -e "\n✅ All files already use the latest release version $NEW_VERSION. No files were modified."
+    fi
 }
 
 main $@
