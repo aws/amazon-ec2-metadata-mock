@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- if .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
 {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -43,6 +43,10 @@ spec:
                 - amd64
                 - arm
                 - arm64
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ template "amazon-ec2-metadata-mock.serviceAccountName" . }}
       hostNetwork: false # turn off host network to prevent undesired exposure of AEMM web server
       {{- if .Values.configMap }}
@@ -55,6 +59,12 @@ spec:
       - name: {{ include "amazon-ec2-metadata-mock.name" . }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.arguments }}
+        args:
+          {{ range .Values.arguments }}
+            - {{ . }}
+          {{ end }}
+        {{- end }}
         securityContext:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
