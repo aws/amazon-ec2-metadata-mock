@@ -1,81 +1,43 @@
 #!/bin/bash
 
-# **Run this script and commit changes AFTER creating a local tag for the new release and BEFORE creating a remote tag for the new release**
-# Pushing the local tag to remote / creating a new remote tag on Github will trigger the release process.
-# Script to update versions in various files as part of release prep:
-## AEMM version in:
-### README.md
-## * helm chart's values.yaml
-## * helm chart's Chart.yaml
-## helm chart version in:
-## * helm chart's Chart.yaml
-## * helm chart's README.md
+# Script to update AEMM and Helm chart versions.
+# The following files are updated:
+## - helm charts' Chart.yaml
+## - helm charts' values.yaml
+## - helm charts' README
+## - README.md
 
-set -euo pipefail
+# This script is run AFTER creating a new local tag (see `make release-prep`).
+
+set -uo pipefail
 
 REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
-MY_NAME=`basename "$0"`
-MAKEFILEPATH=$REPO_ROOT_PATH/Makefile
-LATEST_VERSION=$(make -s -f $MAKEFILEPATH latest-release-tag)
-PREVIOUS_VERSION=$(make -s -f $MAKEFILEPATH previous-release-tag)
-BUILD_DIR=$REPO_ROOT_PATH/build/$LATEST_VERSION
-TMP_DIR=$BUILD_DIR/tmp-$MY_NAME
-mkdir -p $TMP_DIR
+MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
+LATEST_VERSION=$(make -s -f $MAKEFILE_PATH latest-release-tag | cut -b 2- )
+PREVIOUS_VERSION=$(make -s -f $MAKEFILE_PATH previous-release-tag | cut -b 2- )
 
+# Files to update
+REPO_README=$REPO_ROOT_PATH/README.md
 CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
+CHART_VALUES=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml
 CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
 
-FILES=($REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml  $REPO_ROOT_PATH/README.md  $CHART)
-
+FILES=($REPO_README  $CHART  $CHART_README  $CHART_VALUES)
 FILES_CHANGED=()
 
-# $1: file 
-update_release_version() {
-    sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $1
-    FILES_CHANGED+=($1)
-}
+echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\n   Previous version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
 
-update_versions_in_chart() {
-    # update versions, only if appVersion is not up-to-date
-    # we rely on helm chart linting to catch the case when the app version is updated but chart version is not incremented 
-    curr_app_version=$(sed -n 's/appVersion: //p' $CHART)
-    if [[ $curr_app_version == $LATEST_VERSION ]]; then
-        echo "🥑 The chart is already updated. Not touching any versions in the chart dir."
-        return
+for f in ${FILES[@]}; do
+    has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
+    if [[ ! -z  $has_incorrect_version ]]; then
+        sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $f
+        FILES_CHANGED+=($f)
     fi
-    # update appVersion
-    sed -i '' "s/appVersion: $curr_app_version/appVersion: $LATEST_VERSION/g" $CHART
-    FILES_CHANGED+=($CHART)
+done
 
-    # update chart version
-    curr_chart_version=$(sed -n 's/version: //p' $CHART)
-    curr_major_v=$(echo $curr_chart_version | tr '.' '\n' | head -1)
-    curr_minor_v=$(echo $curr_chart_version | tr '.' '\n' | head -2 | tail -1)
-    curr_patch_v=$(echo $curr_chart_version | tr '.' '\n' | tail -1)
-    new_patch_v=$(echo $(($curr_patch_v + 1))) # increment patch version
-    new_chart_version=$(echo $curr_major_v.$curr_minor_v.$new_patch_v)
-
-    sed -i '' "s/version: $curr_chart_version/version: $new_chart_version/g" $CHART
-    sed -i '' "s/amazon-ec2-metadata-mock-$curr_chart_version.tgz/amazon-ec2-metadata-mock-$new_chart_version.tgz/g" $CHART_README
-    echo -e "\n✅ Updated chart version from $curr_chart_version to $new_chart_version in files: \n$CHART\n$CHART_README"
-}
-
-main() {
-    echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\nPrevious AEMM version: $PREVIOUS_VERSION ---> Latest AEMM version: $LATEST_VERSION"
-
-    for f in ${FILES[@]}; do
-        if [[ $f == $CHART ]]; then
-            update_versions_in_chart
-        else
-            update_release_version $f
-        fi
-    done
-
-    if [[ ! -z $FILES_CHANGED ]]; then
-        echo -e "\n✅ Updated AEMM release version from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo ${FILES_CHANGED[@]} | tr ' ' '\n')"
-    else
-        echo -e "\n✅ All files already use the latest release version $LATEST_VERSION. No files were modified."
-    fi
-}
-
-main $@
+if [[ ! -z $FILES_CHANGED ]]; then
+    echo -e "\n✅ Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo "${FILES_CHANGED[@]}" | tr ' ' '\n')"
+    echo -e "\n🥑 To see changes, run \`git diff ${FILES_CHANGED[@]}\`"
+else
+    echo -e "\n✅ All files already use the latest release version $LATEST_VERSION. No files were modified."
+fi
