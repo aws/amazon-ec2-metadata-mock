@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Run this script and commit changes AFTER creating a local tag for the new release but BEFORE creating a remote tag for the new release
-# Pushing the local tag to remote / creating a new remote tag on Github will trigger the release process.
+# Script to update AEMM and Helm chart versions.
 # The following files are updated:
 ## - helm charts' Chart.yaml
 ## - helm charts' values.yaml
 ## - helm charts' README
 ## - README.md
+
+# This script is run AFTER creating a new local tag (see `make release-prep`).
 
 set -uo pipefail
 
@@ -24,7 +25,7 @@ CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
 FILES=($REPO_README  $CHART  $CHART_README  $CHART_VALUES)
 FILES_CHANGED=()
 
-echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\nPrevious version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
+echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\n   Previous version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
 
 for f in ${FILES[@]}; do
     has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
@@ -35,8 +36,8 @@ for f in ${FILES[@]}; do
 done
 
 if [[ ! -z $FILES_CHANGED ]]; then
-    echo -e "\n✅ Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo ${FILES_CHANGED[@]} | tr ' ' '\n')"
-    echo -e "\n   To see changes, run \`git diff ${FILES_CHANGED[@]}\`"
+    echo -e "\n✅ Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo "${FILES_CHANGED[@]}" | tr ' ' '\n')"
+    echo -e "\n🥑 To see changes, run \`git diff ${FILES_CHANGED[@]}\`"
 else
     echo -e "\n✅ All files already use the latest release version $LATEST_VERSION. No files were modified."
 fi

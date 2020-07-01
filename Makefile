@@ -20,6 +20,9 @@ ROOT_VERSION_VAR=github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root.version
 
 $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
 
+help:
+	@grep -E '^[a-zA-Z_-]+:.*$$' $(MAKEFILE_LIST) | sort
+
 version:
 	@echo ${VERSION}
 
@@ -100,15 +103,11 @@ release-docker: build-docker-images push-docker-images sync-readme-to-dockerhub
 
 release: release-github release-docker
 
-
 # Targets intended for local use 
 fmt:
 	goimports -w ./ && gofmt -s -w ./
 
 build-and-test: build test
-
-update-versions-for-release:
-	${MAKEFILE_PATH}/scripts/update-versions-for-release
 
 docker-build:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${GOOS}/${GOARCH} -r ${IMG} -v ${VERSION}
@@ -120,6 +119,27 @@ docker-push:
 	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
 	docker push ${IMG_W_TAG}
 
-help:
-	@grep -E '^[a-zA-Z_-]+:.*$$' $(MAKEFILE_LIST) | sort
+# Targets intended to be run in preparation for a new release
+create-local-tag-for-major-release:
+	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -m
+
+create-local-tag-for-minor-release:
+	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -i
+
+create-local-tag-for-patch-release:
+	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -p
+
+update-versions-for-release:
+	${MAKEFILE_PATH}/scripts/update-versions-for-release
+
+release-prep-major: create-local-tag-for-major-release update-versions-for-release
+
+release-prep-minor: create-local-tag-for-minor-release update-versions-for-release
+
+release-prep-patch: create-local-tag-for-patch-release update-versions-for-release
+
+release-prep-custom: # Run make NEW_VERSION=1.2.3 release-prep-custom to prep for a custom release version
+ifdef NEW_VERSION
+	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make update-versions-for-release")
+endif
 	
