@@ -5,13 +5,16 @@ services:
 - docker
 
 stages:
-- Build and Test
+- Build and Tests
+- Validate Versions for Release
 - Github Release
 - Docker Release
+- Helm Chart and Docker Image E2E Tests
 
 jobs:
   include:
-    - stage: Build and Test
+    # scripts run for every build
+    - stage: Build and Tests
       name: Build
       language: go
       go: 1.14.x
@@ -27,8 +30,6 @@ jobs:
     - name: License test
       if: type = push AND env(GITHUB_TOKEN) IS present
       script: make license-test
-    - name: Helm lint test
-      script: make helm-lint-test
     - name: AEMM E2E tests
       language: go
       go: 1.14.x
@@ -37,6 +38,12 @@ jobs:
       script: make build-release-assets
     - name: Build Docker images
       script: make build-docker-images
+
+    # stages run on tag creation only
+    - stage: Validate Versions for Release
+      name: Validate AEMM and Chart versions
+      if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+      script: make validate-release-version
     - stage: Github Release
       name: Github release
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(GITHUB_TOKEN) IS present
@@ -45,3 +52,25 @@ jobs:
       name: Docker release
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_TOKEN) IS present
       script: make release-docker
+
+    # Helm E2E tests, to test Helm chart installation on latest Docker image and a local Docker image with unreleased commits, if any.
+    # In the case of a new release, this stage runs after docker release in order to test the newly released Docker image.
+    - stage: Helm Chart and Docker Image E2E Tests
+      name: Helm Lint Test
+      if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+      script: helm-lint-test
+    - name: Helm chart / Docker Image Tests for K8s v1.18
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.18
+    - name: Helm chart / Docker Image Tests for K8s v1.17
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.17
+    - name: Helm chart / Docker Image Tests for K8s v1.16
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.16
+    - name: Helm chart / Docker Image Tests for K8s v1.15
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.15
+    - name: Helm chart / Docker Image Tests for K8s v1.14
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.14

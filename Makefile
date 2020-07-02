@@ -59,8 +59,8 @@ e2e-test: build
 helm-lint-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh -l
 
-helm-e2e-test:
-	${MAKEFILE_PATH}/test/helm/chart-test.sh
+helm-install-e2e-test:
+	${MAKEFILE_PATH}/test/helm/chart-test.sh -i
 
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
@@ -68,7 +68,7 @@ license-test:
 go-report-card-test:
 	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
 
-test: unit-test e2e-test helm-e2e-test license-test go-report-card-test
+test: unit-test e2e-test helm-install-e2e-test license-test go-report-card-test
 
 build-binaries:
 	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS} -v ${VERSION}
@@ -119,7 +119,7 @@ docker-push:
 	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
 	docker push ${IMG_W_TAG}
 
-# Targets intended to be run in preparation for a new release
+## Targets intended to be run in preparation for a new release
 create-local-tag-for-major-release:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -m
 
