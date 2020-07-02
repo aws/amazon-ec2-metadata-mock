@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Script to run E2E tests with Helm and AEMM to test for the following:
+# Script to run Helm E2E tests to test for the following:
 ## Lint test:
 ### YAML validity
 ### chart deployability
 ### chart version increment when chart is changed
+
 ## Install test:
 ### chart installation on Kind cluster
 ### run helm tests that make http requests to AEMM service running on the test cluster

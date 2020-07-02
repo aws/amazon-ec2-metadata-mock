@@ -58,7 +58,7 @@ jobs:
     - stage: Helm Chart and Docker Image E2E Tests
       name: Helm Lint Test
       if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/
-      script: helm-lint-test
+      script: make helm-lint-test
     - name: Helm chart / Docker Image Tests for K8s v1.18
       script: test/helm/chart-test.sh -i -k $K8S_VERSION
       env: K8S_VERSION=1.18
