@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# Script to test helm charts for the following:
-## YAML validity
-## chart deployability
-## chart version increment when chart is changed
-## chart installation on Kind cluster
-## run helm tests that make http requests to AEMM service running on the test cluster
+# Script to run Helm E2E tests to test for the following:
+## Lint test:
+### YAML validity
+### chart deployability
+### chart version increment when chart is changed
+
+## Install test:
+### chart installation on Kind cluster
+### run helm tests that make http requests to AEMM service running on the test cluster
+### run helm tests on multiple *-values.yaml configurations
+### run helm tests on both the latest Docker image and a local image with unrelease changes, if any.
 
 # Prerequisites:
 ## Docker
@@ -35,8 +40,13 @@ readonly CT_CONFIG="test/helm/ct.yaml"
 readonly CT_CONTAINER_NAME="ct"
 readonly CT_EXEC="docker exec --interactive $CT_CONTAINER_NAME"
 
+# AEMM
+DOCKER_IMAGE_TO_LOAD="amazon-ec2-metadata-mock:test-latest"
+AEMM_DOCKER_IMAGE_INPUT=""
+DOCKER_ARGS=" --build-arg GOPROXY=direct "
+
 readonly HELP=$(cat << 'EOM'
-Test Helm charts by linting and installing helm charts in a provisioned environment. Only changed charts are tested.
+Test Helm charts E2E by linting and/or installing helm charts in a provisioned environment. Only changed charts are tested.
 Provisioned environment includes a Kind Kubernetes cluster and Docker container with helm/chart-testing image.
 
 Usage:
@@ -50,7 +60,9 @@ Examples:
 Options:
   -k     Kubernetes version / kindest node image tag to use for the test (default: 1.18) (options: 1.14, 1.15, 1.16, 1.17)
   -c     chart-testing image tag to use for the test
+  -g     AEMM image to use to test values.yaml file(s) with overridden image. See helm/amazon-ec2-metadata-mock/ci/custom-image-values.yaml
   -l     test charts for linting only (helm lint, version checking, YAML validation, maintainer validation)
+  -i     test charts with installation only i.e. skip linting (deploys and runs helm test on charts for each *-values.yaml file in helm/<chart>/ci dir)
   -p     preserve the provisioned environment after test runs
   -r     reuse kind cluster and docker chart-testing container previously provisioned by this tool
   -d     debug, enables set -x, printing primary commands before executing
@@ -59,6 +71,7 @@ EOM
 )
 
 LINT_ONLY=false
+INSTALL_ONLY=false
 DEBUG=false
 PRESERVE=false
 REUSE_ENV=false
@@ -96,7 +109,24 @@ create_kind_cluster() {
     $CT_EXEC mkdir -p /root/.kube
     docker cp $KUBECONFIG_TMP_PATH ct:/root/.kube/config
 
-    c_echo "Cluster ready!\n"
+    c_echo "👍 Cluster ready!\n"
+}
+
+# build and load a local docker image to test commits made in between releases
+build_and_load_image() {
+    if [ -z $AEMM_DOCKER_IMAGE_INPUT ]; then
+        c_echo "Building a local AEMM Docker image $DOCKER_IMAGE_TO_LOAD."
+        docker build $DOCKER_ARGS -t $DOCKER_IMAGE_TO_LOAD "$REPO_PATH/."
+        c_echo "👍 Successfully built a local docker image $DOCKER_IMAGE_TO_LOAD"
+    else
+        c_echo "Using docker image passed in $AEMM_DOCKER_IMAGE_INPUT and re-tagging it"
+        docker image tag $AEMM_DOCKER_IMAGE_INPUT $DOCKER_IMAGE_TO_LOAD
+    fi
+
+    c_echo "Loading Docker image $DOCKER_IMAGE_TO_LOAD into the cluster"
+    kind load docker-image --name $CLUSTER_NAME --nodes=$CLUSTER_NAME-worker,$CLUSTER_NAME-control-plane $DOCKER_IMAGE_TO_LOAD
+
+    c_echo "👍 Loaded AEMM Docker image into the cluster"
 }
 
 handle_errors_and_cleanup() {
@@ -143,17 +173,28 @@ test_charts() {
         set -x
     fi
 
-    # provision test env
-    if [[ $REUSE_ENV == false ]]; then
-        # setup env to run chart-testing commands
-        setup_ct_container
+    if [ $LINT_ONLY == true ]; then
+        lint_and_validate_charts
+    fi
 
-        if [[ $LINT_ONLY == false ]]; then
-            # setup env for chart installation
-            mkdir -p $TMP_DIR
-            install_kind
-            create_kind_cluster
-        fi
+    if [ $INSTALL_ONLY == true ]; then
+        install_and_test_charts
+    fi
+
+    if [ $LINT_ONLY == false ] && [ $INSTALL_ONLY == false ]; then
+        lint_and_validate_charts
+        install_and_test_charts
+    fi
+
+    if [ $DEBUG == true ]; then
+        set +x
+    fi
+}
+
+lint_and_validate_charts() {
+     # provision test env
+    if [[ $REUSE_ENV == false ]]; then
+        setup_ct_container
     fi
 
     c_echo "Linting and validating helm charts"
@@ -163,24 +204,36 @@ test_charts() {
 
     [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts linted successfully${RESET_FMT}"
     c_echo "------------------------------------------------------------------------------------------------------------------------"
+}
 
-    if [[ $LINT_ONLY == false ]]; then
-        c_echo "Installing helm charts and running tests...\n"
 
-        git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
-        git fetch upstream
+install_and_test_charts() {
+    # provision test env
+    if [[ $REUSE_ENV == false ]]; then
+        setup_ct_container
 
-        if [[ $DEBUG == true ]]; then
-            $CT_EXEC ct install --debug
-        else
-            $CT_EXEC ct install
-        fi
-        [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts installed and tested successfully${RESET_FMT}"
+        # setup env for chart installation
+        mkdir -p $TMP_DIR
+        install_kind
+        create_kind_cluster
     fi
 
-    if [ $DEBUG == true ]; then
-        set +x
+    c_echo "Installing helm charts and running tests for each *-values.yaml configuration in helm/<chart>/ci dir...\n"
+
+    git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
+    git fetch upstream
+
+    # build and load a local docker image to test changes between releases
+    # this image is tested by installing chart with helm/amazon-ec2-metadata-mock/ci/local-image-values.yaml
+    build_and_load_image
+
+    if [[ $DEBUG == true ]]; then
+        $CT_EXEC ct install --debug
+    else
+        $CT_EXEC ct install
     fi
+    [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts installed and tested successfully${RESET_FMT}"
+    c_echo "------------------------------------------------------------------------------------------------------------------------"
 }
 
 # $1=message to echo; [$2]=indication of sub-echo
@@ -191,7 +244,7 @@ c_echo() {
 }
 
 process_args() {
-    while getopts "hdlprk:c:" opt; do
+    while getopts "hdlprik:c:g:" opt; do
         case ${opt} in
             h )
               echo -e "$HELP" 1>&2
@@ -209,12 +262,18 @@ process_args() {
             r )
               REUSE_ENV=true
               ;;
+            i )
+              INSTALL_ONLY=true
+              ;;
             k )
               OPTARG="K8s_$(echo $OPTARG | sed 's/\./\_/g')"
               KIND_IMAGE="${!OPTARG}"
               ;;
             c )
               CT_TAG=$OPTARG
+              ;;
+            g )
+              DOCKER_IMAGE_TO_LOAD=$OPTARG
               ;;
             \? )
               echo "$HELP" 1>&2
@@ -223,6 +282,11 @@ process_args() {
         esac
     done
     shift $((OPTIND -1))
+
+    if $LINT_ONLY && $INSTALL_ONLY; then
+        echo -e "\n❌ ${RED}${BOLD} Invalid arguments passed. Specify either -l or -i for one or the other tests to run. Specify neither to run both.${RESET_FMT}${RED}\n\n$HELP ❌"
+        exit 1
+    fi
 }
 
 main() {
@@ -230,11 +294,12 @@ main() {
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
 
-    c_echo "Testing Helm charts in a newly provisioned test environment"
-    if [[ $LINT_ONLY == true ]]; then
+    if [ $LINT_ONLY == true ]; then
+        c_echo "Running lint tests for Helm charts"
         c_echo "Using:\n${BOLD}  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
     else
-        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+        c_echo "Running E2E tests for Helm charts using the AEMM Docker image specified in values.yaml"
+        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
     fi
 
     test_charts
