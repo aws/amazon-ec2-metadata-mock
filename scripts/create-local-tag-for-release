@@ -86,7 +86,7 @@ validate_args() {
 # create the new tag
 create_tag() {
     git tag $NEW_TAG
-    echo "🥑 Created new tag $NEW_TAG (Current latest release tag: v$LATEST_TAG)"
+    echo -e "\n✅ Created new tag $NEW_TAG (Current latest release tag: v$LATEST_TAG)\n"
     exit 0
 }
 
