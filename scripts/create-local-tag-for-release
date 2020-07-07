@@ -83,16 +83,32 @@ validate_args() {
     exit 1
 }
 
-# create the new tag
+sync_local_tags_with_remote() {
+    # setup remote upstream tracking to fetch tags
+    git remote add the-real-upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
+    git fetch the-real-upstream
+
+    # delete all local tags
+    git tag -l | xargs git tag -d
+
+    # fetch remote tags
+    git fetch the-real-upstream --tags
+
+    # clean up tracking
+    git remote remove the-real-upstream
+}
+
 create_tag() {
     git tag $NEW_TAG
-    echo "🥑 Created new tag $NEW_TAG (Current latest release tag: v$LATEST_TAG)"
+    echo -e "\n✅ Created new tag $NEW_TAG (Current latest release tag: v$LATEST_TAG)\n"
     exit 0
 }
 
 main() {
     process_args $@
     validate_args
+
+    sync_local_tags_with_remote
 
     # if new tag is specified, create it
     if [[ ! -z $NEW_TAG ]]; then
