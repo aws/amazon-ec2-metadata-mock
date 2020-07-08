@@ -1,6 +1,7 @@
 VERSION ?= $(shell git describe --tags --always --dirty)
 LATEST_RELEASE_TAG=$(shell git tag | tail -1)
 PREVIOUS_RELEASE_TAG=$(shell git tag | tail -2 | head -1)
+REPO_FULL_NAME=aws/amazon-ec2-metadata-mock
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -31,6 +32,9 @@ latest-release-tag:
 
 previous-release-tag:
 	@echo ${PREVIOUS_RELEASE_TAG}
+
+repo-full-name:
+	@echo ${REPO_FULL_NAME}
 
 image:
 	@echo ${IMG_W_TAG}
@@ -129,17 +133,17 @@ create-local-tag-for-minor-release:
 create-local-tag-for-patch-release:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -p
 
-update-versions-for-release:
-	${MAKEFILE_PATH}/scripts/update-versions-for-release
+create-release-prep-pr:
+	${MAKEFILE_PATH}/scripts/prepare-for-release
 
-release-prep-major: create-local-tag-for-major-release update-versions-for-release
+release-prep-major: create-local-tag-for-major-release create-release-prep-pr
 
-release-prep-minor: create-local-tag-for-minor-release update-versions-for-release
+release-prep-minor: create-local-tag-for-minor-release create-release-prep-pr
 
-release-prep-patch: create-local-tag-for-patch-release update-versions-for-release
+release-prep-patch: create-local-tag-for-patch-release create-release-prep-pr
 
 release-prep-custom: # Run make NEW_VERSION=1.2.3 release-prep-custom to prep for a custom release version
 ifdef NEW_VERSION
-	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make update-versions-for-release")
+	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make create-release-prep-pr")
 endif
 	

@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Script to:
+## 1) create and checkout a new branch with the latest tag name
+## 2) update AEMM and Helm chart versions
+## 3) commit release prep changes to new branch
+## 4) create a PR from the new branch to upstream/master
+
+## The following files are updated in step (2):
+### - helm charts' Chart.yaml
+### - helm charts' values.yaml
+### - helm charts' README
+### - README.md
+
+# Prerequisites:
+## 1) git and gh cli (make sure to use gh cli before running this script as authentication is required)
+## 2) git tracking is expected to be set as follows: origin=fork (e.g. https://github.com/pdk27/amazon-ec2-metadata-mock-1.git), upstream=https://github.com/aws/amazon-ec2-metadata-mock.git
+## 3) local tag creation is separated from this script and a new tag must be created before this script is run. This is automated when this script is run via make targets.  
+
+# NOTE: only the files updated by this script is included in the commit / PR i.e. release version updates in $FILES
+# This script is NOT intended to be combined with other unmerged local changes
+
+set -o pipefail
+
+REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
+MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
+LATEST_VERSION=$(make -s -f $MAKEFILE_PATH latest-release-tag | cut -b 2- )
+PREVIOUS_VERSION=$(make -s -f $MAKEFILE_PATH previous-release-tag | cut -b 2- )
+
+# files with versions, to update
+REPO_README=$REPO_ROOT_PATH/README.md
+CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
+CHART_VALUES=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml
+CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
+FILES=($REPO_README  $CHART  $CHART_README  $CHART_VALUES)
+FILES_CHANGED=()
+
+# release prep
+LATEST_TAG="v$LATEST_VERSION"
+NEW_BRANCH_NAME="pr/$LATEST_TAG-release"
+COMMIT_MESSAGE="🥑🤖 $LATEST_TAG release prep [Skip Helm E2E Tests] 🤖🥑"
+
+# PR
+REPO_FULL_NAME=$(make -s -f $MAKEFILE_PATH repo-full-name)
+PR_BASE=master  # target
+PR_TITLE="🥑🤖 $LATEST_TAG release prep"
+PR_BODY="🥑🤖 Auto-generated PR for $LATEST_TAG release. Updating release versions in repo."
+
+create_release_branch() {
+    git checkout -b $NEW_BRANCH_NAME
+    echo -e "✅ Created new release branch $NEW_BRANCH_NAME\n\n"
+}
+
+update_versions() {
+    # update release version for release prep
+    echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\n   Previous version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
+
+    for f in ${FILES[@]}; do
+        has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
+        if [[ ! -z  $has_incorrect_version ]]; then
+            sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $f
+            FILES_CHANGED+=($f)
+        fi
+    done
+
+    if [[ -z $FILES_CHANGED ]]; then
+        echo -e "\nNo files were modified. Either all files already use git the latest release version $LATEST_VERSION or the files don't currently have the previous version $PREVIOUS_VERSION."
+    else
+        echo -e "✅✅ Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo "${FILES_CHANGED[@]}" | tr ' ' '\n')"
+        echo -e "To see changes, run \`git diff HEAD^ HEAD\`"
+    fi
+    echo
+}
+
+commit_changes() {
+    echo -e "\n🥑 Adding and committing release version changes."
+    git add "${FILES_CHANGED[@]}"
+    git commit -m"$COMMIT_MESSAGE"
+    echo -e "✅✅✅ Committed release prep changes to new branch $NEW_BRANCH_NAME with commit message '$COMMIT_MESSAGE'\n\n"
+}
+
+# verify origin tracking before creating and pushing new branches
+verify_origin_tracking() {
+    origin=$(git remote get-url origin 2>&1)
+
+    if [[ $origin == "fatal: No such remote 'origin'" ]] || [[ $origin == "https://github.com/aws/amazon-ec2-metadata-mock.git" ]]; then
+        echo -e "❌ Expected remote 'origin' to be tracking fork but found \"$origin\". Set it up before running this script again."
+        exit 1
+    fi
+}
+
+create_pr() {
+    git push -u origin $NEW_BRANCH_NAME # sets source branch for PR to NEW_BRANCH on the fork or origin
+    gh pr create \
+        --repo "$REPO_FULL_NAME" \
+        --base "$PR_BASE" \
+        --title "$PR_TITLE" \
+        --body "$PR_BODY" \
+        --label "release-prep" --label "🤖 auto-generated🤖"
+
+    if [[ $? == 0 ]]; then
+        echo -e "✅✅✅✅ Created $LATEST_TAG release prep PR\n"
+    else
+        echo -e "❌ PR creation failed.❌"
+        exit 1
+    fi
+}
+
+# rollback partial changes to make this script atomic
+rollback() {
+    # checkout of current branch to master
+    git checkout master
+
+    # delete latest local tag
+    git tag -d $LATEST_TAG
+
+    # delete local and remote release branch
+    git branch -D $NEW_BRANCH_NAME
+    git push origin --delete $NEW_BRANCH_NAME
+}
+
+handle_errors() {
+    # error handling
+    if [ $1 != "0" ]; then
+        FAILED_COMMAND=${@:2}
+        echo -e "\n❌ Error occurred. Rolling back. ❌"
+        rollback
+        exit 1
+    fi
+    exit $1
+}
+
+main() {
+    trap 'handle_errors $? $BASH_COMMAND' EXIT
+
+    verify_origin_tracking
+
+    echo
+    create_release_branch
+    update_versions
+    commit_changes
+    create_pr
+}
+
+main $@
