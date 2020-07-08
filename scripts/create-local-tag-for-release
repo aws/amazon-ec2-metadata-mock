@@ -1,16 +1,19 @@
 #!/bin/bash
 
 # Script to create a new local tag in preparation for a release
+# This script is idempotent i.e. it always fetches remote tags to create an accuarate new tag.
+# E.g. If the current remote release tag is v1.0.0,
+## 1) running `create-local-tag-for-release -p` will create a new tag v1.0.1
+## 2) immediately running `create-local-tag-for-release -m` will create a new tag v2.0.0
 
 set -euo pipefail
 
 REPO_ROOT_PATH="$( cd "$(dirname "$0")"; cd ../; pwd -P )"
 MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
-LATEST_TAG=$(make -s -f $MAKEFILE_PATH latest-release-tag | cut -b 2- )
 TAG_REGEX="^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]*)?$"
 
 HELP=$(cat << 'EOM'
-  Create a new local tag in preparation for a release.
+  Create a new local tag in preparation for a release. This script is idempotent i.e. it always fetches remote tags to create an accuarate new tag.
 
   Usage: create-local-tag-for-release [options]
 
@@ -22,7 +25,7 @@ HELP=$(cat << 'EOM'
     -h      help
 
   Examples:
-    create-local-tag-for-release -v v1.0.0       Create local tag for new version v1.0.0
+    create-local-tag-for-release -v v1.0.0      Create local tag for new version v1.0.0
     create-local-tag-for-release -i             Create local tag for new version by incrementing minor version only (previous tag=1.0.0, new tag=1.1.0)
 EOM
 )
@@ -31,6 +34,7 @@ MAJOR_INC=false
 MINOR_INC=false
 PATCH_INC=false
 NEW_TAG=""
+CURR_REMOTE_RELEASE_TAG=""
 
 process_args() {
     while getopts "hmipv:" opt; do
@@ -67,6 +71,7 @@ validate_args() {
         fi
 
         echo "🥑 Using the new tag specified with -v flag. All other flags, if specified, will be ignored."
+        echo "   NOTE:The script relies on the user to specify a valid and accurately incremented tag."
         return
     fi
 
@@ -94,14 +99,21 @@ sync_local_tags_from_remote() {
     # fetch remote tags
     git fetch the-real-upstream --tags
 
+    # record the latest release tag in remote, before creating a new tag
+    CURR_REMOTE_RELEASE_TAG=$(get_latest_tag)
+
     # clean up tracking
     git remote remove the-real-upstream
 }
 
 create_tag() {
     git tag $NEW_TAG
-    echo -e "\n✅ Created new tag $NEW_TAG (Current latest release tag: v$LATEST_TAG)\n"
+    echo -e "\n✅ Created new tag $NEW_TAG (Current latest release tag in remote: v$CURR_REMOTE_RELEASE_TAG)\n"
     exit 0
+}
+
+get_latest_tag() {
+    make -s -f $MAKEFILE_PATH latest-release-tag | cut -b 2-
 }
 
 main() {
@@ -117,9 +129,9 @@ main() {
 
     # increment version
     if $MAJOR_INC || $MINOR_INC || $PATCH_INC; then
-        curr_major_v=$(echo $LATEST_TAG | tr '.' '\n' | head -1)
-        curr_minor_v=$(echo $LATEST_TAG | tr '.' '\n' | head -2 | tail -1)
-        curr_patch_v=$(echo $LATEST_TAG | tr '.' '\n' | tail -1)
+        curr_major_v=$(echo $CURR_REMOTE_RELEASE_TAG | tr '.' '\n' | head -1)
+        curr_minor_v=$(echo $CURR_REMOTE_RELEASE_TAG | tr '.' '\n' | head -2 | tail -1)
+        curr_patch_v=$(echo $CURR_REMOTE_RELEASE_TAG | tr '.' '\n' | tail -1)
 
         if [[ $MAJOR_INC == true ]]; then
             new_major_v=$(echo $(($curr_major_v + 1)))
