@@ -27,7 +27,7 @@ MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
 LATEST_VERSION=$(make -s -f $MAKEFILE_PATH latest-release-tag | cut -b 2- )
 PREVIOUS_VERSION=$(make -s -f $MAKEFILE_PATH previous-release-tag | cut -b 2- )
 
-# Files to update
+# files with versions, to update
 REPO_README=$REPO_ROOT_PATH/README.md
 CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
 CHART_VALUES=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml
