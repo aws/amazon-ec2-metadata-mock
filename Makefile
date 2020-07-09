@@ -124,25 +124,28 @@ docker-push:
 	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
-create-local-tag-for-major-release:
+create-local-release-tag-major:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -m
 
-create-local-tag-for-minor-release:
+create-local-release-tag-minor:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -i
 
-create-local-tag-for-patch-release:
+create-local-release-tag-patch:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -p
 
 create-release-prep-pr:
 	${MAKEFILE_PATH}/scripts/prepare-for-release
 
-release-prep-major: create-local-tag-for-major-release create-release-prep-pr
+create-release-prep-pr-draft:
+	${MAKEFILE_PATH}/scripts/prepare-for-release -d
 
-release-prep-minor: create-local-tag-for-minor-release create-release-prep-pr
+release-prep-major: create-local-release-tag-major create-release-prep-pr
 
-release-prep-patch: create-local-tag-for-patch-release create-release-prep-pr
+release-prep-minor: create-local-release-tag-minor create-release-prep-pr
 
-release-prep-custom: # Run make NEW_VERSION=1.2.3 release-prep-custom to prep for a custom release version
+release-prep-patch: create-local-release-tag-patch create-release-prep-pr
+
+release-prep-custom: # Run make NEW_VERSION=v1.2.3 release-prep-custom to prep for a custom release version
 ifdef NEW_VERSION
 	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make create-release-prep-pr")
 endif
