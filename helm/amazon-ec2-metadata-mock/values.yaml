@@ -2,7 +2,7 @@
 
 image:
   repository: "amazon/amazon-ec2-metadata-mock"
-  tag: "v1.1.0"
+  tag: "v1.1.1"
   pullPolicy: "IfNotPresent"
 
 # nameOverride overrides the name of the helm chart
