@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to create a new local tag in preparation for a release
-# This script is idempotent i.e. it always fetches remote tags to create an accuarate new tag.
+# This script is idempotent i.e. it always fetches remote tags to create the new tag.
 # E.g. If the current remote release tag is v1.0.0,
 ## 1) running `create-local-tag-for-release -p` will create a new tag v1.0.1
 ## 2) immediately running `create-local-tag-for-release -m` will create a new tag v2.0.0
@@ -13,7 +13,7 @@ MAKEFILE_PATH=$REPO_ROOT_PATH/Makefile
 TAG_REGEX="^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]*)?$"
 
 HELP=$(cat << 'EOM'
-  Create a new local tag in preparation for a release. This script is idempotent i.e. it always fetches remote tags to create an accuarate new tag.
+  Create a new local tag in preparation for a release. This script is idempotent i.e. it always fetches remote tags to create the new tag.
 
   Usage: create-local-tag-for-release [options]
 
@@ -26,7 +26,7 @@ HELP=$(cat << 'EOM'
 
   Examples:
     create-local-tag-for-release -v v1.0.0      Create local tag for new version v1.0.0
-    create-local-tag-for-release -i             Create local tag for new version by incrementing minor version only (previous tag=1.0.0, new tag=1.1.0)
+    create-local-tag-for-release -i             Create local tag for new version by incrementing minor version only (previous tag=v1.0.0, new tag=v1.1.0)
 EOM
 )
 
