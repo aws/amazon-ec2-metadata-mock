@@ -1,0 +1,49 @@
+ARG WINDOWS_VERSION=1809
+
+# Build the manager binary
+FROM golang:1.14 as builder
+
+# GOLANG env
+ARG GOPROXY="direct"
+ARG GO111MODULE="on"
+ARG CGO_ENABLED=0
+ARG GOOS=windows
+ARG GOARCH=amd64
+
+# Copy go.mod and download dependencies
+WORKDIR /amazon-ec2-metadata-mock
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+# Setup to use git-bash on Windows
+SHELL ["cmd", "/S", "/C"]
+# Install Chocolatey
+RUN @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"
+# Update Path
+RUN setx /M PATH "C:\gopath\bin;C:\go\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\ProgramData\chocolatey\bin;"
+
+# New Powershell, so choco is available
+SHELL ["powershell"]
+RUN choco feature disable --name showDownloadProgress
+
+# Install make, git-bash
+RUN choco install make
+RUN choco install git -y
+# Update Path
+SHELL ["cmd", "/S", "/C"]
+RUN setx /M PATH "%PATH%;c:\Program Files\Git\usr\bin"
+
+# Build
+COPY . .
+RUN make build
+# In case the target is build for testing:
+# $ docker build  --target=builder -t test .
+ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock"]
+
+# Copy the controller-manager into a thin image
+FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_VERSION}
+WORKDIR /
+COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock .
+COPY THIRD_PARTY_LICENSES .
+ENTRYPOINT ["/ec2-metadata-mock"]
