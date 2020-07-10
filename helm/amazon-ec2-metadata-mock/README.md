@@ -13,7 +13,7 @@ The helm chart can be installed from several sources. To install the chart with 
 1. Local chart archive: 
 Download the chart archive from the latest release and run 
 ```sh
-helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-1.1.0.tgz \
+helm install amazon-ec2-metadata-mock amazon-ec2-metadata-mock-1.1.1.tgz \
   --namespace default
 ```
 
