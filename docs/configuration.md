@@ -116,7 +116,7 @@ CLI Flags:
  }
 ```
 
-The resulting config will have the following values (non-overriden values are truncated for readability):
+The resulting config will have the following values (non-overridden values are truncated for readability):
 ```
  {
     "mock-delay-sec": 8,                                        # from CLI flag

@@ -290,7 +290,7 @@ process_args() {
 }
 
 main() {
-    process_args $@
+    process_args "$@"
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
 
@@ -305,4 +305,4 @@ main() {
     test_charts
 }
 
-main $@
+main "$@"

@@ -131,7 +131,7 @@ update_versions() {
     # update release version for release prep
     echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release."
 
-    for f in ${FILES[@]}; do
+    for f in "${FILES[@]}"; do
         has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
         if [[ ! -z  $has_incorrect_version ]]; then
             sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $f
@@ -237,7 +237,7 @@ handle_errors() {
 }
 
 main() {
-    process_args $@
+    process_args "$@"
     trap 'handle_errors $? $BASH_COMMAND' EXIT
 
     verify_origin_tracking
@@ -249,4 +249,4 @@ main() {
     confirm_with_user_and_create_pr
 }
 
-main $@
+main "$@"

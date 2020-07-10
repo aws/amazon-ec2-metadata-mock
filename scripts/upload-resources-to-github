@@ -51,7 +51,7 @@ gather_assets_to_upload() {
     for binary in $BINARY_DIR/*; do
         resources+=($binary)
     done
-    echo ${resources[@]}
+    echo "${resources[@]}"
 }
 
 # $1: absolute path to asset

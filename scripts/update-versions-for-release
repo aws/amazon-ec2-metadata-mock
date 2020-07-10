@@ -27,7 +27,7 @@ FILES_CHANGED=()
 
 echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\n   Previous version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
 
-for f in ${FILES[@]}; do
+for f in "${FILES[@]}"; do
     has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
     if [[ ! -z  $has_incorrect_version ]]; then
         sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $f
@@ -37,7 +37,7 @@ done
 
 if [[ ! -z $FILES_CHANGED ]]; then
     echo -e "\n✅ Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo "${FILES_CHANGED[@]}" | tr ' ' '\n')"
-    echo -e "\n🥑 To see changes, run \`git diff ${FILES_CHANGED[@]}\`"
+    echo -e "\n🥑 To see changes, run \`git diff ${FILES_CHANGED[*]}\`"
 else
     echo -e "\n✅ All files already use the latest release version $LATEST_VERSION. No files were modified."
 fi

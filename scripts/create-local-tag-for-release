@@ -117,7 +117,7 @@ get_latest_tag() {
 }
 
 main() {
-    process_args $@
+    process_args "$@"
     validate_args
 
     sync_local_tags_from_remote
@@ -147,4 +147,4 @@ main() {
     fi
 }
 
-main $@
+main "$@"

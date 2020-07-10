@@ -72,7 +72,13 @@ license-test:
 go-report-card-test:
 	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
 
-test: unit-test e2e-test helm-install-e2e-test license-test go-report-card-test
+shellcheck:
+	${MAKEFILE_PATH}/test/shellcheck/run-shellcheck
+
+spellcheck:
+	${MAKEFILE_PATH}/test/readme-test/run-readme-spellcheck
+
+test: spellcheck shellcheck unit-test e2e-test helm-install-e2e-test license-test go-report-card-test
 
 build-binaries:
 	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS} -v ${VERSION}
