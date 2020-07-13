@@ -13,7 +13,7 @@ GOPROXY ?= "https://proxy.golang.org,direct"
 SUPPORTED_PLATFORMS ?= "linux/amd64,linux/arm64,linux/arm,darwin/amd64,windows/amd64"
 MAKEFILE_PATH = $(dir $(realpath -s $(firstword $(MAKEFILE_LIST))))
 BUILD_DIR_PATH = ${MAKEFILE_PATH}/build
-BINARY_NAME=ec2-metadata-mock
+BINARY_NAME ?= ec2-metadata-mock
 METADATA_DEFAULTS_FILE=${MAKEFILE_PATH}/pkg/config/defaults/aemm-metadata-default-values.json
 ENCODED_METADATA_DEFAULTS=$(shell cat ${METADATA_DEFAULTS_FILE} | base64 | tr -d '\040\011\012\015')
 DEFAULT_VALUES_VAR=github.com/aws/amazon-ec2-metadata-mock/pkg/config/defaults.encodedDefaultValues
@@ -35,6 +35,9 @@ previous-release-tag:
 
 repo-full-name:
 	@echo ${REPO_FULL_NAME}
+
+binary-name:
+	@echo ${BINARY_NAME}
 
 image:
 	@echo ${IMG_W_TAG}
