@@ -47,6 +47,10 @@ jobs:
       script: make build-release-assets
     - name: Build Docker images
       script: make build-docker-images
+    - name: Spellcheck Markdown Files
+      script: make spellcheck
+    - name: Check Shell Scripts
+      script: make shellcheck
 
     # stages run on tag creation only
     - stage: Validate Versions for Release

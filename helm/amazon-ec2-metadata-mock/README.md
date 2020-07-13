@@ -112,7 +112,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
     or
     ```sh
     # From inside the cluster:
-    # ClusterIP and port for the service should be availble in the application pod's environment, if it was created after the AEMM service.
+    # ClusterIP and port for the service should be available in the application pod's environment, if it was created after the AEMM service.
 
     curl http://$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_HOST:$AMAZON_EC2_METADATA_MOCK_SERVICE_SERVICE_PORT/latest/meta-data/spot/instance-action
     {

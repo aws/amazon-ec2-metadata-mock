@@ -136,7 +136,7 @@ function convert_RFC3339_to_sec() {
 }
 
 function clean_up() {
-  kill $@ || :
+  kill "$@" || :
   sleep 1
   echo "======================================================================================================"
   echo "💀 Killed server 💀"

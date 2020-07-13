@@ -311,7 +311,7 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 
 
 // Server log
-Delaying the response by 10s as requested. The mock response will be avaiable in 2s. Returning `notFoundResponse` for now
+Delaying the response by 10s as requested. The mock response will be available in 2s. Returning `notFoundResponse` for now
 ```
 
 Once the delay is complete, querying `spot` paths return expected results:
