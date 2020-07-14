@@ -22,7 +22,7 @@ ROOT_VERSION_VAR=github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root.version
 $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
 
 help:
-	@grep -E '^[a-zA-Z_-]+:.*$$' $(MAKEFILE_LIST) | sort
+	@grep -E '^[a-zA-Z0-9_-]+:.*$$' $(MAKEFILE_LIST) | sort
 
 version:
 	@echo ${VERSION}

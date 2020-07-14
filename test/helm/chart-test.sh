@@ -198,14 +198,14 @@ lint_and_validate_charts() {
     fi
 
     c_echo "Linting and validating helm charts"
-    git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
-    git fetch upstream
-    $CT_EXEC ct lint
-
+    if [[ $DEBUG == true ]]; then
+        $CT_EXEC ct lint --debug
+    else
+        $CT_EXEC ct lint
+    fi
     [[ $? == 0 ]] && echo -e "✅ ${GREEN}All charts linted successfully${RESET_FMT}"
     c_echo "------------------------------------------------------------------------------------------------------------------------"
 }
-
 
 install_and_test_charts() {
     # provision test env
@@ -219,9 +219,6 @@ install_and_test_charts() {
     fi
 
     c_echo "Installing helm charts and running tests for each *-values.yaml configuration in helm/<chart>/ci dir...\n"
-
-    git remote add upstream https://github.com/aws/amazon-ec2-metadata-mock.git &> /dev/null || true
-    git fetch upstream
 
     # build and load a local docker image to test changes between releases
     # this image is tested by installing chart with helm/amazon-ec2-metadata-mock/ci/local-image-values.yaml
@@ -289,18 +286,37 @@ process_args() {
     fi
 }
 
+get_chart_test_config() {
+    file="$REPO_PATH/$CT_CONFIG"
+    config=""
+    while IFS= read -r line || [ -n "$line" ]; do
+    if [[ $line =~ ^-.*$ ]]; then
+        config=$(echo "$config$line" | sed 's/:- /=/g;s/- /,/g' ) 
+        continue
+    else
+        config=$(echo "$config\n  * $(echo $line | sed 's/: /=/g')")
+    fi
+    done < "$file"
+
+    echo "$config"
+}
+
 main() {
     process_args "$@"
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
 
+    chart_config=$(get_chart_test_config)
+
     if [ $LINT_ONLY == true ]; then
         c_echo "Running lint tests for Helm charts"
-        c_echo "Using:\n${BOLD}  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+        c_echo "Using:\n${BOLD}  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
     else
         c_echo "Running E2E tests for Helm charts using the AEMM Docker image specified in values.yaml"
-        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n${RESET_FMT}"
+        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
     fi
+    echo -e "${MAGENTA}  From $CT_CONFIG:${BOLD}$chart_config"
+    echo "${RESET_FMT}"
 
     test_charts
 }
