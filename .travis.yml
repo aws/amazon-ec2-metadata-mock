@@ -12,6 +12,8 @@ stages:
   if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(GITHUB_TOKEN) IS present
 - name: Docker Release
   if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(DOCKERHUB_TOKEN) IS present
+- name: Homebrew Sync
+  if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/ AND env(GITHUB_TOKEN) IS present
 - name: Helm Chart Lint Test
   if: type = push AND tag =~ /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 - name: Helm Chart and Docker Image E2E Tests
@@ -62,6 +64,11 @@ jobs:
     - stage: Docker Release
       name: Docker release
       script: make release-docker
+
+    # stages run after asset uploads
+    - stage: Homebrew Sync
+      name: Sync to Homebrew aws-tap
+      script: make homebrew-sync
 
     # Helm E2E tests, to test Helm chart installation on latest Docker image and a local Docker image with unreleased commits, if any.
     # In the case of a new release, this stage runs after docker release in order to test the newly released Docker image.
