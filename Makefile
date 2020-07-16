@@ -107,6 +107,12 @@ push-docker-images:
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
+homebrew-sync-dry-run:
+	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -d -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS} -v ${LATEST_RELEASE_TAG}
+
+homebrew-sync:
+	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS}
+
 validate-release-version:
 	${MAKEFILE_PATH}/scripts/validators/release-version-validator
 
