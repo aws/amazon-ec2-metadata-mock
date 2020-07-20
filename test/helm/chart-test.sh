@@ -23,6 +23,8 @@ readonly K8s_1_17="v1.17.5"
 readonly K8s_1_16="v1.16.9"
 readonly K8s_1_15="v1.15.11"
 readonly K8s_1_14="v1.14.10"
+readonly K8s_1_13="v1.13.12"
+readonly K8s_1_12="v1.12.10"
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.8.1"
 readonly CLUSTER_NAME="kind-ct"
@@ -264,7 +266,12 @@ process_args() {
               ;;
             k )
               OPTARG="K8s_$(echo $OPTARG | sed 's/\./\_/g')"
-              KIND_IMAGE="${!OPTARG}"
+              if [ ! -z ${!OPTARG+x} ]; then
+                KIND_IMAGE=${!OPTARG}
+              else
+                echo "K8s version not supported" 1>&2
+                exit 2
+              fi
               ;;
             c )
               CT_TAG=$OPTARG

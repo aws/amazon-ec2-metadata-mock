@@ -91,3 +91,9 @@ jobs:
     - name: Helm chart / Docker Image Tests for K8s v1.14
       script: test/helm/chart-test.sh -i -k $K8S_VERSION
       env: K8S_VERSION=1.14
+    - name: Helm chart / Docker Image Tests for K8s v1.13
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.13
+    - name: Helm chart / Docker Image Tests for K8s v1.12
+      script: test/helm/chart-test.sh -i -k $K8S_VERSION
+      env: K8S_VERSION=1.12
