@@ -38,6 +38,7 @@ var (
 
 	// defaults
 	cfgMdPrefix = cfg.GetCfgMdValPrefix()
+	cfgDnPrefix = cfg.GetCfgDnValPrefix()
 	defaultCfg  = map[string]interface{}{
 		gf.ConfigFileFlag:       cfg.GetDefaultCfgFileName(),
 		gf.MockDelayInSecFlag:   0,

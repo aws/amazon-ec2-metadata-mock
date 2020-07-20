@@ -14,6 +14,7 @@
 package config
 
 import (
+	dynamic "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic/types"
 	events "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events/config"
 	spot "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static/types"
@@ -35,6 +36,9 @@ type Config struct {
 	// config keys for subcommands
 	SpotConfig   spot.Config   `mapstructure:"spot"`
 	EventsConfig events.Config `mapstructure:"events"`
+
+	// ----- dynamic config ----- //
+	Dynamic Dynamic `mapstructure:"dynamic"`
 }
 
 // Server represents server config
@@ -47,6 +51,12 @@ type Server struct {
 type Metadata struct {
 	Paths  Paths  `mapstructure:"paths"`
 	Values Values `mapstructure:"values"`
+}
+
+// Dynamic represents metadata config used by the mock (Json values in metadata-config.json)
+type Dynamic struct {
+	Paths  DynamicPaths  `mapstructure:"paths"`
+	Values DynamicValues `mapstructure:"values"`
 }
 
 // Paths represents EC2 metadata paths
@@ -155,4 +165,14 @@ type Values struct {
 	SecurityGroups               string                            `mapstructure:"security-groups"`
 	ServicesDomain               string                            `mapstructure:"services-domain"`
 	ServicesPartition            string                            `mapstructure:"services-partition"`
+}
+
+// DynamicPaths represents EC2 dynamic paths
+type DynamicPaths struct {
+	InstanceIdentityDocument string `mapstructure:"instance-identity-document"`
+}
+
+// DynamicValues represents EC2 dynamic paths
+type DynamicValues struct {
+	InstanceIdentityDocument dynamic.InstanceIdentityDocument `mapstructure:"instance-identity-document"`
 }

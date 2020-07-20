@@ -99,20 +99,20 @@
       "services-domain": "amazonaws.com",
       "services-partition": "aws",
       "iam-info": {
-        "Code" : "Success",
-        "LastUpdated" : "2020-04-02T18:50:40Z",
-        "InstanceProfileArn" : "arn:aws:iam::896453262835:instance-profile/baskinc-role",
-        "InstanceProfileId" : "AIPA5BOGHHXZELSK34VU4"
+        "Code": "Success",
+        "LastUpdated": "2020-04-02T18:50:40Z",
+        "InstanceProfileArn": "arn:aws:iam::896453262835:instance-profile/baskinc-role",
+        "InstanceProfileId": "AIPA5BOGHHXZELSK34VU4"
       },
       "iam-security-credentials-role": "baskinc-role",
       "iam-security-credentials": {
         "Code": "Success",
-        "LastUpdated" : "2020-04-02T18:50:40Z",
+        "LastUpdated": "2020-04-02T18:50:40Z",
         "Type": "AWS-HMAC",
-        "AccessKeyId" : "12345678901",
-        "SecretAccessKey" : "v/12345678901",
-        "Token" : "TEST92test48TEST+y6RpoTEST92test48TEST/8oWVAiBqTEsT5Ky7ty2tEStxC1T==",
-        "Expiration" : "2020-04-02T00:49:51Z"
+        "AccessKeyId": "12345678901",
+        "SecretAccessKey": "v/12345678901",
+        "Token": "TEST92test48TEST+y6RpoTEST92test48TEST/8oWVAiBqTEsT5Ky7ty2tEStxC1T==",
+        "Expiration": "2020-04-02T00:49:51Z"
       },
       "elastic-inference-associations": "eia-bfa21c7904f64a82a21b9f4540169ce1",
       "elastic-inference-accelerator": {
@@ -120,6 +120,30 @@
           "elastic-inference-accelerator-id": "eia-bfa21c7904f64a82a21b9f4540169ce1",
           "elastic-inference-accelerator-type": "eia1.medium"
         }
+      }
+    }
+  },
+  "dynamic": {
+    "paths": {
+      "instance-identity-document": "/latest/dynamic/instance-identity/document"
+    },
+    "values": {
+      "instance-identity-document": {
+        "accountId": "0123456789",
+        "imageId": "ami-0b69ea66ff7391e80",
+        "availabilityZone": "us-east-1f",
+        "ramdiskId": null,
+        "kernelId": null,
+        "devpayProductCodes": null,
+        "marketplaceProductCodes": null,
+        "version": "2017-09-30",
+        "privateIp": "10.0.7.10",
+        "billingProducts": null,
+        "instanceId": "i-1234567890abcdef0",
+        "pendingTime": "2019-10-31T07:02:24Z",
+        "architecture": "x86_64",
+        "instanceType": "m4.xlarge",
+        "region": "us-east-1"
       }
     }
   }
