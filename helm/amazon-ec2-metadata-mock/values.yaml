@@ -10,20 +10,40 @@ nameOverride: ""
 # fullnameOverride overrides the name of the application
 fullnameOverride: ""
 
-# nodeSelector tells the daemonset where to place the amazon-ec2-metadata-mock pods.
+# Create node OS specific daemonset(s). (e.g. "linux", "windows", "linux windows")
+targetNodeOs: "linux"
+
+# nodeSelector tells both linux and windows daemonsets where to place the amazon-ec2-metadata-mock pods.
 # By default, this value is empty and every node will receive a pod.
 nodeSelector: {}
+# linuxNodeSelector tells the linux daemonset where to place the node-termination-handler
+# pods. By default, this value is empty and every linux node will receive a pod.
+linuxNodeSelector: {}
+# windowsNodeSelector tells the windows daemonset where to place the node-termination-handler
+# pods. By default, this value is empty and every windows node will receive a pod.
+windowsNodeSelector: {}
+
+nodeSelectorTermsOs: ""
+nodeSelectorTermsArch: ""
 
 podAnnotations: {}
+linuxAnnotations: {}
+windowsAnnotations: {}
 
 # tolerations specify taints that a pod tolerates so that it can be scheduled to a node with that taint
 tolerations: []
+linuxTolerations: []
+windowsTolerations: []
 
 # arguments represent CLI args to use when starting amazon-ec2-metadata-mock
 arguments: []
+linuxArguments: []
+windowsArguments: []
 
 # updateStrategy represents the update strategy for a DaemonSet
 updateStrategy: "RollingUpdate"
+linuxUpdateStrategy: ""
+windowsUpdateStrategy: ""
 
 rbac:
   # rbac.pspEnabled, if `true` a restricted pod security policy is created and used
