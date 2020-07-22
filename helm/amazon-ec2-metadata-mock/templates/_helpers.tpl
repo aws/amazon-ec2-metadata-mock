@@ -71,7 +71,7 @@ See https://v1-14.docs.kubernetes.io/docs/setup/release/notes/#deprecations
 */}}
 {{- define "amazon-ec2-metadata-mock.defaultNodeSelectorTermsPrefix" -}}
     {{- $k8sVersion := printf "%s.%s" .Capabilities.KubeVersion.Major .Capabilities.KubeVersion.Minor | replace "+" "" -}}
-    {{- semverCompare "<1.19" $k8sVersion | ternary "beta.kubernetes.io" "kubernetes.io" -}}
+    {{- semverCompare "<1.18" $k8sVersion | ternary "beta.kubernetes.io" "kubernetes.io" -}}
 {{- end -}}
 
 {{/*

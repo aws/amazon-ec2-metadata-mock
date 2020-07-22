@@ -49,6 +49,14 @@ jobs:
       script: make build-release-assets
     - name: Build Docker images
       script: make build-docker-images
+    - name: Build Github release assets for Windows
+      os: windows
+      install: choco install make && choco install zip
+      script: RefreshEnv.cmd && SUPPORTED_PLATFORMS="windows/amd64" make build-binaries
+    - name: Build Docker images for Windows
+      os: windows
+      install: choco install make
+      script: RefreshEnv.cmd && SUPPORTED_PLATFORMS="windows/amd64" make build-docker-images
     - name: Spellcheck Markdown Files
       script: make spellcheck
     - name: Check Shell Scripts
@@ -61,9 +69,21 @@ jobs:
     - stage: Github Release
       name: Github release
       script: make release-github
+    - name: Github Release Windows
+      os: windows
+      install: choco install make && choco install zip
+      script:
+        - RefreshEnv.cmd && SUPPORTED_PLATFORMS="windows/amd64" make build-binaries
+        - make upload-resources-to-github
     - stage: Docker Release
-      name: Docker release
+      name: Docker Release
       script: make release-docker
+    - name: Docker Release Windows
+      os: windows
+      install: choco install make
+      script:
+        - RefreshEnv.cmd && SUPPORTED_PLATFORMS="windows/amd64" make build-docker-images
+        - SUPPORTED_PLATFORMS="windows/amd64" make push-docker-images
 
     # stages run after asset uploads
     - stage: Homebrew Sync
