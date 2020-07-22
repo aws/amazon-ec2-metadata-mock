@@ -1,0 +1,82 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
+DYNAMIC_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/dynamic"
+DYNAMIC_IDC_TEST_PATH="$DYNAMIC_TEST_PATH/instance-identity/document"
+
+DYNAMIC_IDC_ACCOUNT_ID_DEFAULT="0123456789"
+DYNAMIC_IDC_ACCOUNT_ID_OVERRIDDEN="9876543210"
+DYNAMIC_IDC_INSTANCE_ID_DEFAULT="i-1234567890abcdef0"
+DYNAMIC_IDC_INSTANCE_ID_OVERRIDDEN="i-0fedcba0987654321"
+
+function test_dynamic_paths() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $DYNAMIC_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_TEST_PATH)
+  expected_paths=$(cat $SCRIPTPATH/golden/dynamic_paths.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_dynamic_paths"
+
+  clean_up $pid
+}
+
+function test_dynamic_idc_defaults() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $DYNAMIC_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_IDC_TEST_PATH)
+  actual_account_id=$(get_value '"accountId"' "$response")
+  actual_instance_id=$(get_value '"instanceId"' "$response")
+
+  assert_value "$actual_account_id" $DYNAMIC_IDC_ACCOUNT_ID_DEFAULT 'Default dynamic_idc::accountId val'
+  assert_value "$actual_instance_id" $DYNAMIC_IDC_INSTANCE_ID_DEFAULT 'Default dynamic_idc::instanceId val'
+
+  clean_up $pid
+}
+
+function test_dynamic_idc_overrides() {
+  pid=$1
+  expected_account_id=$2
+  expected_instance_id=$3
+  tput setaf $YELLOW
+  health_check $DYNAMIC_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_IDC_TEST_PATH)
+  actual_account_id=$(get_value '"accountId"' "$response")
+  actual_instance_id=$(get_value '"instanceId"' "$response")
+
+  assert_value "$actual_account_id" $expected_account_id 'Override dynamic_idc::accountId'
+  assert_value "$actual_instance_id" $expected_instance_id 'Override dynamic_idc::instanceId'
+
+  clean_up $pid
+}
+
+tput setaf $YELLOW
+echo "======================================================================================================"
+echo "🥑 Starting dynamic metadata integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+DYNAMIC_PID=$!
+test_dynamic_paths $DYNAMIC_PID
+
+$start_cmd &
+DYNAMIC_PID=$!
+test_dynamic_idc_defaults $DYNAMIC_PID
+
+# dynamic data overrides
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+$start_cmd &
+DYNAMIC_PID=$!
+test_dynamic_idc_overrides $DYNAMIC_PID $DYNAMIC_IDC_ACCOUNT_ID_OVERRIDDEN $DYNAMIC_IDC_INSTANCE_ID_OVERRIDDEN
+
+exit $EXIT_CODE_TO_RETURN
