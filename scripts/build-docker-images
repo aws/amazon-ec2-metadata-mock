@@ -55,7 +55,10 @@ for os_arch in "${PLATFORMS[@]}"; do
 
     dockerfile="$DOCKERFILE_PATH"
     if [[ $os = "windows" ]]; then
-        dockerfile="${dockerfile}.windows"
+        # Linux Dockerfile is valid for building Windows binary
+        if [[ $IMAGE_REPO != "bin-build" ]]; then
+          dockerfile="${dockerfile}.windows"
+        fi
     fi
 
     docker build \
