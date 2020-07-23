@@ -25,6 +25,14 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
+Equivalent to "amazon-ec2-metadata-mock.fullname" except that "-win" indicator is appended to the end.
+Name will not exceed 63 characters.
+*/}}
+{{- define "amazon-ec2-metadata-mock.fullname.windows" -}}
+{{- include "amazon-ec2-metadata-mock.fullname" . | trunc 59 | trimSuffix "-" | printf "%s-win" -}}
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "amazon-ec2-metadata-mock.labels" -}}
@@ -53,4 +61,43 @@ Create the name of the service account to use
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Get the default node selector term prefix.
+
+In 1.14 "beta.kubernetes.io" was deprecated and is scheduled for removal in 1.18.
+See https://v1-14.docs.kubernetes.io/docs/setup/release/notes/#deprecations
+*/}}
+{{- define "amazon-ec2-metadata-mock.defaultNodeSelectorTermsPrefix" -}}
+    {{- $k8sVersion := printf "%s.%s" .Capabilities.KubeVersion.Major .Capabilities.KubeVersion.Minor | replace "+" "" -}}
+    {{- semverCompare "<1.18" $k8sVersion | ternary "beta.kubernetes.io" "kubernetes.io" -}}
+{{- end -}}
+
+{{/*
+Get the default node selector OS term.
+*/}}
+{{- define "amazon-ec2-metadata-mock.defaultNodeSelectorTermsOs" -}}
+    {{- list (include "amazon-ec2-metadata-mock.defaultNodeSelectorTermsPrefix" .) "os" | join "/" -}}
+{{- end -}}
+
+{{/*
+Get the default node selector Arch term.
+*/}}
+{{- define "amazon-ec2-metadata-mock.defaultNodeSelectorTermsArch" -}}
+    {{- list (include "amazon-ec2-metadata-mock.defaultNodeSelectorTermsPrefix" .) "arch" | join "/" -}}
+{{- end -}}
+
+{{/*
+Get the node selector OS term.
+*/}}
+{{- define "amazon-ec2-metadata-mock.nodeSelectorTermsOs" -}}
+    {{- or .Values.nodeSelectorTermsOs (include "amazon-ec2-metadata-mock.defaultNodeSelectorTermsOs" .) -}}
+{{- end -}}
+
+{{/*
+Get the node selector Arch term.
+*/}}
+{{- define "amazon-ec2-metadata-mock.nodeSelectorTermsArch" -}}
+    {{- or .Values.nodeSelectorTermsArch (include "amazon-ec2-metadata-mock.defaultNodeSelectorTermsArch" .) -}}
 {{- end -}}

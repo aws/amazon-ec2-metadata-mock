@@ -1,3 +1,4 @@
+{{- if (lower .Values.targetNodeOs | contains "linux") -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -12,40 +13,49 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+      {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
   template:
     metadata:
-      {{- if .Values.podAnnotations }}
+      {{- if (or .Values.podAnnotations .Values.linuxPodAnnotations) }}
       annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- range $key, $value := (mergeOverwrite (dict) .Values.podAnnotations .Values.linuxPodAnnotations) }}
           {{ $key }}: {{ $value | quote }}
         {{- end }}
       {{- end }}
       labels:
         app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
     spec:
-      {{- with .Values.nodeSelector }}
       nodeSelector:
-{{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
+        {{- with .Values.nodeSelector }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.linuxNodeSelector }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: "beta.kubernetes.io/os"
+              - key: {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . | quote }}
                 operator: In
                 values:
                 - linux
-              - key: "beta.kubernetes.io/arch"
+              - key: {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsArch" . | quote }}
                 operator: In
                 values:
                 - amd64
                 - arm
                 - arm64
-      {{- with .Values.tolerations }}
       tolerations:
-{{- toYaml . | nindent 8 }}
+      {{- with .Values.tolerations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.linuxTolerations }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ template "amazon-ec2-metadata-mock.serviceAccountName" . }}
       hostNetwork: false # turn off host network to prevent undesired exposure of AEMM web server
@@ -59,9 +69,12 @@ spec:
       - name: {{ include "amazon-ec2-metadata-mock.name" . }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- if .Values.arguments }}
+        {{- if (or .Values.arguments .Values.linuxArguments) }}
         args:
           {{ range .Values.arguments }}
+            - {{ . }}
+          {{ end }}
+          {{ range .Values.linuxArguments }}
             - {{ . }}
           {{ end }}
         {{- end }}
@@ -121,3 +134,4 @@ spec:
         - name: AEMM_SPOT_TIME
           value: {{ .Values.aemm.spot.time | quote }}
         {{- end }}
+{{- end -}}

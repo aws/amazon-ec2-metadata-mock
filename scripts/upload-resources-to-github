@@ -4,7 +4,6 @@ set -euo pipefail
 # Script to upload release assets to Github.  
 # This script cleans up after itself in cases of parital failures. i.e. either all assets are uploaded or none
 
-
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 VERSION=$(make -s -f $SCRIPTPATH/../Makefile version)
 BUILD_DIR=$SCRIPTPATH/../build/k8s-resources/$VERSION

@@ -10,7 +10,8 @@ DOCKERHUB_TOKEN ?= ""
 GOOS ?= linux
 GOARCH ?= amd64
 GOPROXY ?= "https://proxy.golang.org,direct"
-SUPPORTED_PLATFORMS ?= "linux/amd64,linux/arm64,linux/arm,darwin/amd64,windows/amd64"
+SUPPORTED_PLATFORMS_LINUX ?= "linux/amd64,linux/arm64,linux/arm,darwin/amd64"
+SUPPORTED_PLATFORMS_WINDOWS ?= "windows/amd64"
 MAKEFILE_PATH = $(dir $(realpath -s $(firstword $(MAKEFILE_LIST))))
 BUILD_DIR_PATH = ${MAKEFILE_PATH}/build
 BINARY_NAME ?= ec2-metadata-mock
@@ -84,7 +85,7 @@ spellcheck:
 test: spellcheck shellcheck unit-test e2e-test helm-install-e2e-test license-test go-report-card-test
 
 build-binaries:
-	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS} -v ${VERSION}
+	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS_LINUX},${SUPPORTED_PLATFORMS_WINDOWS} -v ${VERSION}
 
 generate-k8s-yaml:
 	${MAKEFILE_PATH}/scripts/generate-k8s-yaml
@@ -97,30 +98,39 @@ upload-resources-to-github:
 
 build-release-assets: build-binaries generate-k8s-yaml gen-helm-chart-archives
 
-build-docker-images:
-	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS} -r ${IMG} -v ${VERSION}
+build-docker-images-linux:
+	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS_LINUX} -r ${IMG} -v ${VERSION}
 
-push-docker-images:
+build-docker-images-windows:
+	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION}
+
+push-docker-images-linux:
 	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
-	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS} -r ${IMG} -v ${VERSION} -m
+	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${IMG} -v ${VERSION} -m
+
+push-docker-images-windows:
+	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION} -m
 
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
 homebrew-sync-dry-run:
-	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -d -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS} -v ${LATEST_RELEASE_TAG}
+	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -d -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX} -v ${LATEST_RELEASE_TAG}
 
 homebrew-sync:
-	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS}
+	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX}
 
 validate-release-version:
 	${MAKEFILE_PATH}/scripts/validators/release-version-validator
 
 release-github: build-release-assets upload-resources-to-github
 
-release-docker: build-docker-images push-docker-images sync-readme-to-dockerhub
+release-docker-linux: build-docker-images-linux push-docker-images-linux sync-readme-to-dockerhub
 
-release: release-github release-docker
+release-docker-windows: build-docker-images-windows push-docker-images-windows
+
+release: release-github release-docker-linux release-docker-windows
 
 # Targets intended for local use 
 fmt:
