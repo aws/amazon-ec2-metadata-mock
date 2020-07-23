@@ -20,6 +20,7 @@ import (
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/listmocks"
@@ -103,6 +104,9 @@ func RegisterHandlers(cmd *cobra.Command, config cfg.Config) {
 
 	// static handles its own registration
 	static.RegisterHandlers(config)
+
+	// dynamic handles its own registration
+	dynamic.RegisterHandlers(config)
 }
 
 // getHandlerPairs returns a slice of {paths, handlers} to register
@@ -110,8 +114,10 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 	// always register these paths
 	handlerPairs := []handlerPair{
 		{path: "/", handler: versions.Handler},
-		{path: "/latest/meta-data", handler: listmocks.Handler},
-		{path: "/latest/meta-data/", handler: listmocks.Handler},
+		{path: static.ServicePath, handler: listmocks.Handler},
+		{path: static.ServicePath2, handler: listmocks.Handler},
+		{path: dynamic.ServicePath, handler: listmocks.Handler},
+		{path: dynamic.ServicePath2, handler: listmocks.Handler},
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")

@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package static
+package dynamic
 
 import (
 	"log"
@@ -26,17 +26,17 @@ import (
 var (
 	supportedPaths   = make(map[string]interface{})
 	response         interface{}
-	jsonTextResponse = map[string]bool{"/latest/meta-data/elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1": true}
+	jsonTextResponse = map[string]bool{}
 
 	// ServicePath defines the static service path
-	ServicePath = "/latest/meta-data"
+	ServicePath = "/latest/dynamic"
 	// ServicePath2 defines the static service path with slash
 	ServicePath2 = ServicePath + "/"
 )
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Println("Received request to mock static metadata:", req.URL.Path)
+	log.Println("Received request to mock dynamic metadata:", req.URL.Path)
 
 	if val, ok := supportedPaths[req.URL.Path]; ok {
 		response = val
@@ -59,22 +59,20 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 // RegisterHandlers registers handlers for ALL static paths
 func RegisterHandlers(config cfg.Config) {
-	server.HandleFunc("/latest/api/token", imdsv2.GenerateToken)
+	pathValues := reflect.ValueOf(config.Dynamic.Paths)
+	dyValues := reflect.ValueOf(config.Dynamic.Values)
 
-	pathValues := reflect.ValueOf(config.Metadata.Paths)
-	mdValues := reflect.ValueOf(config.Metadata.Values)
-
-	// Iterate over fields in config.Metadata.Paths to
-	// determine intersections with config.Metadata.Values.
+	// Iterate over fields in config.Dynamic.Paths to
+	// determine intersections with config.Dynamic.Values.
 	// Intersections represent which paths and values to bind.
 	for i := 0; i < pathValues.NumField(); i++ {
 		pathFieldName := pathValues.Type().Field(i).Name
-		mdValueFieldName := mdValues.FieldByName(pathFieldName)
-		if mdValueFieldName.IsValid() {
+		dyValueFieldName := dyValues.FieldByName(pathFieldName)
+		if dyValueFieldName.IsValid() {
 			path := pathValues.Field(i).Interface().(string)
-			value := mdValueFieldName.Interface()
+			value := dyValueFieldName.Interface()
 			if path != "" && value != nil {
-				// Ex: "/latest/meta-data/instance-id" : "i-1234567890abcdef0"
+				// Ex: "/latest/dynamic/instance-identity/document"
 				supportedPaths[path] = value
 				if config.Imdsv2Required {
 					server.HandleFunc(path, imdsv2.ValidateToken(Handler))
@@ -82,7 +80,7 @@ func RegisterHandlers(config cfg.Config) {
 					server.HandleFunc(path, Handler)
 				}
 			} else {
-				log.Printf("There was an issue registering path %v with mdValue: %v", path, value)
+				log.Printf("There was an issue registering path %v with dyValue: %v", path, value)
 			}
 		}
 	}

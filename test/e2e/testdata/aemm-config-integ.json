@@ -11,5 +11,25 @@
   "spot": {
     "action": "terminate",
     "time": "2020-01-07T01:03:47Z"
+  },
+  "dynamic": {
+    "values": {
+      "instance-identity-document": {
+        "accountId": "9876543210",
+        "imageId": "ami-0b69ea66ff7391e80",
+        "availabilityZone": "us-east-1f",
+        "ramdiskId": null,
+        "kernelId": null,
+        "devpayProductCodes": null,
+        "marketplaceProductCodes": null,
+        "version": "2017-09-30",
+        "privateIp": "10.0.7.10",
+        "billingProducts": null,
+        "instanceId": "i-0fedcba0987654321",
+        "pendingTime": "2019-10-31T07:02:24Z",
+        "architecture": "x86_64",
+        "instanceType": "m4.xlarge",
+        "region": "us-east-1"      }
+    }
   }
 }

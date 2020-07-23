@@ -64,6 +64,11 @@ $start_cmd &
 ROOT_PID=$!
 test_root $ROOT_PID "$ROOT_TEST_PATH/latest/meta-data" "$SCRIPTPATH/golden/root_paths.golden" "paths"
 
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+ROOT_PID=$!
+test_root $ROOT_PID "$ROOT_TEST_PATH/latest/dynamic" "$SCRIPTPATH/golden/dynamic_paths.golden" "dynamic_paths"
+
 $start_cmd &
 ROOT_PID=$!
 test_root $ROOT_PID "$ROOT_TEST_PATH" "$SCRIPTPATH/golden/versions.golden" "versions"

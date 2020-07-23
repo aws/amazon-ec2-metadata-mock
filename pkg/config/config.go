@@ -118,6 +118,7 @@ func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interfa
 	// set up defaults
 	LoadConfigFromDefaults(cmdDefaults)
 	SetMetadataDefaults(defaults.GetDefaultValues())
+	SetDynamicDefaults(defaults.GetDefaultValues())
 	SetServerCfgDefaults()
 
 	// read in config using viper
