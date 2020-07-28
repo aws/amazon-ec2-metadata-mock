@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-README_FILES=$(find $SCRIPTPATH/../ -name "*.md" -type f)
+README_FILES=$(find $SCRIPTPATH/../../ -name "*.md" -type f)
 MAX_CHAR_COUNT=25000
 
 for r in $README_FILES; do
