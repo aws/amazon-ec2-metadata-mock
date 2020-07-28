@@ -40,6 +40,7 @@
       * [Static Metadata](#static-metadata)
    * [Troubleshooting](#troubleshooting)
       * [Warnings and Expected Outcome](#warnings-and-expected-outcome)
+   * [Integrations](#integrations)
    * [Building](#building)
    * [Communication](#communication)
    * [Contributing](#contributing)
@@ -456,6 +457,14 @@ Details on overriding static metadata values and behavior can be found [here](ht
 |Warning: Failed to save the final configuration to local file - The destination '_path/to/dir_' for saving the configuration already exists, but is not a directory |Failure to create the hidden directory `.amazon-ec2-metadata-mock` to store the final configuration file, because a resource by that name already exists| configuration used by the tool is NOT saved to a local file. The tool continues with its primary job of mocking metadata paths |
 |Warning: Failed to save the final configuration to local file _path/to/local/file_: _error string_  |Failure to save final configuration to a file |configuration used by the tool is NOT saved to a local file. The tool continues with its primary job of mocking metadata paths |
 |Warning: Failed to find home directory due to error: _error string_|Failure to get home directory| working directory is used instead|
+
+# Integrations
+[aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler) uses AEMM in its [e2e test suite](https://github.com/aws/aws-node-termination-handler/tree/master/test/e2e) 
+to mock the metadata service and interrupt events. 
+
+In the [NTH imds-v2-test](https://github.com/aws/aws-node-termination-handler/blob/master/test/e2e/imds-v2-test), Helm is used
+to download the latest AEMM release, install it onto the cluster, and start it with imdsv2-only access. NTH then acquires the v2 token from AEMM, consumes the interrupt event, then
+cordons the worker node and evicts the test pod, thus validating NTH functionality. For more details on NTH e2e tests refer to the documentation [here](https://github.com/aws/aws-node-termination-handler/blob/master/test/README.md). 
 
 # Building
 For build instructions, please consult [BUILD.md](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/BUILD.md)
