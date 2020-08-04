@@ -17,7 +17,6 @@ import (
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
-
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
 

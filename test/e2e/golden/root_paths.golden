@@ -16,6 +16,7 @@ iam/security-credentials/baskinc-role
 instance-action
 instance-id
 instance-type
+latest
 latest/api/token
 local-hostname
 local-ipv4

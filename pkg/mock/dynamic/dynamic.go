@@ -30,8 +30,6 @@ var (
 
 	// ServicePath defines the static service path
 	ServicePath = "/latest/dynamic"
-	// ServicePath2 defines the static service path with slash
-	ServicePath2 = ServicePath + "/"
 )
 
 // Handler processes http requests
@@ -57,7 +55,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// RegisterHandlers registers handlers for ALL static paths
+// RegisterHandlers registers handlers for dynamic paths
 func RegisterHandlers(config cfg.Config) {
 	pathValues := reflect.ValueOf(config.Dynamic.Paths)
 	dyValues := reflect.ValueOf(config.Dynamic.Values)
