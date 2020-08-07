@@ -22,11 +22,10 @@ import (
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/handlers"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/listmocks"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static"
-	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/versions"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 
 	"github.com/spf13/cobra"
@@ -50,18 +49,6 @@ func Contains(slice []string, val string) bool {
 		}
 	}
 	return false
-}
-
-// GetKeyValueSlicesFromMap converts map to slices of keys and values
-func GetKeyValueSlicesFromMap(m map[string]string) ([]string, []string) {
-	keys := make([]string, len(m))
-	values := make([]string, len(m))
-	for k, v := range m {
-		keys = append(keys, k)
-		values = append(values, v)
-	}
-
-	return keys, values
 }
 
 // PrintFlags prints all flags of a command, if set
@@ -102,22 +89,21 @@ func RegisterHandlers(cmd *cobra.Command, config cfg.Config) {
 		}
 	}
 
-	// static handles its own registration
 	static.RegisterHandlers(config)
-
-	// dynamic handles its own registration
 	dynamic.RegisterHandlers(config)
+
+	// paths without explicit handler bindings will fallback to CatchAllHandler
+	server.HandleFuncPrefix("/", handlers.CatchAllHandler)
 }
 
 // getHandlerPairs returns a slice of {paths, handlers} to register
 func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 	// always register these paths
 	handlerPairs := []handlerPair{
-		{path: "/", handler: versions.Handler},
-		{path: static.ServicePath, handler: listmocks.Handler},
-		{path: static.ServicePath2, handler: listmocks.Handler},
-		{path: dynamic.ServicePath, handler: listmocks.Handler},
-		{path: dynamic.ServicePath2, handler: listmocks.Handler},
+		{path: "/", handler: handlers.ListRoutesHandler},
+		{path: "/latest", handler: handlers.ListRoutesHandler},
+		{path: static.ServicePath, handler: handlers.ListRoutesHandler},
+		{path: dynamic.ServicePath, handler: handlers.ListRoutesHandler},
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")

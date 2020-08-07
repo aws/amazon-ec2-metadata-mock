@@ -19,16 +19,16 @@ import (
 	"log"
 	"strings"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/events"
 	gf "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root/globalflags"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/spot"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	r "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/root"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 var (

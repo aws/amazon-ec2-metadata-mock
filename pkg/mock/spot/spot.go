@@ -20,7 +20,6 @@ import (
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	t "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot/internal/types"
-
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
 

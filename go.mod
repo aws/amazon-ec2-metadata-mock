@@ -3,6 +3,7 @@ module github.com/aws/amazon-ec2-metadata-mock
 go 1.14
 
 require (
+	github.com/gorilla/mux v1.7.4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect

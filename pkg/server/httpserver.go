@@ -18,8 +18,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"reflect"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 const notFoundResponse = `<?xml version="1.0" encoding="iso-8859-1"?>
@@ -61,6 +62,7 @@ const UnauthorizedResponse = `<?xml version="1.0" encoding="UTF-8"?>
 var (
 	// Routes represents the list of routes served by the http server
 	Routes []string
+	router = mux.NewRouter()
 )
 
 // HandlerType represents the function passed as an argument to HandleFunc
@@ -68,23 +70,30 @@ type HandlerType func(http.ResponseWriter, *http.Request)
 
 // HandleFunc registers the handler function for the given pattern
 func HandleFunc(pattern string, requestHandler HandlerType) {
-	http.HandleFunc(pattern, requestHandler)
+	router.HandleFunc(pattern, requestHandler)
+}
+
+// HandleFuncPrefix registers the handler function for the given prefix pattern
+func HandleFuncPrefix(pattern string, requestHandler HandlerType) {
+	router.PathPrefix(pattern).HandlerFunc(requestHandler)
 }
 
 func listRoutes() {
-	routesMap := reflect.ValueOf(http.DefaultServeMux).Elem().FieldByIndex([]int{1})
-	routes := routesMap.MapKeys()
-	for _, r := range routes {
-		Routes = append(Routes, r.String())
-	}
-	log.Printf("Serving the following routes: %s\n\n", strings.Join(Routes, ", "))
+	router.Walk(func(route *mux.Route, r *mux.Router, ancestors []*mux.Route) error {
+		t, err := route.GetPathTemplate()
+		if err != nil {
+			return err
+		}
+		Routes = append(Routes, t)
+		return nil
+	})
 }
 
 // ListenAndServe serves all patterns setup via their respective handlers
 func ListenAndServe(hostname string, port string) {
 	listRoutes()
 	host := fmt.Sprint(hostname, ":", port)
-	if err := http.ListenAndServe(host, nil); err != nil {
+	if err := http.ListenAndServe(host, trailingSlashMiddleware(router)); err != nil {
 		panic(err)
 	}
 }
@@ -140,4 +149,15 @@ func ReturnBadRequestResponse(w http.ResponseWriter) {
 func ReturnUnauthorizedResponse(w http.ResponseWriter) {
 	http.Error(w, UnauthorizedResponse, http.StatusUnauthorized)
 	return
+}
+
+// trailingSlashMiddleware will remove trailing slashes and forward the request to the path's handler
+func trailingSlashMiddleware(pathHandler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// support "/" as a valid path
+		if r.URL.Path != "/" && strings.HasSuffix(r.URL.Path, "/") {
+			r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+		}
+		pathHandler.ServeHTTP(w, r)
+	})
 }
