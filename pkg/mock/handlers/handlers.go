@@ -53,7 +53,7 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 	var routes, results []string
 
 	// Clean request path and determine which route list to search
-	trimmedRoute := strings.TrimSuffix(req.URL.Path, "/")
+	trimmedRoute := req.URL.Path
 	log.Println("removing suffix slash: ", trimmedRoute)
 	if strings.HasPrefix(trimmedRoute, static.ServicePath) {
 		trimmedRoute = strings.TrimPrefix(trimmedRoute, static.ServicePath+"/")
@@ -74,20 +74,25 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	/*
+		The request /latest/meta-data/iam will populate results as [info, security-credentials/]
+		Note: not every path for which iam is a prefix needs to be appended to results.
+		ex: iam/security-credentials/baskinc-role should not be added because security-credentials/ already exists
+		results are cached in routeLookupTable
+	*/
 	appendToResults := true
 	for _, route := range routes {
 		if strings.Contains(route, trimmedRoute) {
-			log.Printf("route: %s   contains trimmed route: %s \n", route, trimmedRoute)
-			// ex: iam/security-credentials --> security-credentials
+			// ex: iam/security-credentials contains iam
 			route = strings.TrimPrefix(route, trimmedRoute+"/")
+			// route is now security-credentials
 			for i, existingRoute := range results {
-				// ex: security-credentials/baskinc-role contains security-credentials
 				if strings.Contains(route, existingRoute) {
-					log.Printf("route: %s   contains existingRoute: %s \n", route, existingRoute)
-					// display as security-credentials/
+					// security-credentials/baskinc-role contains security-credentials
 					results[i] = existingRoute + "/"
-					log.Printf("updated existingRoute: %s \n", existingRoute)
+					// display as security-credentials/
 					appendToResults = false
+					// do not add security-credentials/baskinc-role to results
 					break
 				}
 			}

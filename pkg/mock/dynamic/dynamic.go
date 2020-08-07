@@ -28,7 +28,7 @@ var (
 	response         interface{}
 	jsonTextResponse = map[string]bool{}
 
-	// ServicePath defines the static service path
+	// ServicePath defines the dynamic service path
 	ServicePath = "/latest/dynamic"
 )
 
