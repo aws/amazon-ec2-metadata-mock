@@ -1,0 +1,65 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+SPOT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot"
+SPOT_TEST_PATH_TRAILING="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/"
+SPOT_IA_TEST_PATH_TRAILING="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action/"
+SPOT_TT_TEST_PATH_TRAILING="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time/"
+
+function test_subpaths() {
+  pid=$1
+  tput setaf $LAVENDER
+  health_check $SPOT_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_subpaths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TEST_PATH)
+  expected_subpaths=$(cat $SCRIPTPATH/golden/spot_subpaths.golden)
+
+  assert_value "$actual_subpaths" "$expected_subpaths" "test_spot_subpaths"
+
+  clean_up $pid
+}
+
+function test_trailing_slash() {
+  pid=$1
+  tput setaf $LAVENDER
+  health_check $SPOT_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_subpaths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TEST_PATH_TRAILING)
+  expected_subpaths=$(cat $SCRIPTPATH/golden/spot_subpaths.golden)
+  assert_value "$actual_subpaths" "$expected_subpaths" "test_spot_subpaths_trailing"
+
+
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH_TRAILING)
+  actual_inst_action=$(get_value '"action"' "$response")
+  actual_ia_time=$(get_value '"time"' "$response")
+
+  assert_value "$actual_inst_action" $SPOT_INSTANCE_ACTION_DEFAULT 'test_spot_trailing::instance_action'
+  assert_format "$actual_ia_time" $SPOT_DATE_REGEX 'test_spot_trailing::tt_format'
+
+  actual_term_time=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TT_TEST_PATH_TRAILING)
+  actual_term_time_sec=$(convert_RFC3339_to_sec $actual_term_time)
+  actual_ia_time_sec=$(convert_RFC3339_to_sec $actual_ia_time)
+
+  # times should be within 5 second range
+  assert_value_within_range $actual_term_time_sec $actual_ia_time_sec 5
+
+  clean_up $pid
+}
+
+tput setaf $LAVENDER
+echo "======================================================================================================"
+echo "🥑 Starting handlers integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+HANDLERS_PID=$!
+test_subpaths $HANDLERS_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+HANDLERS_PID=$!
+test_trailing_slash $HANDLERS_PID

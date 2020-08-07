@@ -54,7 +54,6 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 
 	// Clean request path and determine which route list to search
 	trimmedRoute := req.URL.Path
-	log.Println("removing suffix slash: ", trimmedRoute)
 	if strings.HasPrefix(trimmedRoute, static.ServicePath) {
 		trimmedRoute = strings.TrimPrefix(trimmedRoute, static.ServicePath+"/")
 		log.Println("static prefix detected..trimming: ", trimmedRoute)
