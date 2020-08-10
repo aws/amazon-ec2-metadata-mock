@@ -78,6 +78,7 @@ type Paths struct {
 	IamSecurityCredentials       string `mapstructure:"iam-security-credentials"`
 	InstanceAction               string `mapstructure:"instance-action"`
 	InstanceID                   string `mapstructure:"instance-id"`
+	InstanceLifecycle            string `mapstructure:"instance-life-cycle"`
 	InstanceType                 string `mapstructure:"instance-type"`
 	LocalHostName                string `mapstructure:"local-hostname"`
 	LocalIpv4                    string `mapstructure:"local-ipv4"`
@@ -133,6 +134,7 @@ type Values struct {
 	IamSecurityCredentials       types.IamSecurityCredentials      `mapstructure:"iam-security-credentials"`
 	InstanceAction               string                            `mapstructure:"instance-action"`
 	InstanceID                   string                            `mapstructure:"instance-id"`
+	InstanceLifecycle            string                            `mapstructure:"instance-life-cycle"`
 	InstanceType                 string                            `mapstructure:"instance-type"`
 	LocalHostName                string                            `mapstructure:"local-hostname"`
 	LocalIpv4                    string                            `mapstructure:"local-ipv4"`

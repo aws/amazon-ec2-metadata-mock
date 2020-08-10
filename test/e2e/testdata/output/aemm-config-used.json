@@ -1,10 +1,29 @@
 {
   "config-file": "$HOME/aemm-config.json",
+  "dynamic": {
+    "paths": {
+      "instance-identity-document": "/latest/dynamic/instance-identity/document"
+    },
+    "values": {
+      "instance-identity-document": {
+        "accountid": "0123456789",
+        "architecture": "x86_64",
+        "availabilityzone": "us-east-1f",
+        "imageid": "ami-0b69ea66ff7391e80",
+        "instanceid": "i-1234567890abcdef0",
+        "instancetype": "m4.xlarge",
+        "pendingtime": "2019-10-31T07:02:24Z",
+        "privateip": "10.0.7.10",
+        "region": "us-east-1",
+        "version": "2017-09-30"
+      }
+    }
+  },
   "events": {
     "code": "system-reboot",
-    "not-after": "2020-06-18T13:35:03-05:00",
-    "not-before": "2020-06-11T13:35:03-05:00",
-    "not-before-deadline": "2020-06-20T13:35:03-05:00",
+    "not-after": "2020-08-17T16:27:14-05:00",
+    "not-before": "2020-08-10T16:27:14-05:00",
+    "not-before-deadline": "2020-08-19T16:27:14-05:00",
     "state": "active"
   },
   "imdsv2": false,
@@ -27,6 +46,7 @@
       "iam-security-credentials-role": "/latest/meta-data/iam/security-credentials",
       "instance-action": "/latest/meta-data/instance-action",
       "instance-id": "/latest/meta-data/instance-id",
+      "instance-life-cycle": "/latest/meta-data/instance-life-cycle",
       "instance-type": "/latest/meta-data/instance-type",
       "local-hostname": "/latest/meta-data/local-hostname",
       "local-ipv4": "/latest/meta-data/local-ipv4",
@@ -98,6 +118,7 @@
       "iam-security-credentials-role": "baskinc-role",
       "instance-action": "none",
       "instance-id": "i-1234567890abcdef0",
+      "instance-life-cycle": "spot",
       "instance-type": "m4.xlarge",
       "local-hostname": "ip-172-16-34-43.ec2.internal",
       "local-ipv4": "172.16.34.43",
@@ -141,29 +162,5 @@
   "spot": {
     "action": "terminate",
     "time": ""
-  },
-  "dynamic": {
-    "paths": {
-      "instance-identity-document": "/latest/dynamic/instance-identity/document"
-    },
-    "values": {
-      "instance-identity-document": {
-        "accountId": "0123456789",
-        "imageId": "ami-0b69ea66ff7391e80",
-        "availabilityZone": "us-east-1a",
-        "ramdiskId": null,
-        "kernelId": null,
-        "devpayProductCodes": null,
-        "marketplaceProductCodes": null,
-        "version": "2017-09-30",
-        "privateIp": "10.0.7.10",
-        "billingProducts": null,
-        "instanceId": "i-1234567890abcdef0",
-        "pendingTime": "2019-10-31T07:02:24Z",
-        "architecture": "x86_64",
-        "instanceType": "m4.xlarge",
-        "region": "us-east-1"
-      }
-    }
   }
 }

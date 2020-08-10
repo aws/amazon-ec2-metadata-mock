@@ -15,6 +15,7 @@ iam/security-credentials
 iam/security-credentials/baskinc-role
 instance-action
 instance-id
+instance-life-cycle
 instance-type
 latest
 latest/api/token
