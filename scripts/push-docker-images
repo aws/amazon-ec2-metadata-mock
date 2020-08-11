@@ -56,6 +56,12 @@ fi
 # if manifest exists already, fetch existing platforms so "updated" manifest includes images
 # that were there previously
 if [[ $MANIFEST == "true" ]]; then
+    if [[ ! -f $DOCKER_CLI_CONFIG ]]; then
+      echo '{"experimental":"enabled"}' > $DOCKER_CLI_CONFIG
+      echo "Created docker config file"
+    fi
+    cat <<< $(jq '.+{"experimental":"enabled"}' $DOCKER_CLI_CONFIG) > $DOCKER_CLI_CONFIG
+    echo "Enabled experimental CLI features to execute docker manifest commands"
   manifest_exists=$(docker manifest inspect $IMAGE_REPO:$VERSION > /dev/null ; echo $?)
   if [[ manifest_exists -eq 0 ]]; then
     PLATFORMS+=($(docker manifest inspect $IMAGE_REPO:$VERSION | jq -r '.manifests[] | "\(.platform.os)/\(.platform.architecture)"'))
@@ -80,12 +86,8 @@ for os_arch in "${PLATFORMS[@]}"; do
 done
 
 if [[ $MANIFEST == "true" ]]; then
-    if [[ ! -f $DOCKER_CLI_CONFIG ]]; then
-      echo '{"experimental":"enabled"}' > $DOCKER_CLI_CONFIG
-      echo "Created docker config file"
-    fi
-    cat <<< $(jq '.+{"experimental":"enabled"}' $DOCKER_CLI_CONFIG) > $DOCKER_CLI_CONFIG
-    echo "Enabled experimental CLI features to create the docker manifest"
+
+    echo "creating manifest for the following images: $MANIFEST_IMAGES"
     docker manifest create $IMAGE_REPO:$VERSION $MANIFEST_IMAGES
 
     for os_arch in "${PLATFORMS[@]}"; do
