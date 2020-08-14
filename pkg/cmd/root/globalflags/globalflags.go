@@ -24,6 +24,9 @@ const (
 	// MockDelayInSecFlag - mock delay in seconds, relative to the application start time
 	MockDelayInSecFlag = "mock-delay-sec"
 
+	// MockTriggerTimeFlag - mock trigger time in RFC3339
+	MockTriggerTimeFlag = "mock-trigger-time"
+
 	// HostNameFlag - the HTTP hostname for the mock url
 	HostNameFlag = "hostname"
 
@@ -36,5 +39,5 @@ const (
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, Imdsv2Flag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, Imdsv2Flag}
 }

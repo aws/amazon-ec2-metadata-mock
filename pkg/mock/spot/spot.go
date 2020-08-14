@@ -47,13 +47,25 @@ func SetConfig(config cfg.Config) {
 func Handler(res http.ResponseWriter, req *http.Request) {
 	log.Println("Received request to mock spot interruption:", req.URL.Path)
 
-	delayInSeconds := c.MockDelayInSec
 	requestTime := time.Now().Unix()
-	delayRemaining := delayInSeconds - (requestTime - spotItnStartTime)
-	if delayRemaining > 0 {
-		log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
-		server.ReturnNotFoundResponse(res)
-		return
+
+	if c.MockTriggerTime != "" {
+		triggerTime, _ := time.Parse(time.RFC3339, c.MockTriggerTime)
+
+		delayRemaining := triggerTime.Unix() - requestTime
+		if delayRemaining > 0 {
+			log.Printf("MockTriggerTime %s was not reached yet. The mock response will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
+	} else {
+		delayInSeconds := c.MockDelayInSec
+		delayRemaining := delayInSeconds - (requestTime - spotItnStartTime)
+		if delayRemaining > 0 {
+			log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
 	}
 
 	// default time to requestTime + 2min, unless overridden
@@ -63,7 +75,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 		mockResponseTime = c.SpotConfig.TerminationTime
 	}
 
-	// return mock response after the delay has elapsed
+	// return mock response after the delay or trigger time has elapsed
 	switch req.URL.Path {
 	case instanceActionPath:
 		server.FormatAndReturnJSONResponse(res, getInstanceActionResponse(mockResponseTime))

@@ -47,16 +47,28 @@ func SetConfig(config cfg.Config) {
 func Handler(res http.ResponseWriter, req *http.Request) {
 	log.Println("Received request to mock EC2 event:", req.URL.Path)
 
-	delayInSeconds := c.MockDelayInSec
 	requestTime := time.Now().Unix()
-	delayRemaining := delayInSeconds - (requestTime - appStartTime)
-	if delayRemaining > 0 {
-		log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
-		server.ReturnNotFoundResponse(res)
-		return
+
+	if c.MockTriggerTime != "" {
+		triggerTime, _ := time.Parse(time.RFC3339, c.MockTriggerTime)
+
+		delayRemaining := triggerTime.Unix() - requestTime
+		if delayRemaining > 0 {
+			log.Printf("MockTriggerTime %s was not reached yet. The mock response will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
+	} else {
+		delayInSeconds := c.MockDelayInSec
+		delayRemaining := delayInSeconds - (requestTime - appStartTime)
+		if delayRemaining > 0 {
+			log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
 	}
 
-	// return mock response after the delay has elapsed
+	// return mock response after the delay or trigger time has elapsed
 	server.FormatAndReturnJSONResponse(res, getMetadata())
 }
 
