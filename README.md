@@ -128,18 +128,20 @@ Examples:
   ec2-metadata-mock spot --action terminate	mocks spot ITN only
 
 Available Commands:
-  events          Mock EC2 maintenance events
-  help            Help about any command
-  spot            Mock EC2 Spot interruption notice
+  events      Mock EC2 maintenance events
+  help        Help about any command
+  spot        Mock EC2 Spot interruption notice
 
 Flags:
-  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)
-  -h, --help                  help for amazon-ec2-metadata-mock
-  -n, --hostname string       the HTTP hostname for the mock url (default: localhost)
-  -I, --imdsv2                whether to enable IMDSv2 only requiring a session token when submitting requests (default: false)
-  -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
-  -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -c, --config-file string         config file for cli input parameters in json format (default: $HOME/aemm-config.json)
+  -h, --help                       help for ec2-metadata-mock
+  -n, --hostname string            the HTTP hostname for the mock url (default: 0.0.0.0)
+  -I, --imdsv2                     whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
+  -d, --mock-delay-sec int         mock delay in seconds, relative to the application start time (default: 0 seconds)
+      --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
+  -p, --port string                the HTTP port where the mock runs (default: 1338)
+  -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+      --version                    version for ec2-metadata-mock
 
 Use "ec2-metadata-mock [command] --help" for more information about a command.
 ```
@@ -245,25 +247,26 @@ Usage:
   ec2-metadata-mock spot [--action ACTION] [flags]
 
 Aliases:
-  spot, spotitn
+  spot, spot
 
 Examples:
   ec2-metadata-mock spot -h 	spot help
   ec2-metadata-mock spot -d 5 --action terminate		mocks spot interruption only
 
 Flags:
-  -h, --help                      help for spot
-  -a, --action string             action in the spot interruption notice (default: terminate)
-                                  action can be one of the following: terminate,hibernate,stop
-  -t, --time string               time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
+  -a, --action string   action in the spot interruption notice (default: terminate)
+                        action can be one of the following: terminate,hibernate,stop
+  -h, --help            help for spot
+  -t, --time string     termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
-  -c, --config-file string    config file for cli input parameters in json format (default: $HOME/aemm-config.json)
-  -n, --hostname string       the HTTP hostname for the mock url (default: localhost)
-  -I, --imdsv2                whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
-  -d, --mock-delay-sec int    mock delay in seconds, relative to the application start time (default: 0 seconds)
-  -p, --port string           the HTTP port where the mock runs (default: 1338)
-  -s, --save-config-to-file   whether to save processed config from all input sources in .amazon-ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -c, --config-file string         config file for cli input parameters in json format (default: $HOME/aemm-config.json)
+  -n, --hostname string            the HTTP hostname for the mock url (default: 0.0.0.0)
+  -I, --imdsv2                     whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
+  -d, --mock-delay-sec int         mock delay in seconds, relative to the application start time (default: 0 seconds)
+      --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
+  -p, --port string                the HTTP port where the mock runs (default: 1338)
+  -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
 ```
 
 1.) **Starting AEMM with `spot`**:  `spot` routes available immediately:
@@ -325,6 +328,8 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 }
 
 ```
+
+Alternatively a trigger time can be configured using `--mock-trigger-time` which can be useful to synchronize spot interruption simulation over multiple instances. 
 
 ## Events
 Similar to spot, the `events` command, view the local flags using `events --help`:

@@ -78,7 +78,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().StringP(gf.ConfigFileFlag, "c", "", "config file for cli input parameters in json format (default: "+cfg.GetDefaultCfgFileName()+")")
 	cmd.PersistentFlags().BoolP(gf.SaveConfigToFileFlag, "s", false, "whether to save processed config from all input sources in "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
 	cmd.PersistentFlags().Int64P(gf.MockDelayInSecFlag, "d", 0, "mock delay in seconds, relative to the application start time (default: 0 seconds)")
-	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "mock trigger time in RFC3339 (default: none)")
+	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "mock trigger time in RFC3339 format. This takes priority over "+gf.MockDelayInSecFlag+" (default: none)")
 	cmd.PersistentFlags().BoolP(gf.Imdsv2Flag, "I", false, "whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)")
 
 	// add subcommands

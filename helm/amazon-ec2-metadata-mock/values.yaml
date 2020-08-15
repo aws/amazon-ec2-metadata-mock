@@ -82,6 +82,7 @@ aemm:
   server:
     hostname: ""
   mockDelaySec: 0
+  mockTriggerTime: ""
   imdsv2: false
   spot:
     action: ""

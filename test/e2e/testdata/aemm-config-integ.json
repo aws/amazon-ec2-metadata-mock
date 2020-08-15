@@ -10,8 +10,7 @@
   },
   "spot": {
     "action": "terminate",
-    "time": "2020-01-07T01:03:47Z",
-    "trigger-time": "2020-01-07T01:01:47Z"
+    "time": "2020-01-07T01:03:47Z"
   },
   "dynamic": {
     "values": {
