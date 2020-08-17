@@ -7,7 +7,7 @@
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&label=latest%20release&sort=semver" alt="latest release">
    </a>
-   <a href="https://golang.org/doc/go1.14">
+   <a href="https://golang.org/doc/go1.15">
    <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
    </a>
    <a href="https://opensource.org/licenses/Apache-2.0">
@@ -247,7 +247,7 @@ Usage:
   ec2-metadata-mock spot [--action ACTION] [flags]
 
 Aliases:
-  spot, spot
+  spot
 
 Examples:
   ec2-metadata-mock spot -h 	spot help

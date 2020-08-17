@@ -30,11 +30,11 @@ jobs:
     - stage: Build and Tests
       name: Build
       language: go
-      go: 1.14.x
+      go: 1.15.x
       script: make build
     - name: Unit tests
       language: go
-      go: 1.14.x
+      go: 1.15.x
       script: make unit-test
     - name: Go report card test
       script: make go-report-card-test
@@ -45,7 +45,7 @@ jobs:
       script: make license-test
     - name: AEMM E2E tests
       language: go
-      go: 1.14.x
+      go: 1.15.x
       script: make e2e-test
     - name: Build Github release assets
       script: make build-release-assets
