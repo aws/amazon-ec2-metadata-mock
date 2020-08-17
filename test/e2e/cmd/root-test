@@ -54,6 +54,38 @@ function test_root_delay() {
   clean_up $pid
 }
 
+function test_root_mock_trigger_time() {
+  pid=$1
+  delay_in_sec=$2
+  mock_trigger_time=$3
+  tput setaf $CYAN
+
+  # Give server time to startup
+  sleep 1
+  expected_delayed_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+
+  # Subcommand paths are delayed
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $ROOT_TEST_PATH/latest/meta-data/spot/instance-action || :)
+  assert_value "$actual_response" "$expected_delayed_response" "test_root_mock_trigger_time::pre-trigger_response"
+
+  # Send request after mock_trigger_time
+  echo "⏲ Waiting on mock_trigger_time ⏲"
+  sleep $delay_in_sec
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $ROOT_TEST_PATH/latest/meta-data/spot/instance-action || :)
+  assert_not_equal "$actual_response" "$expected_delayed_response" "test_root_mock_trigger_time::post-trigger_response"
+
+  # Confirm response isn't empty
+  if [[ ! -z $actual_response ]]; then
+    echo "✅ Verified post-mock_trigger_time response"
+  else
+    echo "❌ Failed delay: there should be a response after mock_trigger_time"
+    EXIT_CODE_TO_RETURN=1
+  fi
+
+  clean_up $pid
+}
+
 tput setaf $CYAN
 echo "======================================================================================================"
 echo "🥑 Starting root integration tests $METADATA_VERSION"
@@ -86,5 +118,15 @@ test_root $ROOT_PID "$ROOT_TEST_PATH/latest/meta-data" "$SCRIPTPATH/golden/root_
 $start_cmd &
 ROOT_PID=$!
 test_root_delay $ROOT_PID $DELAY_IN_SEC
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  mock_trigger_time=$(date --date "${DELAY_IN_SEC} seconds" +%Y-%m-%dT%T%:z)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  mock_trigger_time=$(date -v+${DELAY_IN_SEC}S +%Y-%m-%dT%T%z | sed 's@^.\{22\}@&:@')
+fi
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT --mock-trigger-time "$mock_trigger_time")
+$start_cmd &
+ROOT_PID=$!
+test_root_mock_trigger_time $ROOT_PID $DELAY_IN_SEC "$mock_trigger_time"
 
 exit $EXIT_CODE_TO_RETURN

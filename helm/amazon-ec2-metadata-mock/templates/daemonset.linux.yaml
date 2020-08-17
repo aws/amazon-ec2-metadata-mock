@@ -102,6 +102,10 @@ spec:
         - name: AEMM_MOCK_DELAY_SEC
           value: {{ .Values.aemm.mockDelaySec | quote }}
         {{- end }}
+        {{- if .Values.aemm.mockTriggerTime }}
+        - name: AEMM_MOCK_TRIGGER_TIME
+          value: {{ .Values.aemm.mockTriggerTime | quote }}
+        {{- end }}
         {{- if .Values.aemm.imdsv2 }}
         - name: AEMM_IMDSV2
           value: {{ .Values.aemm.imdsv2| quote }}
