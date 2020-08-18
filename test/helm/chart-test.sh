@@ -19,11 +19,17 @@ set -euo pipefail
 
 # KIND / Kubernetes
 readonly K8s_1_18="v1.18.2"
+# shellcheck disable=SC2034
 readonly K8s_1_17="v1.17.5"
+# shellcheck disable=SC2034
 readonly K8s_1_16="v1.16.9"
+# shellcheck disable=SC2034
 readonly K8s_1_15="v1.15.11"
+# shellcheck disable=SC2034
 readonly K8s_1_14="v1.14.10"
+# shellcheck disable=SC2034
 readonly K8s_1_13="v1.13.12"
+# shellcheck disable=SC2034
 readonly K8s_1_12="v1.12.10"
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.8.1"
@@ -97,7 +103,7 @@ setup_ct_container() {
 
 install_kind() {
     c_echo "Installing kind..."
-    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$(uname)-amd64
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-"$(uname)"-amd64
     chmod +x ./kind
     mv ./kind $TMP_DIR/kind
     export PATH=$TMP_DIR:$PATH
@@ -162,7 +168,7 @@ handle_errors_and_cleanup() {
 
     # error handling
     if [ $1 != "0" ]; then
-        FAILED_COMMAND=${@:2}
+        FAILED_COMMAND=${*:2}
         echo -e "\n❌ ${RED}One or more tests failed / error occurred while running command ${BOLD}${FAILED_COMMAND}${RESET_FMT} ❌"
         exit 1
     fi

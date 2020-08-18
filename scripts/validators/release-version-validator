@@ -40,14 +40,14 @@ for c in $HELM_CHART_PATH/*; do
 
         # verify version in values.yaml
         values_image_tag=$(sed -n 's/[^\s]tag: //p' $c/values.yaml | tr -d '""' | tr -d ' ')
-        if [[ $values_image_tag != $LATEST_VERSION ]]; then
+        if [[ $values_image_tag != "$LATEST_VERSION" ]]; then
             echo "❌ Please update AEMM version in $chart_name helm chart's values.yaml, image.tag field. Expected version $LATEST_VERSION, but got $values_image_tag ❌"
             UPDATE_NEEDED=true
         fi
 
         # verify version in Chart.yaml
         chart_version=$(sed -n 's/version: //p' $c/Chart.yaml)
-        if [[ $chart_version != $LATEST_VERSION ]]; then
+        if [[ $chart_version != "$LATEST_VERSION" ]]; then
             echo "❌ Please update the chart's version in $chart_name chart's Chart.yaml. Expected version $LATEST_VERSION, but got $chart_version ❌"
             UPDATE_NEEDED=true
         fi

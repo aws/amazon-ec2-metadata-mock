@@ -32,7 +32,7 @@ REPO_README=$REPO_ROOT_PATH/README.md
 CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
 CHART_VALUES=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml
 CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
-FILES=($REPO_README  $CHART  $CHART_README  $CHART_VALUES)
+FILES=("$REPO_README"  "$CHART"  "$CHART_README"  "$CHART_VALUES")
 FILES_CHANGED=()
 
 # release prep
@@ -135,11 +135,11 @@ update_versions() {
         has_incorrect_version=$(cat $f | grep $PREVIOUS_VERSION)
         if [[ ! -z  $has_incorrect_version ]]; then
             sed -i '' "s/$PREVIOUS_VERSION/$LATEST_VERSION/g" $f
-            FILES_CHANGED+=($f)
+            FILES_CHANGED+=("$f")
         fi
     done
 
-    if [[ -z $FILES_CHANGED ]]; then
+    if [[ ${#FILES_CHANGED[@]} -eq 0 ]]; then
         echo -e "\nNo files were modified. Either all files already use git the latest release version $LATEST_VERSION or the files don't currently have the previous version $PREVIOUS_VERSION."
     else
         echo -e "✅✅ ${BOLD}Updated versions from $PREVIOUS_VERSION to $LATEST_VERSION in files: \n$(echo "${FILES_CHANGED[@]}" | tr ' ' '\n')"
@@ -228,7 +228,7 @@ rollback() {
 handle_errors() {
     # error handling
     if [ $1 != "0" ]; then
-        FAILED_COMMAND=${@:2}
+        FAILED_COMMAND=${*:2}
         echo -e "\n❌ ${RED}Error occurred while running command '$FAILED_COMMAND'.${RESET_FMT}❌"
         rollback
         exit 1

@@ -54,9 +54,9 @@ function test_static_metadata_with_config_file() {
 
   # Default paths should no longer be valid
   invalid_network_interface_id=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $NETWORK_INTERFACE_ID_PATH_DEFAULT)
-  assert_not_equal "invalid_network_interface_id" $NETWORK_INTERFACE_ID_DEFAULT "invalid_networkId $test_name"
+  assert_not_equal "$invalid_network_interface_id" $NETWORK_INTERFACE_ID_DEFAULT "invalid_networkId $test_name"
   invalid_ipv4_association=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $IPV4_ASSOCIATIONS_PATH_DEFAULT)
-  assert_not_equal "invalid_ipv4_association" $IPV4_ASSOCIATION_DEFAULT "invalid_ipv4Association $test_name"
+  assert_not_equal "$invalid_ipv4_association" $IPV4_ASSOCIATION_DEFAULT "invalid_ipv4Association $test_name"
 
   # Updated paths return expected
   actual_network_interface_id=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $NETWORK_INTERFACE_ID_PATH_OVERRIDDEN)

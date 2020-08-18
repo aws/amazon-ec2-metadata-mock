@@ -1,9 +1,19 @@
 #! /usr/bin/env bash
 
+set -euo pipefail
+
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-JSON_FILES=$(find $SCRIPTPATH/../ -name "*.json" -type f)
+JSON_FILES=$(find $SCRIPTPATH/../../ -name "*.json" -type f)
+FAILED_FILES=()
 
 for j in $JSON_FILES; do
   echo "validating $j"
-  python -mjson.tool "$j" > /dev/null || exit 1
+  python -mjson.tool "$j" > /dev/null || FAILED_FILES+=("$j")
 done
+
+if [[ ${#FAILED_FILES[@]} -eq 0 ]]; then
+  echo "✅ json-validator found no errors!"
+else
+  echo "❌ JSON syntax errors found in these files: ${FAILED_FILES[*]}"
+  exit 1
+fi
