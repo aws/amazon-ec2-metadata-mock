@@ -1,14 +1,23 @@
 #! /usr/bin/env bash
 
+set -euo pipefail
+
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 README_FILES=$(find $SCRIPTPATH/../../ -name "*.md" -type f)
 MAX_CHAR_COUNT=25000
+FAILED_FILES=()
 
 for r in $README_FILES; do
   echo "validating $r"
   chars=$( wc -m < "$r" )
   if [[ $chars -ge $MAX_CHAR_COUNT ]]; then
-    echo "$r exceeds max character count"
-    exit 1
+    FAILED_FILES+=("$r")
   fi
 done
+
+if [[ ${#FAILED_FILES[@]} -eq 0 ]]; then
+  echo "✅ readme-validator found no errors!"
+else
+  echo "❌ README has too many characters in these files: ${FAILED_FILES[*]}"
+  exit 1
+fi

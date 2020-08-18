@@ -21,18 +21,16 @@ SHELL ["cmd", "/S", "/C"]
 # Install Chocolatey
 RUN @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"
 # Update Path
-RUN setx /M PATH "C:\gopath\bin;C:\go\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\ProgramData\chocolatey\bin;"
+RUN setx /M PATH "C:\gopath\bin;C:\go\bin;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\usr\bin;C:\Python3;C:\Windows\system32"
 
 # New Powershell, so choco is available
 SHELL ["powershell"]
 RUN choco feature disable --name showDownloadProgress
 
-# Install make, git-bash
+# Install make, git-bash, python
 RUN choco install make
 RUN choco install git -y
-# Update Path
-SHELL ["cmd", "/S", "/C"]
-RUN setx /M PATH "%PATH%;c:\Program Files\Git\usr\bin"
+RUN choco install python3 -y --params "/InstallDir:C:\Python3"
 
 # Build
 COPY . .
