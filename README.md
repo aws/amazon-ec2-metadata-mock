@@ -73,15 +73,22 @@ AEMM supports most [metadata categories](https://docs.aws.amazon.com/AWSEC2/late
 AEMM is simple to get up and running.
 
 ## Installation
-Download binary from the latest release:
 
-### MacOS/Linux
+### Install w/ Homebrew
+
+```
+brew tap aws/tap
+brew install ec2-metadata-mock
+```
+### Install w/ Curl
+
+#### MacOS/Linux
 ```
 curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.5.0/ec2-metadata-mock-`uname | tr '[:upper:]' '[:lower:]'`-amd64
 chmod +x ec2-metadata-mock
 ```
 
-### ARM Linux
+#### ARM Linux
 ```
 curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.5.0/ec2-metadata-mock-linux-arm
 ```
@@ -90,12 +97,12 @@ curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/relea
 curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.5.0/ec2-metadata-mock-linux-arm64
 ```
 
-### Windows
+#### Windows
 ```
 curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.5.0/ec2-metadata-mock-windows-amd64.exe
 ```
 
-### Docker
+### Install w/ Docker
 ```
 docker pull amazon/amazon-ec2-metadata-mock:v1.5.0
 docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v1.5.0
