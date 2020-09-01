@@ -169,9 +169,9 @@ Parameter | Description | Default
 `image.pullPolicy` | image pull policy | `IfNotPresent`
 `nameOverride` | override for the name of the Helm Chart (default, if not overridden: `amazon-ec2-metadata-mock`) | `""`
 `fullnameOverride` | override for the name of the application (default, if not overridden: `amazon-ec2-metadata-mock`) | `""`
-`nodeSelector` | tells the DaemonSet where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every node will receive a pod
+`nodeSelector` | tells the Deployment where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every node will receive a pod
 `podAnnotations` | annotations to add to each pod | `{}`
-`updateStrategy` | the update strategy for a DaemonSet | `RollingUpdate`
+`updateStrategy` | the update strategy for a Deployment | `RollingUpdate`
 `rbac.pspEnabled` | if `true`, create and use a restricted pod security policy | `false`
 `serviceAccount.create` | if `true`, create a new service account | `true`
 `serviceAccount.name` | service account to be used | `amazon-ec2-metadata-mock-service-account`

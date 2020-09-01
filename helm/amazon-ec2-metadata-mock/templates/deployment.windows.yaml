@@ -1,38 +1,39 @@
-{{- if (lower .Values.targetNodeOs | contains "linux") -}}
+{{- if (lower .Values.targetNodeOs | contains "windows") -}}
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: {{ include "amazon-ec2-metadata-mock.fullname" . }}
+  name: {{ include "amazon-ec2-metadata-mock.fullname.windows" . }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "amazon-ec2-metadata-mock.labels" . | indent 4 }}
 spec:
-  updateStrategy:
+  replicas: {{ toYaml .Values.replicaCount }}
+  strategy:
     type: {{ toYaml .Values.updateStrategy }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
-      {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
+      {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: windows
   template:
     metadata:
-      {{- if (or .Values.podAnnotations .Values.linuxPodAnnotations) }}
+      {{- if (or .Values.podAnnotations .Values.windowsPodAnnotations) }}
       annotations:
-        {{- range $key, $value := (mergeOverwrite (dict) .Values.podAnnotations .Values.linuxPodAnnotations) }}
+        {{- range $key, $value := (mergeOverwrite (dict) .Values.podAnnotations .Values.windowsPodAnnotations) }}
           {{ $key }}: {{ $value | quote }}
         {{- end }}
       {{- end }}
       labels:
         app.kubernetes.io/name: {{ include "amazon-ec2-metadata-mock.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
+        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: windows
     spec:
       nodeSelector:
-        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: linux
+        {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . }}: windows
         {{- with .Values.nodeSelector }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- with .Values.linuxNodeSelector }}
+        {{- with .Values.windowsNodeSelector }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
       affinity:
@@ -43,18 +44,16 @@ spec:
               - key: {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsOs" . | quote }}
                 operator: In
                 values:
-                - linux
+                - windows
               - key: {{ include "amazon-ec2-metadata-mock.nodeSelectorTermsArch" . | quote }}
                 operator: In
                 values:
                 - amd64
-                - arm
-                - arm64
       tolerations:
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.linuxTolerations }}
+      {{- with .Values.windowsTolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ template "amazon-ec2-metadata-mock.serviceAccountName" . }}
@@ -69,27 +68,14 @@ spec:
       - name: {{ include "amazon-ec2-metadata-mock.name" . }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- if (or .Values.arguments .Values.linuxArguments) }}
+        {{- if (or .Values.arguments .Values.windowsArguments) }}
         args:
           {{ range .Values.arguments }}
             - {{ . }}
           {{ end }}
-          {{ range .Values.linuxArguments }}
+          {{ range .Values.windowsArguments }}
             - {{ . }}
           {{ end }}
-        {{- end }}
-        securityContext:
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: {{ .Values.securityContext.runAsUserID }}
-          runAsGroup: {{ .Values.securityContext.runAsGroupID }}
-          allowPrivilegeEscalation: false
-        {{- if .Values.configMap }}
-        volumeMounts:
-        - name: "aemm-config"
-          mountPath: {{ with $file := .Values.configMapFileName | default "aemm-config.json" }} {{ printf "/%s/%s" "config" $file }} {{ end }} 
-          subPath: {{ .Values.configMapFileName | default "aemm-config.json"  }}
-          readOnly: true
         {{- end }}
         env:
         {{- if .Values.configMap }}
