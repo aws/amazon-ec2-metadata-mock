@@ -31,8 +31,10 @@ readonly K8s_1_14="v1.14.10"
 readonly K8s_1_13="v1.13.12"
 # shellcheck disable=SC2034
 readonly K8s_1_12="v1.12.10"
+PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.8.1"
+readonly HELM3_VERSION="3.2.4"
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
 readonly CLUSTER_CONFIG="$REPO_PATH/test/helm/kind-config.yaml"
@@ -116,9 +118,17 @@ setup_ct_container() {
 
 install_kind() {
     c_echo "Installing kind..."
-    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-"$(uname)"-amd64
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$PLATFORM-amd64
     chmod +x ./kind
     mv ./kind $TMP_DIR/kind
+    export PATH=$TMP_DIR:$PATH
+}
+
+install_helm() {
+    c_echo "Installing helm..."
+    curl -L https://get.helm.sh/helm-v$HELM3_VERSION-$PLATFORM-amd64.tar.gz | tar zxf - -C $TMP_DIR
+    mv $TMP_DIR/$PLATFORM-amd64/helm $TMP_DIR/.
+    chmod +x $TMP_DIR/helm
     export PATH=$TMP_DIR:$PATH
 }
 
@@ -355,6 +365,7 @@ test_termination_nodes() {
     fi
 
     build_and_load_image
+    install_helm
     for test_file in $TEST_FILES; do
       $test_file
     done

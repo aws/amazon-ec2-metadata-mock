@@ -200,6 +200,7 @@ Parameter | Description | Default in Helm | Default AEMM configuration
 `aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `0.0.0.0`
 `aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
 `aemm.mockTriggerTime` | mock trigger time in RFC3339 format | `""` | `""`
+`aemm.terminationNodes` | number of nodes that can receive spot interrupts; subsequent requests will return 404 | `""` | `99`
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
 `aemm.spot.action` | action in the spot interruption notice | `""` | `terminate`
 `aemm.spot.time` | time in the spot interruption notice | `""` | HTTP request time + 2 minutes

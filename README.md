@@ -141,6 +141,7 @@ Flags:
       --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
   -p, --port string                the HTTP port where the mock runs (default: 1338)
   -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -x, --termination-nodes int      number of nodes in a cluster that can receive Spot interrupt notice (default: 99, meaning unlimited nodes) (default 99)
       --version                    version for ec2-metadata-mock
 
 Use "ec2-metadata-mock [command] --help" for more information about a command.
@@ -267,6 +268,7 @@ Global Flags:
       --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
   -p, --port string                the HTTP port where the mock runs (default: 1338)
   -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+  -x, --termination-nodes int      number of nodes in a cluster that can receive Spot interrupt notice (default: 99, meaning unlimited nodes) (default 99)
 ```
 
 1.) **Starting AEMM with `spot`**:  `spot` routes available immediately:

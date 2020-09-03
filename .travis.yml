@@ -47,6 +47,8 @@ jobs:
       language: go
       go: 1.15.x
       script: make e2e-test
+    - name: AEMM termination-nodes test
+      script: make helm-termination-node-test
     - name: Build Github release assets
       script: make build-release-assets
     - name: Build Docker images Linux
