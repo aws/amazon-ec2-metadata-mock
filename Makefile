@@ -70,6 +70,9 @@ helm-lint-test:
 helm-install-e2e-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh -i
 
+helm-termination-node-test:
+	${MAKEFILE_PATH}/test/helm/chart-test.sh -t
+
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
 

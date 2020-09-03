@@ -92,6 +92,10 @@ spec:
         - name: AEMM_MOCK_TRIGGER_TIME
           value: {{ .Values.aemm.mockTriggerTime | quote }}
         {{- end }}
+        {{- if .Values.aemm.terminationNodes }}
+        - name: AEMM_TERMINATION_NODES
+          value: {{ .Values.aemm.terminationNodes | quote }}
+        {{- end }}
         {{- if .Values.aemm.imdsv2 }}
         - name: AEMM_IMDSV2
           value: {{ .Values.aemm.imdsv2| quote }}
