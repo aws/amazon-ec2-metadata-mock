@@ -136,8 +136,7 @@ install_helm() {
 install_kubectl() {
     c_echo "Installing kubectl..."
     curl -Lo $TMP_DIR/kubectl "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$PLATFORM/amd64/kubectl"
-    chmod +x ./kubectl
-    mv ./kubectl $TMP_DIR/kubectl
+    chmod +x $TMP_DIR/kubectl
     export PATH=$TMP_DIR:$PATH
 }
 

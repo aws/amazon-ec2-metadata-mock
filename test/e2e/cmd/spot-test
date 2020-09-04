@@ -77,6 +77,19 @@ function test_spot_ia_overrides() {
   clean_up $pid
 }
 
+function test_spot_404() {
+  pid=$1
+  expected_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  tput setaf $MAGENTA
+  health_check $SPOT_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  assert_value "$actual_response" "$expected_response" "test_spot_404::mock-ip-count"
+
+  clean_up $pid
+}
+
 function test_spot_subcommand_paths_404() {
   pid=$1
   test_url="$2"
@@ -87,7 +100,6 @@ function test_spot_subcommand_paths_404() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $test_url)
-
   assert_value "$actual_response" "$expected_response" "subcommand_paths_404::$test_name"
 
   clean_up $pid
@@ -134,10 +146,28 @@ $start_cmd &
 SPOT_PID=$!
 test_spot_ia_overrides $SPOT_PID $FLAG_OVERRIDDEN_INSTANCE_ACTION $CONFIG_OVERRIDDEN_TERMINATION_TIME
 
+unset AEMM_SPOT_ACTION
+
 # paths for other subcommands should be disabled
 start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT)
 $start_cmd &
 SPOT_PID=$!
 test_spot_subcommand_paths_404 $SPOT_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/maintenance/scheduled" "scheduled-maintenance-events"
+
+# --mock-ip-count feature
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT --mock-ip-count=-1)
+$start_cmd &
+SPOT_PID=$!
+test_spot_ia_defaults $SPOT_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT --mock-ip-count=0)
+$start_cmd &
+SPOT_PID=$!
+test_spot_404 $SPOT_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -x=1)
+$start_cmd &
+SPOT_PID=$!
+test_spot_ia_defaults $SPOT_PID
 
 exit $EXIT_CODE_TO_RETURN

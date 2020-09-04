@@ -7,8 +7,8 @@ SCRIPTPATH="$(
   pwd -P
 )"
 EXIT_CODE_TO_RETURN=0
-STATUS_CHECK_CYCLES=15
-STATUS_CHECK_SLEEP=15
+STATUS_CHECK_CYCLES=30
+STATUS_CHECK_SLEEP=2
 
 function get_status() {
   pod=$1
@@ -58,11 +58,11 @@ function test() {
         echo "✅ Verified test-pod-404 is created and running"
         break
       fi
-      echo "test-pod-404 still provisioning. status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      echo "test-pod-404 still provisioning with status: $test_pod_404_status . status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
       sleep $STATUS_CHECK_SLEEP
     done
 
-    echo "copying to 404-pod..."
+    echo "copying 404_response.golden to 404-pod"
     kubectl cp "$SCRIPTPATH/../../e2e/golden/404_response.golden" test-pod-404:/tmp/404_response.golden
 
     # Query status until tests succeed or fail
@@ -73,7 +73,8 @@ function test() {
         echo "✅ Verified both pods are no longer Running"
         break
       fi
-      echo "Pods are still Running. status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      echo "Pods are still Running. test-pod status: $test_pod_status    test-pod-404 status: $test_pod_404_status"
+      echo "status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
       sleep $STATUS_CHECK_SLEEP
     done
 
