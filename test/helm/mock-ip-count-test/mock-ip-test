@@ -7,6 +7,8 @@ SCRIPTPATH="$(
   pwd -P
 )"
 EXIT_CODE_TO_RETURN=0
+STATUS_CHECK_CYCLES=15
+STATUS_CHECK_SLEEP=15
 
 function get_status() {
   pod=$1
@@ -50,22 +52,29 @@ function test() {
     kubectl apply -f "$SCRIPTPATH/test-pod-404.yaml"
 
     # Proceed with copying only after pod is Running
-    test_pod_404_status=$(get_status test-pod-404)
-    while [ "$test_pod_404_status" != "Running" ]; do
-      sleep 1
+    for i in `seq 1 $STATUS_CHECK_CYCLES`; do
       test_pod_404_status=$(get_status test-pod-404)
+      if [[ "$test_pod_404_status" == "Running" ]]; then
+        echo "✅ Verified test-pod-404 is created and running"
+        break
+      fi
+      echo "test-pod-404 still provisioning. status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      sleep $STATUS_CHECK_SLEEP
     done
 
     echo "copying to 404-pod..."
     kubectl cp "$SCRIPTPATH/../../e2e/golden/404_response.golden" test-pod-404:/tmp/404_response.golden
 
-    test_pod_status=$(get_status test-pod)
-    test_pod_404_status=$(get_status test-pod-404)
-
-    # Keep querying status until tests succeed or fail
-    while [ "$test_pod_status" == "Running" ] || [ "$test_pod_404_status" == "Running" ]; do
+    # Query status until tests succeed or fail
+    for i in `seq 1 $STATUS_CHECK_CYCLES`; do
       test_pod_status=$(get_status test-pod)
       test_pod_404_status=$(get_status test-pod-404)
+      if [[ "$test_pod_status" != "Running" ]] && [[ "$test_pod_404_status" != "Running" ]]; then
+        echo "✅ Verified both pods are no longer Running"
+        break
+      fi
+      echo "Pods are still Running. status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      sleep $STATUS_CHECK_SLEEP
     done
 
     assert_value "$test_pod_status" "$expected_test_pod_status" "test-pod $expected_test_pod_status w/mockIPCount=$mock_ip_count"

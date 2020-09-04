@@ -35,6 +35,7 @@ PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.8.1"
 readonly HELM3_VERSION="3.2.4"
+readonly KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
 readonly CLUSTER_CONFIG="$REPO_PATH/test/helm/kind-config.yaml"
@@ -129,6 +130,14 @@ install_helm() {
     curl -L https://get.helm.sh/helm-v$HELM3_VERSION-$PLATFORM-amd64.tar.gz | tar zxf - -C $TMP_DIR
     mv $TMP_DIR/$PLATFORM-amd64/helm $TMP_DIR/.
     chmod +x $TMP_DIR/helm
+    export PATH=$TMP_DIR:$PATH
+}
+
+install_kubectl() {
+    c_echo "Installing kubectl..."
+    curl -Lo $TMP_DIR/kubectl "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$PLATFORM/amd64/kubectl"
+    chmod +x ./kubectl
+    mv ./kubectl $TMP_DIR/kubectl
     export PATH=$TMP_DIR:$PATH
 }
 
@@ -366,6 +375,7 @@ test_mock_ip_count() {
 
     build_and_load_image
     install_helm
+    install_kubectl
     for test_file in $TEST_FILES; do
       $test_file
     done

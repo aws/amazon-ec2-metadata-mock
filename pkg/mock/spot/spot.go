@@ -50,15 +50,18 @@ func SetConfig(config cfg.Config) {
 func Handler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("RemoteAddr: %s sent request to mock spot interruption: %s\n", req.URL.Path, req.RemoteAddr)
 
-	// req.RemoteAddr is formatted as IP:port
-	nodeIP := strings.Split(req.RemoteAddr, ":")[0]
-	if !eligibleIPs[nodeIP] {
-		if len(eligibleIPs) < c.MockIPCount {
-			eligibleIPs[nodeIP] = true
-		} else {
-			log.Printf("Requesting node with IP %s is not eligible for Spot ITN because the max number of nodes configured (%d) to receive Spot ITN has been reached.\n", nodeIP, c.MockIPCount)
-			server.ReturnNotFoundResponse(res)
-			return
+	// specify negative value to disable this feature
+	if c.MockIPCount >= 0 {
+		// req.RemoteAddr is formatted as IP:port
+		nodeIP := strings.Split(req.RemoteAddr, ":")[0]
+		if !eligibleIPs[nodeIP] {
+			if len(eligibleIPs) < c.MockIPCount {
+				eligibleIPs[nodeIP] = true
+			} else {
+				log.Printf("Requesting node with IP %s is not eligible for Spot ITN because the max number of nodes configured (%d) to receive Spot ITN has been reached.\n", nodeIP, c.MockIPCount)
+				server.ReturnNotFoundResponse(res)
+				return
+			}
 		}
 	}
 

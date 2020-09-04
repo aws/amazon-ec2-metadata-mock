@@ -167,11 +167,22 @@ Parameter | Description | Default
 `image.repository` | image repository | `amazon/amazon-ec2-metadata-mock` 
 `image.tag` | image tag | `<VERSION>` 
 `image.pullPolicy` | image pull policy | `IfNotPresent`
+`replicaCount` | defines the number of amazon-ec2-metadata-mock pods to replicate | `1`
 `nameOverride` | override for the name of the Helm Chart (default, if not overridden: `amazon-ec2-metadata-mock`) | `""`
 `fullnameOverride` | override for the name of the application (default, if not overridden: `amazon-ec2-metadata-mock`) | `""`
-`nodeSelector` | tells the Deployment where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every node will receive a pod
+`targetNodeOs` | creates node-OS specific deployments (e.g. "linux", "windows", "linux windows") | `linux`
+`nodeSelector` | tells both linux and windows deployments where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every node will receive a pod
+`linuxNodeSelector` | tells the linux deployments where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every linux node will receive a pod
+`windowsNodeSelector` | tells the windows deployments where to place the amazon-ec2-metadata-mock pods. | `{}`, meaning every windows node will receive a pod
 `podAnnotations` | annotations to add to each pod | `{}`
+`linuxAnnotations` | annotations to add to each linux pod | `{}`
+`windowsAnnotations` | annotations to add to each windows pod | `{}`
+`tolerations` | specifies taints that a pod tolerates so that it can be scheduled to a node with the same taint | `[]`
+`linuxTolerations` | specifies taints that a linux pod tolerates so that it can be scheduled to a node with the same taint | `[]`
+`windowsTolerations` | specifies taints that a windows pod tolerates so that it can be scheduled to a node with the same taint | `[]`
 `updateStrategy` | the update strategy for a Deployment | `RollingUpdate`
+`linuxUpdateStrategy` | the update strategy for a linux Deployment | `""`
+`windowsUpdateStrategy` | the update strategy for a windows Deployment | `""`
 `rbac.pspEnabled` | if `true`, create and use a restricted pod security policy | `false`
 `serviceAccount.create` | if `true`, create a new service account | `true`
 `serviceAccount.name` | service account to be used | `amazon-ec2-metadata-mock-service-account`
