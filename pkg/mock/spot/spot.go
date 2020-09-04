@@ -53,12 +53,12 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	// specify negative value to disable this feature
 	if c.MockIPCount >= 0 {
 		// req.RemoteAddr is formatted as IP:port
-		nodeIP := strings.Split(req.RemoteAddr, ":")[0]
-		if !eligibleIPs[nodeIP] {
+		requestIP := strings.Split(req.RemoteAddr, ":")[0]
+		if !eligibleIPs[requestIP] {
 			if len(eligibleIPs) < c.MockIPCount {
-				eligibleIPs[nodeIP] = true
+				eligibleIPs[requestIP] = true
 			} else {
-				log.Printf("Requesting node with IP %s is not eligible for Spot ITN because the max number of nodes configured (%d) to receive Spot ITN has been reached.\n", nodeIP, c.MockIPCount)
+				log.Printf("Requesting IP %s is not eligible for Spot ITN because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
 				server.ReturnNotFoundResponse(res)
 				return
 			}
