@@ -56,14 +56,14 @@ DOCKER_IMAGE_TO_LOAD="amazon-ec2-metadata-mock:test-latest"
 AEMM_DOCKER_IMAGE_INPUT=""
 DOCKER_ARGS=" --build-arg GOPROXY=direct "
 
-# Termination-Node test
+# Mock-IP-Count test
 export CLUSTER_NAME
 export AEMM_HELM_REPO
 SCRIPTPATH="$(
   cd "$(dirname "$0")"
   pwd -P
 )"
-TEST_FILES=$(find $SCRIPTPATH/termination-test ! -name '*.yaml' -type f)
+TEST_FILES=$(find $SCRIPTPATH/mock-ip-count-test ! -name '*.yaml' -type f)
 export KUBECONFIG="$TMP_DIR/kubeconfig"
 
 readonly HELP=$(cat << 'EOM'
@@ -84,7 +84,7 @@ Options:
   -g     AEMM image to use to test values.yaml file(s) with overridden image. See helm/amazon-ec2-metadata-mock/ci/custom-image-values.yaml
   -l     test charts for linting only (helm lint, version checking, YAML validation, maintainer validation)
   -i     test charts with installation only i.e. skip linting (deploys and runs helm test on charts for each *-values.yaml file in helm/<chart>/ci dir)
-  -t     test chart --termination-nodes functionality only
+  -m     test --mock-ip-count functionality only
   -p     preserve the provisioned environment after test runs
   -r     reuse kind cluster and docker chart-testing container previously provisioned by this tool
   -d     debug, enables set -x, printing primary commands before executing
@@ -97,7 +97,7 @@ INSTALL_ONLY=false
 DEBUG=false
 PRESERVE=false
 REUSE_ENV=false
-TERMINATION_ONLY=false
+MOCK_IP_COUNT_ONLY=false
 
 export TERM="xterm"
 RED=$(tput setaf 1)
@@ -136,7 +136,7 @@ create_kind_cluster() {
     c_echo "Creating kind Kubernetes cluster with kubeconfig in $KUBECONFIG_TMP_PATH"
     kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "kindest/node:$KIND_IMAGE" --kubeconfig $KUBECONFIG_TMP_PATH --wait 60s
 
-    if [ $TERMINATION_ONLY == false ]; then
+    if [ $MOCK_IP_COUNT_ONLY == false ]; then
       c_echo "Copying kubeconfig to container..."
       $CT_EXEC mkdir -p /root/.kube
       docker cp $KUBECONFIG_TMP_PATH ct:/root/.kube/config
@@ -186,7 +186,7 @@ handle_errors_and_cleanup() {
         fi
     else
         c_echo "Cleaning up resources..."
-        if [ $TERMINATION_ONLY == false ]; then
+        if [ $MOCK_IP_COUNT_ONLY == false ]; then
           c_echo "Deleting ct container..." $MSG_PREFIX
           docker kill ct > /dev/null 2>&1
         fi
@@ -223,11 +223,11 @@ test_charts() {
         install_and_test_charts
     fi
 
-    if [ $TERMINATION_ONLY == true ]; then
-        test_termination_nodes
+    if [ $MOCK_IP_COUNT_ONLY == true ]; then
+        test_mock_ip_count
     fi
 
-    if [ $LINT_ONLY == false ] && [ $INSTALL_ONLY == false ] && [ $TERMINATION_ONLY == false ]; then
+    if [ $LINT_ONLY == false ] && [ $INSTALL_ONLY == false ] && [ $MOCK_IP_COUNT_ONLY == false ]; then
         lint_and_validate_charts
         install_and_test_charts
     fi
@@ -287,7 +287,7 @@ c_echo() {
 }
 
 process_args() {
-    while getopts "hdlpritk:c:g:" opt; do
+    while getopts "hdlprimk:c:g:" opt; do
         case ${opt} in
             h )
               echo -e "$HELP" 1>&2
@@ -310,8 +310,8 @@ process_args() {
               INSTALL_ONLY=true
               c_echo "Running E2E tests for Helm charts using the AEMM Docker image specified in values.yaml"
               ;;
-            t )
-              TERMINATION_ONLY=true
+            m )
+              MOCK_IP_COUNT_ONLY=true
               ;;
             k )
               OPTARG="K8s_$(echo $OPTARG | sed 's/\./\_/g')"
@@ -357,7 +357,7 @@ get_chart_test_config() {
     echo "$config"
 }
 
-test_termination_nodes() {
+test_mock_ip_count() {
     if [[ $REUSE_ENV == false ]]; then
         mkdir -p $TMP_DIR
         install_kind
@@ -375,7 +375,7 @@ main() {
     process_args "$@"
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
-    c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * termination only=$TERMINATION_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
+    c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * mockIPCount only=$MOCK_IP_COUNT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
 
     chart_config=$(get_chart_test_config)
     echo -e "${MAGENTA}  From $CT_CONFIG:${BOLD}$chart_config"

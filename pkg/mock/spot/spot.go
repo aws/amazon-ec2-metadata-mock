@@ -30,7 +30,7 @@ const (
 )
 
 var (
-	eligibleNodeIPs        = make(map[string]bool)
+	eligibleIPs            = make(map[string]bool)
 	spotItnStartTime int64 = time.Now().Unix()
 	c                cfg.Config
 )
@@ -52,11 +52,11 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 	// req.RemoteAddr is formatted as IP:port
 	nodeIP := strings.Split(req.RemoteAddr, ":")[0]
-	if !eligibleNodeIPs[nodeIP] {
-		if len(eligibleNodeIPs) < c.TerminationNodes {
-			eligibleNodeIPs[nodeIP] = true
+	if !eligibleIPs[nodeIP] {
+		if len(eligibleIPs) < c.MockIPCount {
+			eligibleIPs[nodeIP] = true
 		} else {
-			log.Printf("Requesting node with IP %s is not eligible for Spot ITN because the max number of nodes configured (%d) to receive Spot ITN has been reached.\n", nodeIP, c.TerminationNodes)
+			log.Printf("Requesting node with IP %s is not eligible for Spot ITN because the max number of nodes configured (%d) to receive Spot ITN has been reached.\n", nodeIP, c.MockIPCount)
 			server.ReturnNotFoundResponse(res)
 			return
 		}

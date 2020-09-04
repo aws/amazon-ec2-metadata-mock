@@ -27,8 +27,8 @@ const (
 	// MockTriggerTimeFlag - mock trigger time in RFC3339
 	MockTriggerTimeFlag = "mock-trigger-time"
 
-	// TerminationNodesFlag - the number of nodes in a cluster that can receive Spot ITNs
-	TerminationNodesFlag = "termination-nodes"
+	// MockIPCountFlag - the number of nodes in a cluster that can receive Spot ITNs
+	MockIPCountFlag = "mock-ip-count"
 
 	// HostNameFlag - the HTTP hostname for the mock url
 	HostNameFlag = "hostname"
@@ -42,5 +42,5 @@ const (
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, TerminationNodesFlag, Imdsv2Flag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag}
 }

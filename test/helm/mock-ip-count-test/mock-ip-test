@@ -31,10 +31,10 @@ function clean_up() {
 }
 
 function test() {
-  num_nodes=$1
+  mock_ip_count=$1
   expected_test_pod_status=$2
   expected_test_pod_404_status=$3
-  echo "executing term-nodes test with terminationNodes=$num_nodes"
+  echo "executing mock-ip-count test with mockIPCount=$mock_ip_count"
 
   helm upgrade --install "$CLUSTER_NAME-aemm" \
     $AEMM_HELM_REPO \
@@ -42,7 +42,7 @@ function test() {
     --namespace default \
     --values $AEMM_HELM_REPO/ci/local-image-values.yaml \
     --set aemm.spot.time="1994-05-15T00:00:00Z" \
-    --set aemm.terminationNodes=$num_nodes
+    --set aemm.mockIPCount=$mock_ip_count
 
     # Deploy pods
     kubectl apply -f "$SCRIPTPATH/test-pod.yaml"
@@ -52,12 +52,10 @@ function test() {
     # Proceed with copying only after pod is Running
     test_pod_404_status=$(get_status test-pod-404)
     while [ "$test_pod_404_status" != "Running" ]; do
-      echo "test_pod_404_status: $test_pod_404_status"
       sleep 1
       test_pod_404_status=$(get_status test-pod-404)
     done
 
-    echo "test_pod_404_status: $test_pod_404_status"
     echo "copying to 404-pod..."
     kubectl cp "$SCRIPTPATH/../../e2e/golden/404_response.golden" test-pod-404:/tmp/404_response.golden
 
@@ -70,17 +68,17 @@ function test() {
       test_pod_404_status=$(get_status test-pod-404)
     done
 
-    assert_value "$test_pod_status" "$expected_test_pod_status" "test-pod $expected_test_pod_status w/terminationNodes=$num_nodes"
-    assert_value "$test_pod_404_status" "$expected_test_pod_404_status" "test-pod-404 $expected_test_pod_404_status w/terminationNodes=$num_nodes"
+    assert_value "$test_pod_status" "$expected_test_pod_status" "test-pod $expected_test_pod_status w/mockIPCount=$mock_ip_count"
+    assert_value "$test_pod_404_status" "$expected_test_pod_404_status" "test-pod-404 $expected_test_pod_404_status w/mockIPCount=$mock_ip_count"
 
     clean_up
 }
 
 echo "======================================================================================================"
-echo "🥑 Starting AEMM terimation-nodes test"
+echo "🥑 Starting AEMM mock-ip-count test"
 echo "======================================================================================================"
 
-test 1 "Succeeded" "Succeeded" # 404 returned after ONE pod Spot request
-test 2 "Succeeded" "Failed" # 404 returned after TWO pod Spot requests
+test 1 "Succeeded" "Succeeded" # 404 returned after ONE IP Spot request
+test 2 "Succeeded" "Failed" # 404 returned after TWO IP Spot requests
 
 exit $EXIT_CODE_TO_RETURN

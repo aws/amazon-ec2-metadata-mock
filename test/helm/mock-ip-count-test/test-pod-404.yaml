@@ -5,7 +5,7 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-  - name: term-nodes-test
+  - name: mock-ip-test
     imagePullPolicy: "Always"
     image: "centos:latest"
     command:

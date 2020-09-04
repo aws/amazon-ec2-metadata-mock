@@ -49,13 +49,15 @@ Flags:
 
 Global Flags:
   -c, --config-file string         config file for cli input parameters in json format (default: $HOME/aemm-config.json)
+  -h, --help                       help for ec2-metadata-mock
   -n, --hostname string            the HTTP hostname for the mock url (default: 0.0.0.0)
   -I, --imdsv2                     whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
   -d, --mock-delay-sec int         mock delay in seconds, relative to the application start time (default: 0 seconds)
+  -x, --mock-ip-count int          number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event (default 2)
       --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
   -p, --port string                the HTTP port where the mock runs (default: 1338)
   -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
-  -x, --termination-nodes int      number of nodes in a cluster that can receive Spot interrupt notice (default: 99, meaning unlimited nodes) (default 99)
+      --version                    version for ec2-metadata-mock
 ```
 
 1.) **Overriding `spot::action` via CLI flag**:
