@@ -43,7 +43,7 @@ var (
 		gf.ConfigFileFlag:       cfg.GetDefaultCfgFileName(),
 		gf.MockDelayInSecFlag:   0,
 		gf.MockTriggerTimeFlag:  "",
-		gf.MockIPCountFlag:      99,
+		gf.MockIPCountFlag:      2,
 		gf.SaveConfigToFileFlag: false,
 		gf.Imdsv2Flag:           false,
 	}
