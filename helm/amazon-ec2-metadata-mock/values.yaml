@@ -5,27 +5,31 @@ image:
   tag: "v1.5.0"
   pullPolicy: "IfNotPresent"
 
+# replicaCount defines the number of pods to replicate
+replicaCount: 1
+
 # nameOverride overrides the name of the helm chart
 nameOverride: ""
 # fullnameOverride overrides the name of the application
 fullnameOverride: ""
 
-# Create node OS specific daemonset(s). (e.g. "linux", "windows", "linux windows")
+# targetNodeOs creates node-OS specific deployments (e.g. "linux", "windows", "linux windows")
 targetNodeOs: "linux"
 
-# nodeSelector tells both linux and windows daemonsets where to place the amazon-ec2-metadata-mock pods.
+# nodeSelector tells both linux and windows deployments where to place the amazon-ec2-metadata-mock pods
 # By default, this value is empty and every node will receive a pod.
 nodeSelector: {}
-# linuxNodeSelector tells the linux daemonset where to place the node-termination-handler
+# linuxNodeSelector tells the linux deployments where to place the amazon-ec2-metadata-mock pods
 # pods. By default, this value is empty and every linux node will receive a pod.
 linuxNodeSelector: {}
-# windowsNodeSelector tells the windows daemonset where to place the node-termination-handler
+# windowsNodeSelector tells the windows deployments where to place the amazon-ec2-metadata-mock pods
 # pods. By default, this value is empty and every windows node will receive a pod.
 windowsNodeSelector: {}
 
 nodeSelectorTermsOs: ""
 nodeSelectorTermsArch: ""
 
+# podAnnotations define annotations to add to each pod
 podAnnotations: {}
 linuxAnnotations: {}
 windowsAnnotations: {}
@@ -40,7 +44,7 @@ arguments: []
 linuxArguments: []
 windowsArguments: []
 
-# updateStrategy represents the update strategy for a DaemonSet
+# updateStrategy represents the update strategy for a Deployment
 updateStrategy: "RollingUpdate"
 linuxUpdateStrategy: ""
 windowsUpdateStrategy: ""
@@ -83,6 +87,7 @@ aemm:
     hostname: ""
   mockDelaySec: 0
   mockTriggerTime: ""
+  mockIPCount: 2
   imdsv2: false
   spot:
     action: ""

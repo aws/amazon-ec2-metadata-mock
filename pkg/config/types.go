@@ -30,6 +30,7 @@ type Config struct {
 	CfgFile          string `mapstructure:"config-file"`
 	MockDelayInSec   int64  `mapstructure:"mock-delay-sec"`
 	MockTriggerTime  string `mapstructure:"mock-trigger-time"`
+	MockIPCount      int    `mapstructure:"mock-ip-count"`
 	SaveConfigToFile bool   `mapstructure:"save-config-to-file"`
 	Server           Server `mapstructure:"server"`
 	Imdsv2Required   bool   `mapstructure:"imdsv2"`

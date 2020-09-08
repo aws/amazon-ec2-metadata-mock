@@ -16,6 +16,7 @@ package spot
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
@@ -28,13 +29,15 @@ const (
 	terminationTimePath = "/latest/meta-data/spot/termination-time"
 )
 
-var spotItnStartTime int64 = time.Now().Unix()
-var c cfg.Config
+var (
+	eligibleIPs            = make(map[string]bool)
+	spotItnStartTime int64 = time.Now().Unix()
+	c                cfg.Config
+)
 
 // Mock starts spot itn mock
 func Mock(config cfg.Config) {
 	SetConfig(config)
-
 	server.ListenAndServe(config.Server.HostName, config.Server.Port)
 }
 
@@ -45,13 +48,27 @@ func SetConfig(config cfg.Config) {
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Println("Received request to mock spot interruption:", req.URL.Path)
+	log.Printf("RemoteAddr: %s sent request to mock spot interruption: %s\n", req.URL.Path, req.RemoteAddr)
+
+	// specify negative value to disable this feature
+	if c.MockIPCount >= 0 {
+		// req.RemoteAddr is formatted as IP:port
+		requestIP := strings.Split(req.RemoteAddr, ":")[0]
+		if !eligibleIPs[requestIP] {
+			if len(eligibleIPs) < c.MockIPCount {
+				eligibleIPs[requestIP] = true
+			} else {
+				log.Printf("Requesting IP %s is not eligible for Spot ITN because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
+				server.ReturnNotFoundResponse(res)
+				return
+			}
+		}
+	}
 
 	requestTime := time.Now().Unix()
 
 	if c.MockTriggerTime != "" {
 		triggerTime, _ := time.Parse(time.RFC3339, c.MockTriggerTime)
-
 		delayRemaining := triggerTime.Unix() - requestTime
 		if delayRemaining > 0 {
 			log.Printf("MockTriggerTime %s was not reached yet. The mock response will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)

@@ -31,8 +31,11 @@ readonly K8s_1_14="v1.14.10"
 readonly K8s_1_13="v1.13.12"
 # shellcheck disable=SC2034
 readonly K8s_1_12="v1.12.10"
+PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.8.1"
+readonly HELM3_VERSION="3.2.4"
+readonly KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
 readonly CLUSTER_CONFIG="$REPO_PATH/test/helm/kind-config.yaml"
@@ -49,9 +52,20 @@ readonly CT_CONTAINER_NAME="ct"
 readonly CT_EXEC="docker exec --interactive $CT_CONTAINER_NAME"
 
 # AEMM
+readonly AEMM_HELM_REPO="$REPO_PATH/helm/amazon-ec2-metadata-mock"
 DOCKER_IMAGE_TO_LOAD="amazon-ec2-metadata-mock:test-latest"
 AEMM_DOCKER_IMAGE_INPUT=""
 DOCKER_ARGS=" --build-arg GOPROXY=direct "
+
+# Mock-IP-Count test
+export CLUSTER_NAME
+export AEMM_HELM_REPO
+SCRIPTPATH="$(
+  cd "$(dirname "$0")"
+  pwd -P
+)"
+TEST_FILES=$(find $SCRIPTPATH/mock-ip-count-test ! -name '*.yaml' -type f)
+export KUBECONFIG="$TMP_DIR/kubeconfig"
 
 readonly HELP=$(cat << 'EOM'
 Test Helm charts E2E by linting and/or installing helm charts in a provisioned environment. Only changed charts are tested.
@@ -71,6 +85,7 @@ Options:
   -g     AEMM image to use to test values.yaml file(s) with overridden image. See helm/amazon-ec2-metadata-mock/ci/custom-image-values.yaml
   -l     test charts for linting only (helm lint, version checking, YAML validation, maintainer validation)
   -i     test charts with installation only i.e. skip linting (deploys and runs helm test on charts for each *-values.yaml file in helm/<chart>/ci dir)
+  -m     test --mock-ip-count functionality only
   -p     preserve the provisioned environment after test runs
   -r     reuse kind cluster and docker chart-testing container previously provisioned by this tool
   -d     debug, enables set -x, printing primary commands before executing
@@ -83,6 +98,7 @@ INSTALL_ONLY=false
 DEBUG=false
 PRESERVE=false
 REUSE_ENV=false
+MOCK_IP_COUNT_ONLY=false
 
 export TERM="xterm"
 RED=$(tput setaf 1)
@@ -103,9 +119,24 @@ setup_ct_container() {
 
 install_kind() {
     c_echo "Installing kind..."
-    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-"$(uname)"-amd64
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$PLATFORM-amd64
     chmod +x ./kind
     mv ./kind $TMP_DIR/kind
+    export PATH=$TMP_DIR:$PATH
+}
+
+install_helm() {
+    c_echo "Installing helm..."
+    curl -L https://get.helm.sh/helm-v$HELM3_VERSION-$PLATFORM-amd64.tar.gz | tar zxf - -C $TMP_DIR
+    mv $TMP_DIR/$PLATFORM-amd64/helm $TMP_DIR/.
+    chmod +x $TMP_DIR/helm
+    export PATH=$TMP_DIR:$PATH
+}
+
+install_kubectl() {
+    c_echo "Installing kubectl..."
+    curl -Lo $TMP_DIR/kubectl "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$PLATFORM/amd64/kubectl"
+    chmod +x $TMP_DIR/kubectl
     export PATH=$TMP_DIR:$PATH
 }
 
@@ -113,9 +144,11 @@ create_kind_cluster() {
     c_echo "Creating kind Kubernetes cluster with kubeconfig in $KUBECONFIG_TMP_PATH"
     kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "kindest/node:$KIND_IMAGE" --kubeconfig $KUBECONFIG_TMP_PATH --wait 60s
 
-    c_echo "Copying kubeconfig to container..."
-    $CT_EXEC mkdir -p /root/.kube
-    docker cp $KUBECONFIG_TMP_PATH ct:/root/.kube/config
+    if [ $MOCK_IP_COUNT_ONLY == false ]; then
+      c_echo "Copying kubeconfig to container..."
+      $CT_EXEC mkdir -p /root/.kube
+      docker cp $KUBECONFIG_TMP_PATH ct:/root/.kube/config
+    fi
 
     c_echo "👍 Cluster ready!\n"
 }
@@ -142,7 +175,14 @@ handle_errors_and_cleanup() {
     echo
     MSG_PREFIX="-> "
     if [ $PRESERVE == true ]; then
-        c_echo "The test environment is preserved. Reuse with the '-r' option.\n${MSG_PREFIX}List Docker container: docker ps --filter \"name=^ct$\""
+        c_echo "The test environment is preserved. Reuse with the '-r' option.\n${MSG_PREFIX} List Docker container: docker ps --filter \"name=^ct$\""
+
+        c_echo "======================================================================================================"
+        c_echo "To poke around your environment manually:"
+        c_echo "export KUBECONFIG=$TMP_DIR/kubeconfig"
+        c_echo "export PATH=$TMP_DIR:\$PATH"
+        c_echo "kubectl get pods -A"
+        c_echo "======================================================================================================"
 
         if [[ $LINT_ONLY == true ]]; then
             c_echo "Cleanup commands:\n  * docker kill ct > /dev/null 2>&1" $MSG_PREFIX
@@ -154,8 +194,10 @@ handle_errors_and_cleanup() {
         fi
     else
         c_echo "Cleaning up resources..."
-        c_echo "Deleting ct container..." $MSG_PREFIX
-        docker kill ct > /dev/null 2>&1
+        if [ $MOCK_IP_COUNT_ONLY == false ]; then
+          c_echo "Deleting ct container..." $MSG_PREFIX
+          docker kill ct > /dev/null 2>&1
+        fi
 
          if [[ $LINT_ONLY == false ]]; then
             c_echo "Deleting kind cluster $CLUSTER_NAME..." $MSG_PREFIX
@@ -189,7 +231,11 @@ test_charts() {
         install_and_test_charts
     fi
 
-    if [ $LINT_ONLY == false ] && [ $INSTALL_ONLY == false ]; then
+    if [ $MOCK_IP_COUNT_ONLY == true ]; then
+        test_mock_ip_count
+    fi
+
+    if [ $LINT_ONLY == false ] && [ $INSTALL_ONLY == false ] && [ $MOCK_IP_COUNT_ONLY == false ]; then
         lint_and_validate_charts
         install_and_test_charts
     fi
@@ -249,7 +295,7 @@ c_echo() {
 }
 
 process_args() {
-    while getopts "hdlprik:c:g:" opt; do
+    while getopts "hdlprimk:c:g:" opt; do
         case ${opt} in
             h )
               echo -e "$HELP" 1>&2
@@ -260,6 +306,7 @@ process_args() {
               ;;
             l )
               LINT_ONLY=true
+              c_echo "Running lint tests for Helm charts"
               ;;
             p )
               PRESERVE=true
@@ -269,6 +316,10 @@ process_args() {
               ;;
             i )
               INSTALL_ONLY=true
+              c_echo "Running E2E tests for Helm charts using the AEMM Docker image specified in values.yaml"
+              ;;
+            m )
+              MOCK_IP_COUNT_ONLY=true
               ;;
             k )
               OPTARG="K8s_$(echo $OPTARG | sed 's/\./\_/g')"
@@ -314,20 +365,28 @@ get_chart_test_config() {
     echo "$config"
 }
 
+test_mock_ip_count() {
+    if [[ $REUSE_ENV == false ]]; then
+        mkdir -p $TMP_DIR
+        install_kind
+        create_kind_cluster
+    fi
+
+    build_and_load_image
+    install_helm
+    install_kubectl
+    for test_file in $TEST_FILES; do
+      $test_file
+    done
+}
+
 main() {
     process_args "$@"
 
     trap 'handle_errors_and_cleanup $? $BASH_COMMAND' EXIT
+    c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * mockIPCount only=$MOCK_IP_COUNT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
 
     chart_config=$(get_chart_test_config)
-
-    if [ $LINT_ONLY == true ]; then
-        c_echo "Running lint tests for Helm charts"
-        c_echo "Using:\n${BOLD}  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
-    else
-        c_echo "Running E2E tests for Helm charts using the AEMM Docker image specified in values.yaml"
-        c_echo "Using:\n${BOLD}  * kind version=$KIND_VERSION\n  * Kubernetes version=$KIND_IMAGE\n  * helm/chart-testing version=$CT_TAG\n  * lint only=$LINT_ONLY\n  * install only=$INSTALL_ONLY\n  * preserve test env=$PRESERVE\n  * reuse=$REUSE_ENV\n  * debug=$DEBUG\n"
-    fi
     echo -e "${MAGENTA}  From $CT_CONFIG:${BOLD}$chart_config"
     echo "${RESET_FMT}"
 

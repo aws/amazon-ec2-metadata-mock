@@ -1,13 +1,14 @@
 {{- if (lower .Values.targetNodeOs | contains "windows") -}}
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: {{ include "amazon-ec2-metadata-mock.fullname.windows" . }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "amazon-ec2-metadata-mock.labels" . | indent 4 }}
 spec:
-  updateStrategy:
+  replicas: {{ toYaml .Values.replicaCount }}
+  strategy:
     type: {{ toYaml .Values.updateStrategy }}
   selector:
     matchLabels:
@@ -90,6 +91,10 @@ spec:
         {{- if .Values.aemm.mockTriggerTime }}
         - name: AEMM_MOCK_TRIGGER_TIME
           value: {{ .Values.aemm.mockTriggerTime | quote }}
+        {{- end }}
+        {{- if .Values.aemm.mockIPCount }}
+        - name: AEMM_MOCK_IP_COUNT
+          value: {{ .Values.aemm.mockIPCount | quote }}
         {{- end }}
         {{- if .Values.aemm.imdsv2 }}
         - name: AEMM_IMDSV2

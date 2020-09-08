@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-pod-404"
+spec:
+  restartPolicy: Never
+  containers:
+  - name: mock-ip-test
+    imagePullPolicy: "Always"
+    image: "centos:latest"
+    command:
+    - "bash"
+    - "-c"
+    - |
+      SERVICE_NAME="AMAZON_EC2_METADATA_MOCK_SERVICE"
+      HOST_VAR=$(echo "${SERVICE_NAME}_SERVICE_HOST")
+      PORT_VAR=$(echo "${SERVICE_NAME}_SERVICE_PORT")
+      sleep 6
+      ACTUAL=$(curl http://${!HOST_VAR}:${!PORT_VAR}/latest/meta-data/spot/termination-time)
+      EXPECTED=$(cat /tmp/404_response.golden)
+      [[ "$ACTUAL" == "$EXPECTED" ]] && exit 0 || exit 1

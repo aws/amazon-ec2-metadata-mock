@@ -1,0 +1,94 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPTPATH="$(
+  cd "$(dirname "$0")"
+  pwd -P
+)"
+EXIT_CODE_TO_RETURN=0
+STATUS_CHECK_CYCLES=30
+STATUS_CHECK_SLEEP=2
+
+function get_status() {
+  pod=$1
+  status=$(kubectl describe pod $pod | grep "Status:")
+  status=${status//"Status:"/}
+  status=$(echo $status | xargs)
+  echo $status
+}
+
+function assert_value() {
+  # assert actual == expected
+  if [[ $1 == "$2" ]]; then
+    echo "✅ Verified $3"
+  else
+    echo "❌ Failed $3 verification. Actual: $1 Expected: $2"
+    EXIT_CODE_TO_RETURN=1
+  fi
+}
+
+function clean_up() {
+  kubectl delete pods/test-pod pods/test-pod-404
+}
+
+function test() {
+  mock_ip_count=$1
+  expected_test_pod_status=$2
+  expected_test_pod_404_status=$3
+  echo "executing mock-ip-count test with mockIPCount=$mock_ip_count"
+
+  helm upgrade --install "$CLUSTER_NAME-aemm" \
+    $AEMM_HELM_REPO \
+    --wait \
+    --namespace default \
+    --values $AEMM_HELM_REPO/ci/local-image-values.yaml \
+    --set aemm.spot.time="1994-05-15T00:00:00Z" \
+    --set aemm.mockIPCount=$mock_ip_count
+
+    # Deploy pods
+    kubectl apply -f "$SCRIPTPATH/test-pod.yaml"
+    sleep 1
+    kubectl apply -f "$SCRIPTPATH/test-pod-404.yaml"
+
+    # Proceed with copying only after pod is Running
+    for i in `seq 1 $STATUS_CHECK_CYCLES`; do
+      test_pod_404_status=$(get_status test-pod-404)
+      if [[ "$test_pod_404_status" == "Running" ]]; then
+        echo "✅ Verified test-pod-404 is created and running"
+        break
+      fi
+      echo "test-pod-404 still provisioning with status: $test_pod_404_status . status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      sleep $STATUS_CHECK_SLEEP
+    done
+
+    echo "copying 404_response.golden to 404-pod"
+    kubectl cp "$SCRIPTPATH/../../e2e/golden/404_response.golden" test-pod-404:/tmp/404_response.golden
+
+    # Query status until tests succeed or fail
+    for i in `seq 1 $STATUS_CHECK_CYCLES`; do
+      test_pod_status=$(get_status test-pod)
+      test_pod_404_status=$(get_status test-pod-404)
+      if [[ "$test_pod_status" != "Running" ]] && [[ "$test_pod_404_status" != "Running" ]]; then
+        echo "✅ Verified both pods are no longer Running"
+        break
+      fi
+      echo "Pods are still Running. test-pod status: $test_pod_status    test-pod-404 status: $test_pod_404_status"
+      echo "status check $i/$STATUS_CHECK_CYCLES, sleeping for $STATUS_CHECK_SLEEP seconds"
+      sleep $STATUS_CHECK_SLEEP
+    done
+
+    assert_value "$test_pod_status" "$expected_test_pod_status" "test-pod $expected_test_pod_status w/mockIPCount=$mock_ip_count"
+    assert_value "$test_pod_404_status" "$expected_test_pod_404_status" "test-pod-404 $expected_test_pod_404_status w/mockIPCount=$mock_ip_count"
+
+    clean_up
+}
+
+echo "======================================================================================================"
+echo "🥑 Starting AEMM mock-ip-count test"
+echo "======================================================================================================"
+
+test 1 "Succeeded" "Succeeded" # 404 returned after ONE IP Spot request
+test 2 "Succeeded" "Failed" # 404 returned after TWO IP Spot requests
+
+exit $EXIT_CODE_TO_RETURN

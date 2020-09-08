@@ -31,7 +31,7 @@ func TestNewCmdName(t *testing.T) {
 	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for root command to be %s, but was %s", expected, actual))
 }
 func TestNewCmdFlags(t *testing.T) {
-	expectedFlags := []string{"config-file", "save-config-to-file", "mock-delay-sec", "mock-trigger-time", "hostname", "port", "imdsv2"}
+	expectedFlags := []string{"config-file", "save-config-to-file", "mock-delay-sec", "mock-trigger-time", "mock-ip-count", "hostname", "port", "imdsv2"}
 
 	cmd := NewCmd()
 	actualFlagSet := cmd.PersistentFlags()

@@ -100,6 +100,19 @@ function test_events_config_precedence() {
   clean_up $pid
 }
 
+function test_events_404() {
+  pid=$1
+  expected_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  tput setaf $YELLOW
+  health_check $EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $EVENTS_TEST_PATH)
+  assert_value "$actual_response" "$expected_response" "test_events_404::mock-ip-count"
+
+  clean_up $pid
+}
+
 function test_events_subcommand_paths_404() {
   pid=$1
   test_url="$2"
@@ -148,6 +161,9 @@ $start_cmd &
 EVENTS_PID=$!
 test_events_config_precedence $EVENTS_PID
 
+unset AEMM_EVENTS_STATE
+unset AEMM_EVENTS_CODE
+
 # paths for other subcommands should be disabled
 start_cmd=$(create_cmd $METADATA_VERSION se --port $AEMM_PORT)
 $start_cmd &
@@ -157,5 +173,21 @@ test_events_subcommand_paths_404 $EVENTS_PID "http://$HOSTNAME:$AEMM_PORT/latest
 $start_cmd &
 EVENTS_PID=$!
 test_events_subcommand_paths_404 $EVENTS_PID "http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time" "spot-termination-time"
+
+# --mock-ip-count feature
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT --mock-ip-count=-1)
+$start_cmd &
+EVENTS_PID=$!
+test_events_defaults $EVENTS_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT --mock-ip-count=0)
+$start_cmd &
+EVENTS_PID=$!
+test_events_404 $EVENTS_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT -x=1)
+$start_cmd &
+EVENTS_PID=$!
+test_events_defaults $EVENTS_PID
 
 exit $EXIT_CODE_TO_RETURN

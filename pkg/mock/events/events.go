@@ -16,6 +16,7 @@ package events
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
@@ -28,13 +29,15 @@ const (
 	timeLayout        = "2 Jan 2006 15:04:05 GMT"
 )
 
-var appStartTime int64 = time.Now().Unix()
-var c cfg.Config
+var (
+	eligibleIPs        = make(map[string]bool)
+	appStartTime int64 = time.Now().Unix()
+	c            cfg.Config
+)
 
 // Mock starts scheduled events mock
 func Mock(config cfg.Config) {
 	SetConfig(config)
-
 	server.ListenAndServe(config.Server.HostName, config.Server.Port)
 }
 
@@ -45,7 +48,22 @@ func SetConfig(config cfg.Config) {
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Println("Received request to mock EC2 event:", req.URL.Path)
+	log.Printf("RemoteAddr: %s sent request to mock scheduled event: %s\n", req.URL.Path, req.RemoteAddr)
+
+	// specify negative value to disable this feature
+	if c.MockIPCount >= 0 {
+		// req.RemoteAddr is formatted as IP:port
+		requestIP := strings.Split(req.RemoteAddr, ":")[0]
+		if !eligibleIPs[requestIP] {
+			if len(eligibleIPs) < c.MockIPCount {
+				eligibleIPs[requestIP] = true
+			} else {
+				log.Printf("Requesting IP %s is not eligible for Scheduled Event because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
+				server.ReturnNotFoundResponse(res)
+				return
+			}
+		}
+	}
 
 	requestTime := time.Now().Unix()
 
