@@ -104,6 +104,11 @@ type Paths struct {
 	MacVpcIpv4CidrBlocks         string `mapstructure:"mac-vpc-ipv4-cidr-blocks"`
 	MacVpcIpv6CidrBlocks         string `mapstructure:"mac-vpc-ipv6-cidr-blocks"`
 	PlacementAvailabilityZone    string `mapstructure:"placement-availability-zone"`
+	PlacementAvailabilityZoneID  string `mapstructure:"placement-availability-zone-id"`
+	PlacementGroupName           string `mapstructure:"placement-group-name"`
+	PlacementHostID              string `mapstructure:"placement-host-id"`
+	PlacementPartitionNumber     string `mapstructure:"placement-partition-number"`
+	PlacementRegion              string `mapstructure:"placement-region"`
 	ProductCodes                 string `mapstructure:"product-codes"`
 	PublicHostName               string `mapstructure:"public-hostname"`
 	PublicIpv4                   string `mapstructure:"public-ipv4"`
@@ -160,6 +165,11 @@ type Values struct {
 	MacVpcIpv4CidrBlocks         string                            `mapstructure:"mac-vpc-ipv4-cidr-blocks"`
 	MacVpcIpv6CidrBlocks         string                            `mapstructure:"mac-vpc-ipv6-cidr-blocks"`
 	PlacementAvailabilityZone    string                            `mapstructure:"placement-availability-zone"`
+	PlacementAvailabilityZoneID  string                            `mapstructure:"placement-availability-zone-id"`
+	PlacementGroupName           string                            `mapstructure:"placement-group-name"`
+	PlacementHostID              string                            `mapstructure:"placement-host-id"`
+	PlacementPartitionNumber     string                            `mapstructure:"placement-partition-number"`
+	PlacementRegion              string                            `mapstructure:"placement-region"`
 	ProductCodes                 string                            `mapstructure:"product-codes"`
 	PublicHostName               string                            `mapstructure:"public-hostname"`
 	PublicIpv4                   string                            `mapstructure:"public-ipv4"`

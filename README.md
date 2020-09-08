@@ -185,7 +185,9 @@ iam/security-credentials
 iam/security-credentials/baskinc-role
 instance-action
 instance-id
+instance-life-cycle
 instance-type
+latest
 latest/api/token
 local-hostname
 local-ipv4
@@ -210,6 +212,11 @@ network/interfaces/macs/0e:49:61:0f:c3:11/vpc-ipv4-cidr-block
 network/interfaces/macs/0e:49:61:0f:c3:11/vpc-ipv4-cidr-blocks
 network/interfaces/macs/0e:49:61:0f:c3:11/vpc-ipv6-cidr-blocks
 placement/availability-zone
+placement/availability-zone-id
+placement/group-name
+placement/host-id
+placement/partition-number
+placement/region
 product-codes
 public-hostname
 public-ipv4

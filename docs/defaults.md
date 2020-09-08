@@ -70,6 +70,11 @@ mac-vpc-ipv4-cidr-block | 192.0.2.0/24
 mac-vpc-ipv4-cidr-blocks | 192.0.2.0/24
 mac-vpc-ipv6-cidr-blocks | 2001:db8::/32
 placement-availability-zone | us-east-1a
+placement-availability-zone-id | use1-az4
+placement-group-name | a-placement-group
+placement-host-id | h-0da999999f9999fb9
+placement-partition-number | 1
+placement-region | us-east-1
 product-codes | 3iplms73etrdhxdepv72l6ywj
 public-hostname | ec2-192-0-2-54.compute-1.amazonaws.com
 public-ipv4 | 192.0.2.54
