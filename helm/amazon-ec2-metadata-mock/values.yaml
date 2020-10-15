@@ -92,6 +92,7 @@ aemm:
   spot:
     action: ""
     time: ""
+    noticeTime: ""
   events:
     code: ""
     notAfter: ""
