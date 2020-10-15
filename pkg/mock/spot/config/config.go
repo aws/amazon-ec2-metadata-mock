@@ -17,4 +17,5 @@ package config
 type Config struct {
 	InstanceAction  string `mapstructure:"action"`
 	TerminationTime string `mapstructure:"time"`
+	NoticeTime      string `mapstructure:"notice-time"`
 }

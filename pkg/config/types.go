@@ -120,6 +120,7 @@ type Paths struct {
 	ServicesPartition            string `mapstructure:"services-partition"`
 	Spot                         string `mapstructure:"spot"`
 	SpotTerminationTime          string `mapstructure:"spot-termination-time"`
+	RebalanceNotificationTime    string `mapstructure:"rebalance-notification-time"`
 }
 
 // Values represents config used in the mock responses

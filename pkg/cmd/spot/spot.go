@@ -33,6 +33,7 @@ const (
 	// local flags
 	instanceActionFlagName  = "action"
 	terminationTimeFlagName = "time"
+	noticeTimeFlagName      = "noticeTime"
 
 	// instance actions
 	terminate = "terminate"
@@ -78,6 +79,7 @@ func newCmd() *cobra.Command {
 	// local flags
 	cmd.Flags().StringP(instanceActionFlagName, "a", "", "action in the spot interruption notice (default: terminate)\naction can be one of the following: "+strings.Join(validInstanceActions, ","))
 	cmd.Flags().StringP(terminationTimeFlagName, "t", "", "termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)")
+	cmd.Flags().StringP(noticeTimeFlagName, "n", "", "notice time specifies the approximate time when the re-balance recommended notification will be emitted in RFC3339 format")
 
 	// bind local flags to config
 	cfg.BindFlagSetWithKeyPrefix(cmd.Flags(), cfgPrefix)
@@ -109,10 +111,15 @@ func ValidateLocalConfig() []string {
 			InvalidValue: c.InstanceAction}.Error(),
 		)
 	}
-
 	// validate time, if override provided
 	if c.TerminationTime != "" {
 		if err := cmdutil.ValidateRFC3339TimeFormat(terminationTimeFlagName, c.TerminationTime); err != nil {
+			errStrings = append(errStrings, err.Error())
+		}
+	}
+	// validate noticeTime, if override provided
+	if c.NoticeTime != "" {
+		if err := cmdutil.ValidateRFC3339TimeFormat(noticeTimeFlagName, c.NoticeTime); err != nil {
 			errStrings = append(errStrings, err.Error())
 		}
 	}

@@ -25,8 +25,9 @@ import (
 )
 
 const (
-	instanceActionPath  = "/latest/meta-data/spot/instance-action"
-	terminationTimePath = "/latest/meta-data/spot/termination-time"
+	instanceActionPath        = "/latest/meta-data/spot/instance-action"
+	terminationTimePath       = "/latest/meta-data/spot/termination-time"
+	rebalanceNotificationPath = "/latest/meta-data/events/recommendations/rebalance"
 )
 
 var (
@@ -49,7 +50,6 @@ func SetConfig(config cfg.Config) {
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("RemoteAddr: %s sent request to mock spot interruption: %s\n", req.URL.Path, req.RemoteAddr)
-
 	// specify negative value to disable this feature
 	if c.MockIPCount >= 0 {
 		// req.RemoteAddr is formatted as IP:port
@@ -58,15 +58,22 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 			if len(eligibleIPs) < c.MockIPCount {
 				eligibleIPs[requestIP] = true
 			} else {
-				log.Printf("Requesting IP %s is not eligible for Spot ITN because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
+				log.Printf("Requesting IP %s is not eligible for Spot ITN or Re-balance Notification because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
 				server.ReturnNotFoundResponse(res)
 				return
 			}
 		}
 	}
+	switch req.URL.Path {
+	case instanceActionPath, terminationTimePath:
+		handleSpotITN(res, req)
+	case rebalanceNotificationPath:
+		handleRebalance(res, req)
+	}
+}
 
+func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 	requestTime := time.Now().Unix()
-
 	if c.MockTriggerTime != "" {
 		triggerTime, _ := time.Parse(time.RFC3339, c.MockTriggerTime)
 		delayRemaining := triggerTime.Unix() - requestTime
@@ -84,14 +91,11 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
-
 	// default time to requestTime + 2min, unless overridden
-	timePlus2Min := time.Now().UTC().Add(time.Minute * time.Duration(2)).Format(time.RFC3339)
-	mockResponseTime := timePlus2Min
+	mockResponseTime := time.Now().UTC().Add(time.Minute * time.Duration(2)).Format(time.RFC3339)
 	if c.SpotConfig.TerminationTime != "" {
 		mockResponseTime = c.SpotConfig.TerminationTime
 	}
-
 	// return mock response after the delay or trigger time has elapsed
 	switch req.URL.Path {
 	case instanceActionPath:
@@ -99,6 +103,15 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	case terminationTimePath:
 		server.FormatAndReturnTextResponse(res, mockResponseTime)
 	}
+}
+
+func handleRebalance(res http.ResponseWriter, req *http.Request) {
+	// default time to requestTime + 2min, unless overridden
+	mockResponseTime := time.Now().UTC().Add(time.Minute * time.Duration(2)).Format(time.RFC3339)
+	if c.SpotConfig.NoticeTime != "" {
+		mockResponseTime = c.SpotConfig.NoticeTime
+	}
+	server.FormatAndReturnJSONResponse(res, t.RebalanceRecommendationResponse{NoticeTime: mockResponseTime})
 }
 
 func getInstanceActionResponse(time string) t.InstanceActionResponse {

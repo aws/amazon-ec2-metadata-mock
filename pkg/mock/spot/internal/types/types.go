@@ -18,3 +18,8 @@ type InstanceActionResponse struct {
 	Action string `json:"action"`
 	Time   string `json:"time"`
 }
+
+// RebalanceRecommendationResponse metadata structure for mock json response parsing
+type RebalanceRecommendationResponse struct {
+	NoticeTime string `json:"noticeTime"`
+}
