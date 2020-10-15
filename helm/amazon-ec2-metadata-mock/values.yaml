@@ -92,7 +92,7 @@ aemm:
   spot:
     action: ""
     time: ""
-    noticeTime: ""
+    rebalanceNoticeTime: ""
   events:
     code: ""
     notAfter: ""

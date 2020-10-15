@@ -129,7 +129,7 @@ spec:
           value: {{ .Values.aemm.spot.time | quote }}
         {{- end }}
         {{- if .Values.aemm.spot.noticeTime }}
-        - name: AEMM_SPOT_NOTICE_TIME
+        - name: AEMM_SPOT_REBALANCE_NOTICE_TIME
           value: {{ .Values.aemm.spot.noticeTime | quote }}
         {{- end }}
 {{- end -}}

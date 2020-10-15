@@ -33,7 +33,7 @@ const (
 	// local flags
 	instanceActionFlagName  = "action"
 	terminationTimeFlagName = "time"
-	noticeTimeFlagName      = "noticeTime"
+	noticeTimeFlagName      = "rebalance-notice-time"
 
 	// instance actions
 	terminate = "terminate"
@@ -79,7 +79,7 @@ func newCmd() *cobra.Command {
 	// local flags
 	cmd.Flags().StringP(instanceActionFlagName, "a", "", "action in the spot interruption notice (default: terminate)\naction can be one of the following: "+strings.Join(validInstanceActions, ","))
 	cmd.Flags().StringP(terminationTimeFlagName, "t", "", "termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)")
-	cmd.Flags().StringP(noticeTimeFlagName, "n", "", "notice time specifies the approximate time when the re-balance recommended notification will be emitted in RFC3339 format")
+	cmd.Flags().StringP(noticeTimeFlagName, "r", "", "rebalance notice time specifies the approximate time when the re-balance recommendation notification will be emitted in RFC3339 format")
 
 	// bind local flags to config
 	cfg.BindFlagSetWithKeyPrefix(cmd.Flags(), cfgPrefix)
