@@ -106,8 +106,8 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleRebalance(res http.ResponseWriter, req *http.Request) {
-	// default time to requestTime + 2min, unless overridden
-	mockResponseTime := time.Now().UTC().Add(time.Minute * time.Duration(2)).Format(time.RFC3339)
+	// default time to requestTime, unless overridden
+	mockResponseTime := time.Now().UTC().Format(time.RFC3339)
 	if c.SpotConfig.NoticeTime != "" {
 		mockResponseTime = c.SpotConfig.NoticeTime
 	}
