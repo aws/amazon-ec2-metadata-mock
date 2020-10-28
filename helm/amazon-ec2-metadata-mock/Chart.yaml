@@ -3,7 +3,7 @@ name: amazon-ec2-metadata-mock
 description: A Helm chart for the Amazon EC2 Metadata Mock
 version: 1.6.0
 home: https://github.com/aws/amazon-ec2-metadata-mock
-icon: https://raw.githubusercontent.com/aws/amazon-ec2-metadata-mock/master/helm/aws-logo.png
+icon: https://raw.githubusercontent.com/aws/amazon-ec2-metadata-mock/main/helm/aws-logo.png
 sources:
   - https://github.com/aws/amazon-ec2-metadata-mock
 maintainers:

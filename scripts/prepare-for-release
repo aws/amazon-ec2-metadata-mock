@@ -4,7 +4,7 @@
 ## 1) create and checkout a new branch with the latest tag name
 ## 2) update AEMM and Helm chart versions
 ## 3) commit release prep changes to new branch
-## 4) create a PR from the new branch to upstream/master
+## 4) create a PR from the new branch to upstream/main
 
 ## The following files are updated in step (2):
 ### - helm charts' Chart.yaml
@@ -42,7 +42,7 @@ COMMIT_MESSAGE="🥑🤖 $LATEST_TAG release prep [Skip Helm E2E Tests] 🤖🥑
 
 # PR details
 DEFAULT_REPO_FULL_NAME=$(make -s -f $MAKEFILE_PATH repo-full-name)
-PR_BASE=master  # target
+PR_BASE=main  # target
 PR_TITLE="🥑🤖 $LATEST_TAG release prep"
 PR_BODY="🥑🤖 Auto-generated PR for $LATEST_TAG release. Updating release versions in repo."
 PR_LABEL_1="release-prep"
@@ -215,8 +215,8 @@ rollback() {
     if [[ $NEED_ROLLBACK == true ]]; then
         echo "🥑${BOLD}Rolling back"
 
-        # checkout of current branch to master
-        git checkout master
+        # checkout of current branch to main
+        git checkout main
 
         # delete local and remote release branch only if current execution of the script created them
         git branch -D $NEW_BRANCH

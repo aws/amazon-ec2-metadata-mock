@@ -81,7 +81,7 @@ serviceName: "amazon-ec2-metadata-mock-service"
 
 # aemm represents all the CLI flag configuration for Amazon EC2 Metadata Mock (AEMM)
 # Null / empty values here means that AEMM will run with defaults configured in the tool
-# Refer to the readme for descriptions and defaults - https://github.com/aws/amazon-ec2-metadata-mock/blob/master/helm/amazon-ec2-metadata-mock/README.md
+# Refer to the readme for descriptions and defaults - https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md
 aemm:
   server:
     hostname: ""

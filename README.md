@@ -14,7 +14,7 @@
    <img src="https://img.shields.io/badge/License-Apache%202.0-ff69b4.svg?color=orange" alt="license">
    </a>
    <a href="https://travis-ci.org/aws/amazon-ec2-metadata-mock">
-   <img src="https://travis-ci.org/aws/amazon-ec2-metadata-mock.svg?branch=master" alt="build-status">
+   <img src="https://travis-ci.org/aws/amazon-ec2-metadata-mock.svg?branch=main" alt="build-status">
    </a>
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
@@ -113,7 +113,7 @@ docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v1.6.0
 * Kubernetes >= 1.14
 
 #### Helm
-[See Helm README here.](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/helm/amazon-ec2-metadata-mock/README.md)
+[See Helm README here.](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md)
 
 #### kubectl
 kubectl apply -f https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.6.0/all-resources.yaml
