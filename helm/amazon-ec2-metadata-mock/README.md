@@ -54,7 +54,7 @@ helm install amazon-ec2-metadata-mock ./helm/amazon-ec2-metadata-mock \
 * Passing a config file to AEMM
 
  1. Create a Kubernetes ConfigMap from a custom AEMM configuration file:
-See [Readme](https://github.com/aws/amazon-ec2-metadata-mock#configuration) to learn more about AEMM configuration. [Here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/test/e2e/testdata/output/aemm-config-used.json) is a reference config file to create your own `aemm-config.json`
+See [Readme](https://github.com/aws/amazon-ec2-metadata-mock#configuration) to learn more about AEMM configuration. [Here](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/test/e2e/testdata/output/aemm-config-used.json) is a reference config file to create your own `aemm-config.json`
 
     Note:
     * AEMM's native config `aemm.server.port` needs to be a fixed value (1338) to be able to run AEMM as a K8s service. So, overriding the `aemm.server.port` in the custom config file will work only when AEMM is accessed via the pod directly. To access the AEMM K8s service on a custom port, override `servicePort` (which is a Helm config).
@@ -204,7 +204,7 @@ Parameter | Description | Default
 
 ### AEMM parameters
 A selective list of AEMM parameters are configurable via Helm CLI and values.yaml file.
-Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-values-for-aemm-configuration) to configure [other AEMM parameters](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/test/e2e/testdata/output/aemm-config-used.json). 
+Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-values-for-aemm-configuration) to configure [other AEMM parameters](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/test/e2e/testdata/output/aemm-config-used.json). 
 
 Parameter | Description | Default in Helm | Default AEMM configuration
 --- | --- | --- | ---

@@ -37,7 +37,7 @@ make unit-test
 
 ### Run All Tests
 
-The full suite includes unit tests, integration tests, and more. See the full list in the [makefile](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/Makefile): 
+The full suite includes unit tests, integration tests, and more. See the full list in the [makefile](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/Makefile): 
 
 ```
 make test
