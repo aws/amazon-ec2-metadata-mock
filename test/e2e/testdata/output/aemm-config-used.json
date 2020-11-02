@@ -172,7 +172,7 @@
   },
   "spot": {
     "action": "terminate",
-    "rebalance-notice-time": "",
+    "rebalance-rec-time": "",
     "time": ""
   }
 }

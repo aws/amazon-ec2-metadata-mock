@@ -27,7 +27,7 @@ import (
 const (
 	instanceActionPath  = "/latest/meta-data/spot/instance-action"
 	terminationTimePath = "/latest/meta-data/spot/termination-time"
-	rebalanceNoticePath = "/latest/meta-data/events/recommendations/rebalance"
+	rebalanceRecPath    = "/latest/meta-data/events/recommendations/rebalance"
 )
 
 var (
@@ -58,7 +58,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 			if len(eligibleIPs) < c.MockIPCount {
 				eligibleIPs[requestIP] = true
 			} else {
-				log.Printf("Requesting IP %s is not eligible for Spot ITN or Rebalance Notification because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
+				log.Printf("Requesting IP %s is not eligible for Spot ITN or Rebalance Recommendation because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
 				server.ReturnNotFoundResponse(res)
 				return
 			}
@@ -67,7 +67,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	switch req.URL.Path {
 	case instanceActionPath, terminationTimePath:
 		handleSpotITN(res, req)
-	case rebalanceNoticePath:
+	case rebalanceRecPath:
 		handleRebalance(res, req)
 	}
 }
@@ -108,8 +108,8 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 func handleRebalance(res http.ResponseWriter, req *http.Request) {
 	// default time to requestTime, unless overridden
 	mockResponseTime := time.Now().UTC().Format(time.RFC3339)
-	if c.SpotConfig.NoticeTime != "" {
-		mockResponseTime = c.SpotConfig.NoticeTime
+	if c.SpotConfig.RebalanceRecTime != "" {
+		mockResponseTime = c.SpotConfig.RebalanceRecTime
 	}
 	server.FormatAndReturnJSONResponse(res, t.RebalanceRecommendationResponse{NoticeTime: mockResponseTime})
 }
