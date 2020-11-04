@@ -5,10 +5,13 @@ set -euo pipefail
 TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
 SPOT_IA_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/instance-action"
 SPOT_TT_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/spot/termination-time"
+RRN_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/events/recommendations/rebalance"
 FLAG_OVERRIDDEN_INSTANCE_ACTION="hibernate"
 ENV_OVERRIDDEN_INSTANCE_ACTION="stop"
 FLAG_OVERRIDDEN_TERMINATION_TIME="2025-05-05T05:05:55Z"
 CONFIG_OVERRIDDEN_TERMINATION_TIME="2020-01-07T01:03:47Z"
+FLAG_OVERRIDDEN_NOTICE_TIME="2010-10-26T11:11:11Z"
+SPOT_DELAY=4
 
 function test_spot_paths() {
   pid=$1
@@ -105,6 +108,58 @@ function test_spot_subcommand_paths_404() {
   clean_up $pid
 }
 
+function test_spot_delay_with_rrn() {
+  pid=$1
+  delay_in_sec=$2
+  expected_rrn_time=$3
+  tput setaf $MAGENTA
+  health_check $RRN_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  # spotItn affected by delay, but rebalance recommendation is not
+  expected_spot_delayed_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  spot_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  rrn_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $RRN_TEST_PATH)
+  rrn_time=$(get_value '"noticeTime"' "$rrn_response")
+  assert_value "$spot_response" "$expected_spot_delayed_response" "test_spot_delay_with_rrn::spot-pre-delay_response"
+  assert_value "$rrn_time" "$expected_rrn_time" "test_spot_delay_with_rrn::rrn-pre-delay_response"
+
+  # ensure no impact to mock-delay functionality
+  echo "⏲ Waiting on delay ⏲"
+  sleep $delay_in_sec
+  spot_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  assert_not_equal "$spot_response" "$expected_spot_delayed_response" "test_spot_delay_with_rrn::post-delay_response"
+
+  # Confirm response isn't empty
+  if [[ ! -z $spot_response ]]; then
+    echo "✅ Verified post-delay response"
+  else
+    echo "❌ Failed delay: there should be a response after delay"
+    EXIT_CODE_TO_RETURN=1
+  fi
+
+  clean_up $pid
+}
+
+function test_spot_times_overrides() {
+  pid=$1
+  expected_term_time=$2
+  expected_rrn_time=$3
+  tput setaf $MAGENTA
+  health_check $SPOT_IA_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  spot_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  rrn_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $RRN_TEST_PATH)
+  spot_term_time=$(get_value '"time"' "$spot_response")
+  rrn_time=$(get_value '"noticeTime"' "$rrn_response")
+
+  assert_value "$spot_term_time" "$expected_term_time" "test_spot_times_overrides::spot-term-time"
+  assert_value "$rrn_time" "$expected_rrn_time" "test_spot_times_overrides::rrn-notice-time"
+
+  clean_up $pid
+}
+
 tput setaf $MAGENTA
 echo "======================================================================================================"
 echo "🥑 Starting spot integration tests $METADATA_VERSION"
@@ -169,5 +224,20 @@ start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -x=1)
 $start_cmd &
 SPOT_PID=$!
 test_spot_ia_defaults $SPOT_PID
+
+# Rebalance Recommendation tests
+# mock delay + flag override
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -r $FLAG_OVERRIDDEN_NOTICE_TIME --mock-delay-sec $SPOT_DELAY)
+$start_cmd &
+SPOT_PID=$!
+test_spot_delay_with_rrn $SPOT_PID $SPOT_DELAY $FLAG_OVERRIDDEN_NOTICE_TIME
+
+# override spot config times using different sources
+export AEMM_SPOT_REBALANCE_REC_TIME="2111-11-11T11:11:12Z"
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT -t $FLAG_OVERRIDDEN_TERMINATION_TIME)
+$start_cmd &
+SPOT_PID=$!
+test_spot_times_overrides $SPOT_PID $FLAG_OVERRIDDEN_TERMINATION_TIME $AEMM_SPOT_REBALANCE_REC_TIME
+unset AEMM_SPOT_REBALANCE_REC_TIME
 
 exit $EXIT_CODE_TO_RETURN

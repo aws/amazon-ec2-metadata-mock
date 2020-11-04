@@ -8,6 +8,7 @@ block-device-mapping/root
 block-device-mapping/swap
 elastic-inference/associations
 elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1
+events/recommendations/rebalance
 hostname
 iam/info
 iam/security-credentials

@@ -57,7 +57,8 @@
       "services-domain": "/latest/meta-data/services/domain",
       "services-partition": "/latest/meta-data/services/partition",
       "spot": "/latest/meta-data/spot/instance-action",
-      "spot-termination-time": "/latest/meta-data/spot/termination-time"
+      "spot-termination-time": "/latest/meta-data/spot/termination-time",
+      "rebalance-rec-time": "/latest/meta-data/events/recommendations/rebalance"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",

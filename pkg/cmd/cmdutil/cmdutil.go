@@ -111,7 +111,8 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 
 	subCommandHandlers := map[string][]handlerPair{
 		"spot": {{path: config.Metadata.Paths.Spot, handler: spot.Handler},
-			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler}},
+			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler},
+			{path: config.Metadata.Paths.RebalanceRecTime, handler: spot.Handler}},
 		"events": {{path: config.Metadata.Paths.Events, handler: events.Handler}},
 	}
 

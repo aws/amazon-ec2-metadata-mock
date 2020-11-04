@@ -172,6 +172,7 @@
   },
   "spot": {
     "action": "terminate",
+    "rebalance-rec-time": "",
     "time": ""
   }
 }

@@ -54,7 +54,7 @@ These bring forth some challenges like not being able to test one's application 
 This project attempts to bridge these gaps by providing mocks for **most** of these metadata categories. The mock responses are designed to replicate those from the actual instance metadata service for accurate, local testing.
 
 # Major Features
-- Emulate Spot Instance Interruption (ITN) events
+- Simulate Spot Instance Interruption (ITN) & EC2 Rebalance Recommendation events for Spot instances
 - Delay mock response from the mock serve start time
 - Configure metadata in mock responses via CLI flags, config file, env variables
 - IMDSv1 and v2 support (configurable for IMDSv2 support only)
@@ -180,6 +180,7 @@ block-device-mapping/swap
 elastic-inference/associations
 elastic-inference/associations/eia-bfa21c7904f64a82a21b9f4540169ce1
 events/maintenance/scheduled
+events/recommendations/rebalance
 hostname
 iam/info
 iam/security-credentials
@@ -269,10 +270,11 @@ Examples:
   ec2-metadata-mock spot -d 5 --action terminate		mocks spot interruption only
 
 Flags:
-  -a, --action string   action in the spot interruption notice (default: terminate)
-                        action can be one of the following: terminate,hibernate,stop
-  -h, --help            help for spot
-  -t, --time string     termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
+  -a, --action string                  action in the spot interruption notice (default: terminate)
+                                       action can be one of the following: terminate,hibernate,stop
+  -h, --help                           help for spot
+  -r, --rebalance-rec-time string      rebalance rec time specifies the approximate time when the rebalance recommendation notification will be emitted in RFC3339 format
+  -t, --time string                    termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
   -c, --config-file string         config file for cli input parameters in json format (default: $HOME/aemm-config.json)
@@ -284,7 +286,6 @@ Global Flags:
       --mock-trigger-time string   mock trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
   -p, --port string                the HTTP port where the mock runs (default: 1338)
   -s, --save-config-to-file        whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
-      --version                    version for ec2-metadata-mock
 ```
 
 1.) **Starting AEMM with `spot`**:  `spot` routes available immediately:
@@ -347,7 +348,24 @@ $ curl localhost:1338/latest/meta-data/spot/instance-action
 
 ```
 
-Alternatively a trigger time can be configured using `--mock-trigger-time` which can be useful to synchronize spot interruption simulation over multiple instances. 
+Alternatively a trigger time can be configured using `--mock-trigger-time` which can be useful to synchronize spot interruption simulation over multiple instances.
+
+### EC2 Instance Rebalance Recommendation
+The Rebalance Recommendation notification is also available under the **spot** command as it is sent when EC2 emits this signal when Spot Instances are at an elevated risk of interruption:
+```
+$ ec2-metadata-mock spot
+Initiating ec2-metadata-mock for EC2 Spot interruption notice on port 1338
+Serving the following routes: ... (truncated for readability)
+```
+Send the request:
+```
+$ curl localhost:1338/latest/meta-data/events/recommendations/rebalance
+{
+        "noticeTime": "2020-10-16T19:18:24Z"
+}
+```
+*Note: although Rebalance Recommendation path contains `events` it will **not be available** when starting AEMM with the `events` command*
+
 
 ## Events
 Similar to spot, the `events` command, view the local flags using `events --help`:

@@ -92,6 +92,7 @@ aemm:
   spot:
     action: ""
     time: ""
+    rebalanceRecTime: ""
   events:
     code: ""
     notAfter: ""

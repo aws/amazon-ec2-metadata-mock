@@ -215,6 +215,7 @@ Parameter | Description | Default in Helm | Default AEMM configuration
 `aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
 `aemm.spot.action` | action in the spot interruption notice | `""` | `terminate`
 `aemm.spot.time` | time in the spot interruption notice | `""` | HTTP request time + 2 minutes
+`aemm.spot.rebalanceRecTime` | time in the rebalance recommendation notification | `""` | HTTP request time
 `aemm.events.code` | event code in the scheduled event | `""` | `system-reboot`
 `aemm.events.notAfter` | the latest end time for the scheduled event | `""` | Start time of AEMM  + 7 days
 `aemm.events.notBefore` | the earliest start time for the scheduled event | `""` | Start time of AEMM
