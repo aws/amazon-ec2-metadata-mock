@@ -1,6 +1,6 @@
 VERSION ?= $(shell git describe --tags --always --dirty)
-LATEST_RELEASE_TAG=$(shell git tag | tail -1)
-PREVIOUS_RELEASE_TAG=$(shell git tag | tail -2 | head -1)
+LATEST_RELEASE_TAG=$(shell git describe --tags --abbrev=0)
+PREVIOUS_RELEASE_TAG=$(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1  --max-count=1`)
 REPO_FULL_NAME=aws/amazon-ec2-metadata-mock
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
