@@ -1,1 +1,3 @@
 instance-identity/document
+instance-identity/pkcs7
+instance-identity/signature
