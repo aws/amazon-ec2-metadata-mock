@@ -68,7 +68,6 @@ AEMM supports most [metadata categories](https://docs.aws.amazon.com/AWSEC2/late
 * kernel-id
 * network/interfaces/macs/<mac>/network-card-index
 * ramdisk-id
-* fws/instance-monitoring
 
 PRs for any of the above paths are always welcome! Please see our [Contributing](#contributing) section for details.
 

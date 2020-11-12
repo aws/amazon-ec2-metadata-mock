@@ -2,11 +2,13 @@
   "config-file": "$HOME/aemm-config.json",
   "dynamic": {
     "paths": {
+      "fws-instance-monitoring": "/latest/dynamic/fws/instance-monitoring",
       "instance-identity-document": "/latest/dynamic/instance-identity/document",
       "instance-identity-pkcs": "/latest/dynamic/instance-identity/pkcs7",
       "instance-identity-signature": "/latest/dynamic/instance-identity/signature"
     },
     "values": {
+      "fws-instance-monitoring": "disabled",
       "instance-identity-document": {
         "accountid": "0123456789",
         "architecture": "x86_64",
@@ -25,9 +27,9 @@
   },
   "events": {
     "code": "system-reboot",
-    "not-after": "2020-11-18T09:48:22-06:00",
-    "not-before": "2020-11-11T09:48:22-06:00",
-    "not-before-deadline": "2020-11-20T09:48:22-06:00",
+    "not-after": "2020-11-19T15:23:43-06:00",
+    "not-before": "2020-11-12T15:23:43-06:00",
+    "not-before-deadline": "2020-11-21T15:23:43-06:00",
     "state": "active"
   },
   "imdsv2": false,
