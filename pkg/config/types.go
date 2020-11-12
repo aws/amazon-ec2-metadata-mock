@@ -184,10 +184,14 @@ type Values struct {
 
 // DynamicPaths represents EC2 dynamic paths
 type DynamicPaths struct {
-	InstanceIdentityDocument string `mapstructure:"instance-identity-document"`
+	InstanceIdentityDocument  string `mapstructure:"instance-identity-document"`
+	InstanceIdentityPKCS      string `mapstructure:"instance-identity-pkcs"`
+	InstanceIdentitySignature string `mapstructure:"instance-identity-signature"`
 }
 
 // DynamicValues represents EC2 dynamic paths
 type DynamicValues struct {
-	InstanceIdentityDocument dynamic.InstanceIdentityDocument `mapstructure:"instance-identity-document"`
+	InstanceIdentityDocument  dynamic.InstanceIdentityDocument `mapstructure:"instance-identity-document"`
+	InstanceIdentityPKCS      string                           `mapstructure:"instance-identity-pkcs"`
+	InstanceIdentitySignature string                           `mapstructure:"instance-identity-signature"`
 }
