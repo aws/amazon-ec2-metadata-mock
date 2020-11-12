@@ -147,4 +147,6 @@ spec:
         - name: AEMM_SPOT_REBALANCE_REC_TIME
           value: {{ .Values.aemm.spot.rebalanceRecTime | quote }}
         {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
 {{- end -}}
