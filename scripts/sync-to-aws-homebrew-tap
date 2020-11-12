@@ -33,12 +33,12 @@ USAGE=$(cat << EOM
   Usage: sync-to-aws-homebrew-tap  -r <repo> -b <binary-basename> -p <platform_pairs>
   Syncs tar.gz\'d binaries to the aws/homebrew-tap
 
-  Example: sync-to-aws-homebrew-tap -r "aws/amazon-ec2-instance-selector"
+  Example: sync-to-aws-homebrew-tap -r "aws/amazon-ec2-metadata-mock"
           Required:
-            -b          Binary basename (i.e. -b "ec2-instance-selector")
+            -b          Binary basename (i.e. -b "ec2-metadata-mock")
 
           Optional:
-            -r          Github repo to sync to in the form of "org/name"  (i.e. -r "aws/amazon-ec2-instance-selector") [DEFAULT: output of \`make repo-full-name\`]
+            -r          Github repo to sync to in the form of "org/name"  (i.e. -r "aws/amazon-ec2-metadata-mock") [DEFAULT: output of \`make repo-full-name\`]
             -v          VERSION: The application version of the docker image [DEFAULT: output of \`make version\`]
             -p          Platform pair list (os/architecture) [DEFAULT: linux/amd64]
             -d          Dry-Run will do all steps except pushing to git and opening the sync PR
