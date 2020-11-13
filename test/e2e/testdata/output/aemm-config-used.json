@@ -2,11 +2,13 @@
   "config-file": "$HOME/aemm-config.json",
   "dynamic": {
     "paths": {
+      "fws-instance-monitoring": "/latest/dynamic/fws/instance-monitoring",
       "instance-identity-document": "/latest/dynamic/instance-identity/document",
       "instance-identity-pkcs": "/latest/dynamic/instance-identity/pkcs7",
       "instance-identity-signature": "/latest/dynamic/instance-identity/signature"
     },
     "values": {
+      "fws-instance-monitoring": "disabled",
       "instance-identity-document": {
         "accountid": "0123456789",
         "architecture": "x86_64",
