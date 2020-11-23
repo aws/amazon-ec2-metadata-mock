@@ -100,7 +100,7 @@ PRESERVE=false
 REUSE_ENV=false
 MOCK_IP_COUNT_ONLY=false
 
-export TERM="xterm"
+[[ -z $TERM ]] || export TERM=linux
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 MAGENTA=$(tput setaf 5)

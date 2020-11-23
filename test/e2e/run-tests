@@ -27,6 +27,8 @@ CYAN=6
 LAVENDER=147
 ORANGE=172
 
+[[ -z $TERM ]] || export TERM=linux
+
 function health_check() {
   sleep 1
   while true; do
