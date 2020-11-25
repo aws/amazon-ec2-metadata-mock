@@ -16,7 +16,7 @@ RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/aws/amazon-ec2-metadata-mock/releases | \
     jq --arg VERSION "$VERSION" '.[] | select(.tag_name==$VERSION) | .id')
 
-export TERM="xterm"
+[[ -z $TERM ]] || export TERM=linux
 RED=$(tput setaf 1)
 RESET_FMT=$(tput sgr 0)
 
