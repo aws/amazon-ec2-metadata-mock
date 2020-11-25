@@ -4,12 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 env:
   DEFAULT_GO_VERSION: ^1.15
-  IS_RELEASE: ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
   IS_PUSH: ${{ github.event_name == 'push' }}
-  # Skip running this stage when updating release versions as part of release prep
-  # as the new Docker image wouldn't be available yet and previous commits should have already been tested.
-  # Since the release prep commit will be the release commit, always run this stage when a new tag is pushed, as part of a release.
-  SHOULD_TEST_HELM: ${{ !contains(github.event.head_commit.message, 'Skip Helm E2E Tests') || (github.event_name == 'push' && contains(github.ref, 'refs/tags/')) }}
   GITHUB_USERNAME: ${{ secrets.EC2_BOT_GITHUB_USERNAME }}
   GITHUB_TOKEN: ${{ secrets.EC2_BOT_GITHUB_TOKEN }}
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -83,65 +78,57 @@ jobs:
     name: Release
     runs-on: ubuntu-20.04
     needs: [buildAndTest]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/setup-go@v2
       with:
         go-version: ${{ env.DEFAULT_GO_VERSION }}
 
     - name: Check out code into the Go module directory
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/checkout@v2
     
     - name: Validate Release Version
-      if: ${{ env.IS_RELEASE == true }}
       run: make validate-release-version
 
     - name: Github Release
-      if: ${{ env.IS_RELEASE == true }}
       run: make release-github
 
     - name: Release Docker Linux
-      if: ${{ env.IS_RELEASE == true }}
       run: make release-docker-linux
     
   releaseWindows:
     name: Release Windows
     runs-on: windows-2019
-    needs: [buildAndTest]
+    needs: [buildAndTest, buildWindows]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/setup-go@v2
       with:
         go-version: ${{ env.DEFAULT_GO_VERSION }}
 
     - name: Check out code into the Go module directory
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/checkout@v2
 
     - name: Release Windows Docker Image
-      if: ${{ env.IS_RELEASE == true }}
       run: choco install make && RefreshEnv.cmd && make release-docker-windows
 
   postRelease:
     name: Post Release
     runs-on: ubuntu-20.04
     needs: [release, releaseWindows]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/setup-go@v2
       with:
         go-version: ${{ env.DEFAULT_GO_VERSION }}
 
     - name: Check out code into the Go module directory
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/checkout@v2
     
     - name: Sync to Homebrew
-      if: ${{ env.IS_RELEASE == true }}
       run: make homebrew-sync
 
 
@@ -149,25 +136,27 @@ jobs:
     name: Helm Lint Test
     runs-on: ubuntu-20.04
     needs: [release, releaseWindows]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/setup-go@v2
       with:
         go-version: ${{ env.DEFAULT_GO_VERSION }}
 
     - name: Check out code into the Go module directory
-      if: ${{ env.IS_RELEASE == true }}
       uses: actions/checkout@v2
     
     - name: Helm Lint Test
-      if: ${{ env.IS_RELEASE == true }}
       run: make validate-release-version
 
   chartTests:
     name: Helm Chart Tests
     runs-on: ubuntu-20.04
     needs: [release, releaseWindows]
+    # Skip running this stage when updating release versions as part of release prep
+    # as the new Docker image wouldn't be available yet and previous commits should have already been tested.
+    # Since the release prep commit will be the release commit, always run this stage when a new tag is pushed, as part of a release.
+    if: ${{ !contains(github.event.head_commit.message, 'Skip Helm E2E Tests') || (github.event_name == 'push' && contains(github.ref, 'refs/tags/')) }}
     strategy:
       matrix:
         k8sVersion: [1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18]
@@ -181,5 +170,4 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Helm Chart Tests
-      if: ${{ env.SHOULD_TEST_HELM == true }}
       run: test/helm/chart-test.sh -i -k ${{ matrix.k8sVersion }}
