@@ -108,11 +108,11 @@ build-docker-images-windows:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION}
 
 push-docker-images-linux:
-	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${IMG} -v ${VERSION} -m
 
 push-docker-images-windows:
-	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION} -m
 
 sync-readme-to-dockerhub:
@@ -148,7 +148,7 @@ docker-run:
 	docker run ${IMG_W_TAG}
 
 docker-push:
-	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
