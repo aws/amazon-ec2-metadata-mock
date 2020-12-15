@@ -148,7 +148,7 @@ docker-run:
 	docker run ${IMG_W_TAG}
 
 docker-push:
-	@echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
