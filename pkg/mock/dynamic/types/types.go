@@ -15,19 +15,19 @@ package types
 
 // InstanceIdentityDocument structure for mock json response parsing
 type InstanceIdentityDocument struct {
-	AccountId                string `json:"accountId"`
-	ImageId                  string `json:"imageId"`
-	AvailabilityZone         string `json:"availabilityZone"`
+	AccountId               string  `json:"accountId"`
+	ImageId                 string  `json:"imageId"`
+	AvailabilityZone        string  `json:"availabilityZone"`
 	RamdiskId               *string `json:"ramdiskId"`
 	KernelId                *string `json:"kernelId"`
 	DevpayProductCodes      *string `json:"devpayProductCodes"`
 	MarketplaceProductCodes *string `json:"marketplaceProductCodes"`
-	Version                  string `json:"version"`
-	PrivateIp                string `json:"privateIp"`
+	Version                 string  `json:"version"`
+	PrivateIp               string  `json:"privateIp"`
 	BillingProducts         *string `json:"billingProducts"`
-	InstanceId               string `json:"instanceId"`
-	PendingTime              string `json:"pendingTime"`
-	Architecture             string `json:"architecture"`
-	InstanceType             string `json:"instanceType"`
-	Region                   string `json:"region"`
+	InstanceId              string  `json:"instanceId"`
+	PendingTime             string  `json:"pendingTime"`
+	Architecture            string  `json:"architecture"`
+	InstanceType            string  `json:"instanceType"`
+	Region                  string  `json:"region"`
 }
