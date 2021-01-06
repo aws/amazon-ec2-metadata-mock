@@ -2,6 +2,8 @@ VERSION ?= $(shell git describe --tags --always --dirty)
 LATEST_RELEASE_TAG=$(shell git describe --tags --abbrev=0)
 PREVIOUS_RELEASE_TAG=$(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1  --max-count=1`)
 REPO_FULL_NAME=aws/amazon-ec2-metadata-mock
+ECR_REGISTRY ?= public.ecr.aws/aws-ec2
+ECR_REPO ?= ${ECR_REGISTRY}/amazon-ec2-metadata-mock
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -110,10 +112,16 @@ build-docker-images-windows:
 push-docker-images-linux:
 	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${IMG} -v ${VERSION} -m
+	${MAKEFILE_PATH}/scripts/retag-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -v ${VERSION} -o ${IMG} -n ${ECR_REPO}
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
+	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${ECR_REPO} -v ${VERSION} -m
 
 push-docker-images-windows:
 	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION} -m
+	${MAKEFILE_PATH}/scripts/retag-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -v ${VERSION} -o ${IMG} -n ${ECR_REPO}
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
+	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${ECR_REPO} -v ${VERSION} -m
 
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
@@ -152,6 +160,9 @@ docker-push:
 	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
+draft-release-notes:
+	${MAKEFILE_PATH}/scripts/draft-release-notes
+
 create-local-release-tag-major:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -m
 
