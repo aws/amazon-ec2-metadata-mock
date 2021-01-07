@@ -170,7 +170,7 @@ The following tables lists the configurable parameters of the chart and their de
 ### General
 Parameter | Description | Default
 --- | --- | --- 
-`image.repository` | image repository | `amazon/amazon-ec2-metadata-mock` 
+`image.repository` | image repository | `public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock`
 `image.tag` | image tag | `<VERSION>` 
 `image.pullPolicy` | image pull policy | `IfNotPresent`
 `replicaCount` | defines the number of amazon-ec2-metadata-mock pods to replicate | `1`
