@@ -127,7 +127,7 @@ sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
 sync-readme-to-ecr-public:
-	#@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
 	${MAKEFILE_PATH}/scripts/sync-readme-to-ecr-public
 
 homebrew-sync-dry-run:

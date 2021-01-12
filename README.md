@@ -13,13 +13,12 @@
    <a href="https://opensource.org/licenses/Apache-2.0">
    <img src="https://img.shields.io/badge/License-Apache%202.0-ff69b4.svg?color=orange" alt="license">
    </a>
-   <a href="https://travis-ci.org/aws/amazon-ec2-metadata-mock">
-   <img src="https://travis-ci.org/aws/amazon-ec2-metadata-mock.svg?branch=main" alt="build-status">
-   </a>
    <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/docker/pulls/amazon/amazon-ec2-metadata-mock" alt="docker-pulls">
    </a>
 </p>
+
+![EC2 Metadata Mock CI and Release](https://github.com/aws/amazon-ec2-metadata-mock/workflows/EC2%20Metadata%20Mock%20CI%20and%20Release/badge.svg)
 
 # Table of Contents
 

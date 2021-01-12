@@ -13,13 +13,13 @@ A complete version of the ReadMe can be found [here](https://github.com/aws/amaz
 
 
 if git --no-pager diff --name-only HEAD^ HEAD | grep 'README.md'; then
-    # converting to json to insert esc chars, then replace newlines for proper markdown render
+    #converting to json to insert esc chars, then replace newlines for proper markdown render
     raw_about=$(jq -n --arg msg "$(<$SCRIPTPATH/../README.md)" '{"usageText": $msg}' | jq '.usageText' | sed 's/\\n/\
 /g')
     char_to_trunc="$(($MAX_CHAR_COUNT-${#ADDITIONAL_MSG}))"
     raw_truncated="${raw_about:0:$char_to_trunc}"
     raw_truncated+="$ADDITIONAL_MSG"
-    resp=$(aws ecr-public put-repository-catalog-data --repository-name="${REPO_NAME}" --catalog-data aboutText="${raw_truncated}",usageText="${USAGE_TEXT}")
+    resp=$(aws ecr-public put-repository-catalog-data --repository-name="${REPO_NAME}" --catalog-data aboutText="${raw_truncated}",usageText="${USAGE_TEXT}" --region us-east-1)
 
     if [[ $resp -ge 1 ]]; then
         echo "README sync to ecr-public failed"
