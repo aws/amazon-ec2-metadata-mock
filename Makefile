@@ -126,6 +126,10 @@ push-docker-images-windows:
 sync-readme-to-dockerhub:
 	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
+sync-readme-to-ecr-public:
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
+	${MAKEFILE_PATH}/scripts/sync-readme-to-ecr-public
+
 homebrew-sync-dry-run:
 	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -d -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX} -v ${LATEST_RELEASE_TAG}
 
@@ -137,7 +141,7 @@ validate-release-version:
 
 release-github: build-release-assets upload-resources-to-github
 
-release-docker-linux: build-docker-images-linux push-docker-images-linux sync-readme-to-dockerhub
+release-docker-linux: build-docker-images-linux push-docker-images-linux sync-readme-to-dockerhub sync-readme-to-ecr-public
 
 release-docker-windows: build-docker-images-windows push-docker-images-windows
 
