@@ -4,7 +4,7 @@
 
 <br/>
 <p>
-   <a href="https://hub.docker.com/r/amazon/amazon-ec2-metadata-mock">
+   <a href="https://gallery.ecr.aws/aws-ec2/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&label=latest%20release&sort=semver" alt="latest release">
    </a>
    <a href="https://golang.org/doc/go1.15">
