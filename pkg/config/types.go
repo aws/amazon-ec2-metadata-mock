@@ -82,11 +82,13 @@ type Paths struct {
 	InstanceID                   string `mapstructure:"instance-id"`
 	InstanceLifecycle            string `mapstructure:"instance-life-cycle"`
 	InstanceType                 string `mapstructure:"instance-type"`
+	KernelID                     string `mapstructure:"kernel-id"`
 	LocalHostName                string `mapstructure:"local-hostname"`
 	LocalIpv4                    string `mapstructure:"local-ipv4"`
 	Mac                          string `mapstructure:"mac"`
 	MacDeviceNumber              string `mapstructure:"mac-device-number"`
 	MacNetworkInterfaceID        string `mapstructure:"mac-network-interface-id"`
+	MacNetworkInterfaceCardIndex string `mapstructure:"mac-network-interface-card-index"`
 	MacIpv4Associations          string `mapstructure:"mac-ipv4-associations"`
 	MacIpv6Associations          string `mapstructure:"mac-ipv6-associations"`
 	MacLocalHostname             string `mapstructure:"mac-local-hostname"`
@@ -114,6 +116,7 @@ type Paths struct {
 	PublicHostName               string `mapstructure:"public-hostname"`
 	PublicIpv4                   string `mapstructure:"public-ipv4"`
 	PublicKey                    string `mapstructure:"public-key"`
+	RamdiskID                    string `mapstructure:"ramdisk-id"`
 	ReservationID                string `mapstructure:"reservation-id"`
 	SecurityGroups               string `mapstructure:"security-groups"`
 	ServicesDomain               string `mapstructure:"services-domain"`
@@ -144,11 +147,13 @@ type Values struct {
 	InstanceID                   string                            `mapstructure:"instance-id"`
 	InstanceLifecycle            string                            `mapstructure:"instance-life-cycle"`
 	InstanceType                 string                            `mapstructure:"instance-type"`
+	KernelID                     string                            `mapstructure:"kernel-id"`
 	LocalHostName                string                            `mapstructure:"local-hostname"`
 	LocalIpv4                    string                            `mapstructure:"local-ipv4"`
 	Mac                          string                            `mapstructure:"mac"`
 	MacDeviceNumber              string                            `mapstructure:"mac-device-number"`
 	MacNetworkInterfaceID        string                            `mapstructure:"mac-network-interface-id"`
+	MacNetworkInterfaceCardIndex string                            `mapstructure:"mac-network-interface-card-index"`
 	MacIpv4Associations          string                            `mapstructure:"mac-ipv4-associations"`
 	MacIpv6Associations          string                            `mapstructure:"mac-ipv6-associations"`
 	MacLocalHostname             string                            `mapstructure:"mac-local-hostname"`
@@ -176,6 +181,7 @@ type Values struct {
 	PublicHostName               string                            `mapstructure:"public-hostname"`
 	PublicIpv4                   string                            `mapstructure:"public-ipv4"`
 	PublicKey                    string                            `mapstructure:"public-key"`
+	RamdiskID                    string                            `mapstructure:"ramdisk-id"`
 	ReservationID                string                            `mapstructure:"reservation-id"`
 	SecurityGroups               string                            `mapstructure:"security-groups"`
 	ServicesDomain               string                            `mapstructure:"services-domain"`

@@ -62,13 +62,13 @@ This project attempts to bridge these gaps by providing mocks for **most** of th
 # Supported Metadata Categories
 AEMM supports most [metadata categories](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-categories.html) **except for:**
 * ancestor-ami-ids
-* elastic-gpus/associations/elastic-gpu-id
 * events/maintenance/history
-* kernel-id
-* network/interfaces/macs/<mac>/network-card-index
-* ramdisk-id
 
 PRs for any of the above paths are always welcome! Please see our [Contributing](#contributing) section for details.
+
+## Windows Metadata
+Paths specific to Windows instances such as `elastic-gpus/associations/elastic-gpu-id` will **not** be supported at this time. Feel free to open
+an issue to discuss if you would like AEMM to support these paths in the future.
 
 # Getting Started
 AEMM is simple to get up and running.
@@ -190,6 +190,7 @@ instance-action
 instance-id
 instance-life-cycle
 instance-type
+kernel-id
 latest
 latest/api/token
 local-hostname
@@ -202,6 +203,7 @@ network/interfaces/macs/0e:49:61:0f:c3:11/ipv6s
 network/interfaces/macs/0e:49:61:0f:c3:11/local-hostname
 network/interfaces/macs/0e:49:61:0f:c3:11/local-ipv4s
 network/interfaces/macs/0e:49:61:0f:c3:11/mac
+network/interfaces/macs/0e:49:61:0f:c3:11/network-card-index
 network/interfaces/macs/0e:49:61:0f:c3:11/owner-id
 network/interfaces/macs/0e:49:61:0f:c3:11/public-hostname
 network/interfaces/macs/0e:49:61:0f:c3:11/public-ipv4s
@@ -224,6 +226,7 @@ product-codes
 public-hostname
 public-ipv4
 public-keys/0/openssh-key
+ramdisk-id
 reservation-id
 security-groups
 services/domain

@@ -18,6 +18,7 @@ instance-action
 instance-id
 instance-life-cycle
 instance-type
+kernel-id
 latest
 latest/api/token
 local-hostname
@@ -30,6 +31,7 @@ network/interfaces/macs/0e:49:61:0f:c3:11/ipv6s
 network/interfaces/macs/0e:49:61:0f:c3:11/local-hostname
 network/interfaces/macs/0e:49:61:0f:c3:11/local-ipv4s
 network/interfaces/macs/0e:49:61:0f:c3:11/mac
+network/interfaces/macs/0e:49:61:0f:c3:11/network-card-index
 network/interfaces/macs/0e:49:61:0f:c3:11/owner-id
 network/interfaces/macs/0e:49:61:0f:c3:11/public-hostname
 network/interfaces/macs/0e:49:61:0f:c3:11/public-ipv4s
@@ -52,6 +54,7 @@ product-codes
 public-hostname
 public-ipv4
 public-keys/0/openssh-key
+ramdisk-id
 reservation-id
 security-groups
 services/domain

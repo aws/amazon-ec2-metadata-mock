@@ -31,25 +31,26 @@ const (
 	elasticInferenceAccelerator  = "elastic-inference-accelerator"
 	// prefixed with "mac" because query requires mac address and to avoid collisions with existing metadata keys
 	// ex: network/interfaces/macs/<mac_address>/device-number
-	macDeviceNumber         = "mac-device-number"
-	macNetworkInterfaceId   = "mac-network-interface-id"
-	macIpv4Associations     = "mac-ipv4-associations"
-	macIpv6Associations     = "mac-ipv6-associations"
-	macLocalHostname        = "mac-local-hostname"
-	macLocalIpv4s           = "mac-local-ipv4s"
-	macMac                  = "mac-mac"
-	macOwnerId              = "mac-owner-id"
-	macPublicHostname       = "mac-public-hostname"
-	macPublicIpv4s          = "mac-public-ipv4s"
-	macSecurityGroups       = "mac-security-groups"
-	macSecurityGroupIds     = "mac-security-group-ids"
-	macSubnetId             = "mac-subnet-id"
-	macSubnetIpv4CidrBlock  = "mac-subnet-ipv4-cidr-block"
-	macSubnetIpv6CidrBlocks = "mac-subnet-ipv6-cidr-blocks"
-	macVpcId                = "mac-vpc-id"
-	macVpcIpv4CidrBlock     = "mac-vpc-ipv4-cidr-block"
-	macVpcIpv4CidrBlocks    = "mac-vpc-ipv4-cidr-blocks"
-	macVpcIpv6CidrBlocks    = "mac-vpc-ipv6-cidr-blocks"
+	macDeviceNumber            = "mac-device-number"
+	macNetworkInterfaceId      = "mac-network-interface-id"
+	macNetworkInterfaceCardIdx = "mac-network-interface-card-index"
+	macIpv4Associations        = "mac-ipv4-associations"
+	macIpv6Associations        = "mac-ipv6-associations"
+	macLocalHostname           = "mac-local-hostname"
+	macLocalIpv4s              = "mac-local-ipv4s"
+	macMac                     = "mac-mac"
+	macOwnerId                 = "mac-owner-id"
+	macPublicHostname          = "mac-public-hostname"
+	macPublicIpv4s             = "mac-public-ipv4s"
+	macSecurityGroups          = "mac-security-groups"
+	macSecurityGroupIds        = "mac-security-group-ids"
+	macSubnetId                = "mac-subnet-id"
+	macSubnetIpv4CidrBlock     = "mac-subnet-ipv4-cidr-block"
+	macSubnetIpv6CidrBlocks    = "mac-subnet-ipv6-cidr-blocks"
+	macVpcId                   = "mac-vpc-id"
+	macVpcIpv4CidrBlock        = "mac-vpc-ipv4-cidr-block"
+	macVpcIpv4CidrBlocks       = "mac-vpc-ipv4-cidr-blocks"
+	macVpcIpv6CidrBlocks       = "mac-vpc-ipv6-cidr-blocks"
 )
 
 var (
@@ -61,7 +62,7 @@ var (
 	mdValueToPlaceholderPathsKeyMap = map[string][]string{
 		// ex: "metadata.values.mac-address" : {"metadata.paths.network-interface-id", "metadata.paths.device-index", ...}
 		mdValuesCfgPrefix + mac: {
-			mdPathsCfgPrefix + macDeviceNumber, mdPathsCfgPrefix + macNetworkInterfaceId, mdPathsCfgPrefix + macIpv4Associations, mdPathsCfgPrefix + macLocalHostname,
+			mdPathsCfgPrefix + macDeviceNumber, mdPathsCfgPrefix + macNetworkInterfaceId, mdPathsCfgPrefix + macNetworkInterfaceCardIdx, mdPathsCfgPrefix + macIpv4Associations, mdPathsCfgPrefix + macLocalHostname,
 			mdPathsCfgPrefix + macLocalIpv4s, mdPathsCfgPrefix + macMac, mdPathsCfgPrefix + macOwnerId, mdPathsCfgPrefix + macPublicHostname, mdPathsCfgPrefix + macPublicIpv4s,
 			mdPathsCfgPrefix + macSecurityGroups, mdPathsCfgPrefix + macSecurityGroupIds, mdPathsCfgPrefix + macSubnetId, mdPathsCfgPrefix + macSubnetIpv4CidrBlock, mdPathsCfgPrefix + macVpcId,
 			mdPathsCfgPrefix + macVpcIpv4CidrBlock, mdPathsCfgPrefix + macVpcIpv4CidrBlocks, mdPathsCfgPrefix + macIpv6Associations, mdPathsCfgPrefix + macSubnetIpv6CidrBlocks, mdPathsCfgPrefix + macVpcIpv6CidrBlocks},
