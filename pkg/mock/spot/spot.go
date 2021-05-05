@@ -106,12 +106,14 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleRebalance(res http.ResponseWriter, req *http.Request) {
-	// default time to requestTime, unless overridden
-	mockResponseTime := time.Now().UTC().Format(time.RFC3339)
 	if c.SpotConfig.RebalanceRecTime != "" {
-		mockResponseTime = c.SpotConfig.RebalanceRecTime
+		mockResponseTime := c.SpotConfig.RebalanceRecTime
+		server.FormatAndReturnJSONResponse(res, t.RebalanceRecommendationResponse{NoticeTime: mockResponseTime})
+	} else {
+		log.Printf("No Response time given.\n")
+		server.ReturnNotFoundResponse(res)
+		return
 	}
-	server.FormatAndReturnJSONResponse(res, t.RebalanceRecommendationResponse{NoticeTime: mockResponseTime})
 }
 
 func getInstanceActionResponse(time string) t.InstanceActionResponse {
