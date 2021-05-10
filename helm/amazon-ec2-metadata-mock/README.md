@@ -215,10 +215,12 @@ Use the [Kubernetes ConfigMap option](#installing-the-chart-with-overridden-valu
 Parameter | Description | Default in Helm | Default AEMM configuration
 --- | --- | --- | ---
 `aemm.server.hostname` | hostname to run AEMM on | `""`, in order to listen on all available interfaces e.g. ClusterIP | `0.0.0.0`
-`aemm.mockDelaySec` | mock delay in seconds, relative to the start time of AEMM | `0` | `0`
-`aemm.mockTriggerTime` | mock trigger time in RFC3339 format | `""` | `""`
+`aemm.mockDelaySec` | spot itn delay in seconds, relative to the start time of AEMM | `0` | `0`
+`aemm.mockTriggerTime` | spot itn trigger time in RFC3339 format | `""` | `""`
 `aemm.mockIPCount` | number of IPs that can receive spot interrupts and/or scheduled events; subsequent requests will return 404 | `""` | `2`
-`aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work 
+`aemm.imdsv2` | if true, IMDSv2 only works | `false` | `false`, meaning both IMDSv1/v2 work
+`aemm.rebalanceDelaySec` | rebalance rec delay in seconds, relative to the start time of AEMM | `0` | `0`
+`aemm.rebalanceTriggerTime` | rebalance rec trigger time in RFC3339 format | `""` | `""`
 `aemm.spot.action` | action in the spot interruption notice | `""` | `terminate`
 `aemm.spot.time` | time in the spot interruption notice | `""` | HTTP request time + 2 minutes
 `aemm.spot.rebalanceRecTime` | time in the rebalance recommendation notification | `""` | HTTP request time

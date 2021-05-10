@@ -98,7 +98,15 @@ spec:
         {{- end }}
         {{- if .Values.aemm.imdsv2 }}
         - name: AEMM_IMDSV2
-          value: {{ .Values.aemm.imdsv2| quote }}
+          value: {{ .Values.aemm.imdsv2 | quote }}
+        {{- end }}
+        {{- if .Values.aemm.rebalanceDelaySec }}
+        - name: AEMM_REBALANCE_DELAY_SEC
+          value: {{ .Values.aemm.rebalanceDelaySec | quote }}
+        {{- end }}
+        {{- if .Values.aemm.rebalanceTriggerTime }}
+        - name: AEMM_REBALANCE_TRIGGER_TIME
+          value: {{ .Values.aemm.rebalanceTriggerTime | quote }}
         {{- end }}
         {{- if .Values.aemm.events.code }}
         - name: AEMM_EVENTS_CODE

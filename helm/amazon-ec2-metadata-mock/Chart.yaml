@@ -20,3 +20,4 @@ keywords:
   - ec2-instance-metadata
   - ec2-instance-metadata-mock
   - spot-interruption-mock
+  - ec2-rebalance-recommendation
