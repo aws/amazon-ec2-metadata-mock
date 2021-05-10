@@ -49,7 +49,6 @@ func SetConfig(config cfg.Config) {
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Printf("RemoteAddr: %s sent request to mock spot interruption: %s\n", req.URL.Path, req.RemoteAddr)
 	// specify negative value to disable this feature
 	if c.MockIPCount >= 0 {
 		// req.RemoteAddr is formatted as IP:port
@@ -78,7 +77,7 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 		triggerTime, _ := time.Parse(time.RFC3339, c.MockTriggerTime)
 		delayRemaining := triggerTime.Unix() - requestTime
 		if delayRemaining > 0 {
-			log.Printf("MockTriggerTime %s was not reached yet. The mock response will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)
+			log.Printf("MockTriggerTime %s was not reached yet. The spot itn will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)
 			server.ReturnNotFoundResponse(res)
 			return
 		}
@@ -86,7 +85,7 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 		delayInSeconds := c.MockDelayInSec
 		delayRemaining := delayInSeconds - (requestTime - spotItnStartTime)
 		if delayRemaining > 0 {
-			log.Printf("Delaying the response by %ds as requested. The mock response will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
+			log.Printf("Delaying the response by %ds as requested. The spot itn will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
 			server.ReturnNotFoundResponse(res)
 			return
 		}
@@ -106,6 +105,24 @@ func handleSpotITN(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleRebalance(res http.ResponseWriter, req *http.Request) {
+	requestTime := time.Now().Unix()
+	if c.RebalanceTriggerTime != "" {
+		triggerTime, _ := time.Parse(time.RFC3339, c.RebalanceTriggerTime)
+		delayRemaining := triggerTime.Unix() - requestTime
+		if delayRemaining > 0 {
+			log.Printf("RebalanceTriggerTime %s was not reached yet. The rebalance rec will be available in %ds. Returning `notFoundResponse` for now", triggerTime, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
+	} else {
+		delayInSeconds := c.RebalanceDelayInSec
+		delayRemaining := delayInSeconds - (requestTime - spotItnStartTime)
+		if delayRemaining > 0 {
+			log.Printf("Delaying the response by %ds as requested. The rebalance rec will be available in %ds. Returning `notFoundResponse` for now", delayInSeconds, delayRemaining)
+			server.ReturnNotFoundResponse(res)
+			return
+		}
+	}
 	// default time to requestTime, unless overridden
 	mockResponseTime := time.Now().UTC().Format(time.RFC3339)
 	if c.SpotConfig.RebalanceRecTime != "" {
