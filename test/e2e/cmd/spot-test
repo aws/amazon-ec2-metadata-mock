@@ -11,7 +11,8 @@ ENV_OVERRIDDEN_INSTANCE_ACTION="stop"
 FLAG_OVERRIDDEN_TERMINATION_TIME="2025-05-05T05:05:55Z"
 CONFIG_OVERRIDDEN_TERMINATION_TIME="2020-01-07T01:03:47Z"
 FLAG_OVERRIDDEN_NOTICE_TIME="2010-10-26T11:11:11Z"
-SPOT_DELAY=4
+SPOT_DELAY=10
+REBALANCE_DELAY=5
 
 function test_spot_paths() {
   pid=$1
@@ -160,6 +161,45 @@ function test_spot_times_overrides() {
   clean_up $pid
 }
 
+function test_spot_and_rebalance_delay() {
+  pid=$1
+  spot_delay_in_sec=$2
+  rebalance_delay_in_sec=$3
+  tput setaf $MAGENTA
+  health_check "http://$HOSTNAME:$AEMM_PORT"
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  # spotItn + rebalanceRec are both affected by delay
+  expected_delayed_response=$(cat $SCRIPTPATH/golden/404_response.golden)
+  spot_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  assert_value "$spot_response" "$expected_delayed_response" "test_spot_and_rebalance_delay::spot-delay_response"
+  rrn_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $RRN_TEST_PATH)
+  assert_value "$rrn_response" "$expected_delayed_response" "test_spot_and_rebalance_delay::rebalance-delay_response"
+
+  # test assumes spot delay is greater for simplicity and real world simulation
+  echo "⏲ Waiting on spot delay ⏲"
+  sleep $spot_delay_in_sec
+  spot_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_IA_TEST_PATH)
+  assert_not_equal "$spot_response" "$expected_delayed_response" "test_spot_and_rebalance_delay::spot-post-delay_response"
+
+  delay_remaining="$(($spot_delay_in_sec-$rebalance_delay_in_sec))"
+
+  echo "⏲ Waiting on rebalance delay ⏲"
+  sleep $delay_remaining
+  rrn_response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $RRN_TEST_PATH)
+  assert_not_equal "$rrn_response" "$expected_delayed_response" "test_spot_and_rebalance_delay::rebalance-post-delay_response"
+
+  # Confirm responses aren't empty
+  if [[ ! -z $spot_response ]] && [[ ! -z $rrn_response ]]; then
+    echo "✅ Verified post-delay response"
+  else
+    echo "❌ Failed delay: there should be a response after delay"
+    EXIT_CODE_TO_RETURN=1
+  fi
+
+  clean_up $pid
+}
+
 tput setaf $MAGENTA
 echo "======================================================================================================"
 echo "🥑 Starting spot integration tests $METADATA_VERSION"
@@ -239,5 +279,11 @@ $start_cmd &
 SPOT_PID=$!
 test_spot_times_overrides $SPOT_PID $FLAG_OVERRIDDEN_TERMINATION_TIME $AEMM_SPOT_REBALANCE_REC_TIME
 unset AEMM_SPOT_REBALANCE_REC_TIME
+
+# rebalance delay + mock delay
+start_cmd=$(create_cmd $METADATA_VERSION spot --port $AEMM_PORT --mock-delay-sec $SPOT_DELAY --rebalance-delay-sec $REBALANCE_DELAY)
+$start_cmd &
+SPOT_PID=$!
+test_spot_and_rebalance_delay $SPOT_PID $SPOT_DELAY $REBALANCE_DELAY
 
 exit $EXIT_CODE_TO_RETURN

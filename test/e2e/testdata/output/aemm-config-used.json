@@ -27,9 +27,9 @@
   },
   "events": {
     "code": "system-reboot",
-    "not-after": "2021-02-16T16:42:04-06:00",
-    "not-before": "2021-02-09T16:42:04-06:00",
-    "not-before-deadline": "2021-02-18T16:42:04-06:00",
+    "not-after": "2021-05-17T16:22:30-05:00",
+    "not-before": "2021-05-10T16:22:30-05:00",
+    "not-before-deadline": "2021-05-19T16:22:30-05:00",
     "state": "active"
   },
   "imdsv2": false,
@@ -179,6 +179,8 @@
   "mock-delay-sec": 0,
   "mock-ip-count": 2,
   "mock-trigger-time": "",
+  "rebalance-delay-sec": 0,
+  "rebalance-trigger-time": "",
   "save-config-to-file": true,
   "server": {
     "hostname": "0.0.0.0",

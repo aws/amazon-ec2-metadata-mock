@@ -40,12 +40,14 @@ var (
 	cfgMdPrefix = cfg.GetCfgMdValPrefix()
 	cfgDnPrefix = cfg.GetCfgDnValPrefix()
 	defaultCfg  = map[string]interface{}{
-		gf.ConfigFileFlag:       cfg.GetDefaultCfgFileName(),
-		gf.MockDelayInSecFlag:   0,
-		gf.MockTriggerTimeFlag:  "",
-		gf.MockIPCountFlag:      2,
-		gf.SaveConfigToFileFlag: false,
-		gf.Imdsv2Flag:           false,
+		gf.ConfigFileFlag:           cfg.GetDefaultCfgFileName(),
+		gf.MockDelayInSecFlag:       0,
+		gf.MockTriggerTimeFlag:      "",
+		gf.MockIPCountFlag:          2,
+		gf.SaveConfigToFileFlag:     false,
+		gf.Imdsv2Flag:               false,
+		gf.RebalanceDelayInSecFlag:  0,
+		gf.RebalanceTriggerTimeFlag: "",
 	}
 )
 
@@ -78,10 +80,12 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().StringP(gf.PortFlag, "p", "", "the HTTP port where the mock runs (default: 1338)")
 	cmd.PersistentFlags().StringP(gf.ConfigFileFlag, "c", "", "config file for cli input parameters in json format (default: "+cfg.GetDefaultCfgFileName()+")")
 	cmd.PersistentFlags().BoolP(gf.SaveConfigToFileFlag, "s", false, "whether to save processed config from all input sources in "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
-	cmd.PersistentFlags().Int64P(gf.MockDelayInSecFlag, "d", 0, "mock delay in seconds, relative to the application start time (default: 0 seconds)")
-	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "mock trigger time in RFC3339 format. This takes priority over "+gf.MockDelayInSecFlag+" (default: none)")
+	cmd.PersistentFlags().Int64P(gf.MockDelayInSecFlag, "d", 0, "spot itn delay in seconds, relative to the application start time (default: 0 seconds)")
+	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "spot itn trigger time in RFC3339 format. This takes priority over "+gf.MockDelayInSecFlag+" (default: none)")
 	cmd.PersistentFlags().Int64P(gf.MockIPCountFlag, "x", 2, "number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event")
 	cmd.PersistentFlags().BoolP(gf.Imdsv2Flag, "I", false, "whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)")
+	cmd.PersistentFlags().Int64(gf.RebalanceDelayInSecFlag, 0, "rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)")
+	cmd.PersistentFlags().String(gf.RebalanceTriggerTimeFlag, "", "rebalance rec trigger time in RFC3339 format. This takes priority over "+gf.RebalanceDelayInSecFlag+" (default: none)")
 
 	// add subcommands
 	cmd.AddCommand(spot.Command, events.Command)

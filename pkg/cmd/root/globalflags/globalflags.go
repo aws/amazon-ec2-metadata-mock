@@ -21,10 +21,10 @@ const (
 	// SaveConfigToFileFlag - whether to save processed config from all input sources
 	SaveConfigToFileFlag = "save-config-to-file"
 
-	// MockDelayInSecFlag - mock delay in seconds, relative to the application start time
+	// MockDelayInSecFlag - spot itn delay in seconds, relative to the application start time
 	MockDelayInSecFlag = "mock-delay-sec"
 
-	// MockTriggerTimeFlag - mock trigger time in RFC3339
+	// MockTriggerTimeFlag - spot itn trigger time in RFC3339
 	MockTriggerTimeFlag = "mock-trigger-time"
 
 	// MockIPCountFlag - the number of nodes in a cluster that can receive Spot ITNs
@@ -38,9 +38,15 @@ const (
 
 	// Imdsv2Flag - whether to enable IMDSv2 only requiring a session token when submitting requests
 	Imdsv2Flag = "imdsv2"
+
+	// RebalanceDelayInSecFlag - rebalance rec delay in seconds, relative to the application start time
+	RebalanceDelayInSecFlag = "rebalance-delay-sec"
+
+	// RebalanceTriggerTimeFlag - rebalance rec trigger time in RFC3339
+	RebalanceTriggerTimeFlag = "rebalance-trigger-time"
 )
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag}
 }

@@ -97,6 +97,8 @@ aemm:
   mockTriggerTime: ""
   mockIPCount: 2
   imdsv2: false
+  rebalanceDelaySec: 0
+  rebalanceTriggerTime: ""
   spot:
     action: ""
     time: ""
