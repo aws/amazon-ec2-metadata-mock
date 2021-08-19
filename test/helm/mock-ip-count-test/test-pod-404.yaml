@@ -7,7 +7,7 @@ spec:
   containers:
   - name: mock-ip-test
     imagePullPolicy: "IfNotPresent"
-    image: "al2-test"
+    image: "al2-test:latest"
     command:
     - "bash"
     - "-c"
