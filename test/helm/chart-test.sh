@@ -33,7 +33,7 @@ readonly K8s_1_13="v1.13.12"
 readonly K8s_1_12="v1.12.10"
 PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
 KIND_IMAGE="$K8s_1_18"
-readonly KIND_VERSION="v0.8.1"
+readonly KIND_VERSION="v0.11.1"
 readonly HELM3_VERSION="3.2.4"
 readonly KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 readonly CLUSTER_NAME="kind-ct"
@@ -115,6 +115,16 @@ setup_ct_container() {
         --workdir /workdir \
         "quay.io/helmpack/chart-testing:$CT_TAG"
     echo
+}
+
+setup_test_container() {
+    c_echo "Building test container..."
+    TEST_IMAGE_NAME="al2-test:latest"
+    docker build -t $TEST_IMAGE_NAME - <<EOF
+FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+RUN yum update -y && yum install tar -y
+EOF
+    kind load docker-image --name $CLUSTER_NAME --nodes=$CLUSTER_NAME-worker,$CLUSTER_NAME-control-plane $TEST_IMAGE_NAME
 }
 
 install_kind() {
@@ -270,6 +280,7 @@ install_and_test_charts() {
         mkdir -p $TMP_DIR
         install_kind
         create_kind_cluster
+        setup_test_container
     fi
 
     c_echo "Installing helm charts and running tests for each *-values.yaml configuration in helm/<chart>/ci dir...\n"
@@ -370,6 +381,7 @@ test_mock_ip_count() {
         mkdir -p $TMP_DIR
         install_kind
         create_kind_cluster
+        setup_test_container
     fi
 
     build_and_load_image

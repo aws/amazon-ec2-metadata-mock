@@ -6,8 +6,8 @@ spec:
   restartPolicy: Never
   containers:
   - name: mock-ip-test
-    imagePullPolicy: "Always"
-    image: "centos:latest"
+    imagePullPolicy: "IfNotPresent"
+    image: "al2-test:latest"
     command:
     - "bash"
     - "-c"
@@ -15,7 +15,7 @@ spec:
       SERVICE_NAME="AMAZON_EC2_METADATA_MOCK_SERVICE"
       HOST_VAR=$(echo "${SERVICE_NAME}_SERVICE_HOST")
       PORT_VAR=$(echo "${SERVICE_NAME}_SERVICE_PORT")
-      sleep 6
+      sleep 5
       ACTUAL=$(curl http://${!HOST_VAR}:${!PORT_VAR}/latest/meta-data/spot/termination-time)
       EXPECTED=$(cat /tmp/404_response.golden)
       [[ "$ACTUAL" == "$EXPECTED" ]] && exit 0 || exit 1
