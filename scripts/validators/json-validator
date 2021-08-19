@@ -6,9 +6,15 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 JSON_FILES=$(find $SCRIPTPATH/../../ -name "*.json" -type f)
 FAILED_FILES=()
 
+if [[ -z `which python` ]] && [[ ! -z `which python3` ]]; then
+  PY=python3
+else
+  PY=python
+fi
+
 for j in $JSON_FILES; do
   echo "validating $j"
-  python -mjson.tool "$j" > /dev/null || FAILED_FILES+=("$j")
+  $PY -mjson.tool "$j" > /dev/null || FAILED_FILES+=("$j")
 done
 
 if [[ ${#FAILED_FILES[@]} -eq 0 ]]; then
