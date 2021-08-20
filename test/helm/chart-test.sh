@@ -18,19 +18,18 @@
 set -euo pipefail
 
 # KIND / Kubernetes
+# shellcheck disable=SC2034
+readonly K8s_1_21="v1.21.0"
+# shellcheck disable=SC2034
+readonly K8s_1_20="v1.20.0"
+# shellcheck disable=SC2034
+readonly K8s_1_19="v1.19.0"
+# shellcheck disable=SC2034
 readonly K8s_1_18="v1.18.2"
 # shellcheck disable=SC2034
 readonly K8s_1_17="v1.17.5"
 # shellcheck disable=SC2034
 readonly K8s_1_16="v1.16.9"
-# shellcheck disable=SC2034
-readonly K8s_1_15="v1.15.11"
-# shellcheck disable=SC2034
-readonly K8s_1_14="v1.14.10"
-# shellcheck disable=SC2034
-readonly K8s_1_13="v1.13.12"
-# shellcheck disable=SC2034
-readonly K8s_1_12="v1.12.10"
 PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
 KIND_IMAGE="$K8s_1_18"
 readonly KIND_VERSION="v0.11.1"
@@ -80,7 +79,7 @@ Examples:
   chart-test -r -c v3.0.0-rc.1        Run the test for linting and installation for default Kubernetes version, and reuse previously provisioned test environment
 
 Options:
-  -k     Kubernetes version / kindest node image tag to use for the test (default: 1.18) (options: 1.14, 1.15, 1.16, 1.17)
+  -k     Kubernetes version / kindest node image tag to use for the test (default: 1.18) (options: 1.16, 1.17, 1.18, 1.19, 1.20, 1.21)
   -c     chart-testing image tag to use for the test
   -g     AEMM image to use to test values.yaml file(s) with overridden image. See helm/amazon-ec2-metadata-mock/ci/custom-image-values.yaml
   -l     test charts for linting only (helm lint, version checking, YAML validation, maintainer validation)
