@@ -3,7 +3,7 @@ name: EC2 Metadata Mock CI and Release
 on: [push, pull_request, workflow_dispatch]
 
 env:
-  DEFAULT_GO_VERSION: ^1.16
+  DEFAULT_GO_VERSION: ^1.17
   DEFAULT_PY_VERSION: "3.9"
   IS_PUSH: ${{ github.event_name == 'push' }}
   GITHUB_USERNAME: ${{ secrets.EC2_BOT_GITHUB_USERNAME }}
