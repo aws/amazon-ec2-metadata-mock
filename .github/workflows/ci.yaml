@@ -15,6 +15,8 @@ env:
 jobs:
 
   buildAndTest:
+    # Not necessary to run buildAndTest targets during release
+    if: !contains(github.ref, 'refs/tags/')
     name: Build and Test
     runs-on: ubuntu-20.04
     steps:
@@ -66,6 +68,8 @@ jobs:
       run: make build-docker-images-linux
 
   buildWindows:
+    # Not necessary to run build targets during release
+    if: !contains(github.ref, 'refs/tags/')
     name: Build Docker Images Windows
     runs-on: windows-2019
     steps:
@@ -83,7 +87,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-20.04
-    needs: [buildAndTest]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
@@ -110,7 +113,6 @@ jobs:
   releaseWindows:
     name: Release Windows
     runs-on: windows-2019
-    needs: [buildAndTest, buildWindows]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
     - name: Set up Go 1.x
