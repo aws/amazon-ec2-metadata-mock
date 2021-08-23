@@ -1,6 +1,12 @@
 name: EC2 Metadata Mock CI and Release
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  # Run M-F at 5AM CDT
+  schedule:
+    - cron: '0 10 * * 1-5'
 
 env:
   DEFAULT_GO_VERSION: ^1.16
@@ -16,7 +22,7 @@ jobs:
 
   buildAndTest:
     # Not necessary to run buildAndTest targets during release
-    if: !contains(github.ref, 'refs/tags/')
+    if: ${{ !contains(github.ref, 'refs/tags/') }}
     name: Build and Test
     runs-on: ubuntu-20.04
     steps:
@@ -69,7 +75,7 @@ jobs:
 
   buildWindows:
     # Not necessary to run build targets during release
-    if: !contains(github.ref, 'refs/tags/')
+    if: ${{ !contains(github.ref, 'refs/tags/') }}
     name: Build Docker Images Windows
     runs-on: windows-2019
     steps:

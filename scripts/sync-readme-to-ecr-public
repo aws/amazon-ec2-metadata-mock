@@ -17,11 +17,6 @@ raw_about=$(jq -n --arg msg "$(<$SCRIPTPATH/../README.md)" '{"usageText": $msg}'
 char_to_trunc="$(($MAX_CHAR_COUNT-${#ADDITIONAL_MSG}))"
 raw_truncated="${raw_about:0:$char_to_trunc}"
 raw_truncated+="$ADDITIONAL_MSG"
-resp=$(aws ecr-public put-repository-catalog-data --repository-name="${REPO_NAME}" --catalog-data aboutText="${raw_truncated}",usageText="${USAGE_TEXT}" --region us-east-1)
+aws ecr-public put-repository-catalog-data --repository-name="${REPO_NAME}" --catalog-data aboutText="${raw_truncated}",usageText="${USAGE_TEXT}" --region us-east-1
 
-if [[ $resp -ge 1 ]]; then
-    echo "README sync to ecr-public failed"
-    exit 1
-else
-    echo "README sync to ecr-public succeeded!"
-fi
+echo "README sync to ecr-public succeeded!"
