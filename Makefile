@@ -141,7 +141,7 @@ validate-release-version:
 
 release-github: build-release-assets upload-resources-to-github
 
-release-docker-linux: build-docker-images-linux push-docker-images-linux sync-readme-to-dockerhub sync-readme-to-ecr-public
+release-docker-linux: build-docker-images-linux push-docker-images-linux sync-readme-to-ecr-public
 
 release-docker-windows: build-docker-images-windows push-docker-images-windows
 
