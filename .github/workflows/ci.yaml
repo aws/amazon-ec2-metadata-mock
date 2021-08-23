@@ -9,7 +9,7 @@ on:
     - cron: '0 10 * * 1-5'
 
 env:
-  DEFAULT_GO_VERSION: ^1.16
+  DEFAULT_GO_VERSION: ^1.17
   DEFAULT_PY_VERSION: "3.9"
   IS_PUSH: ${{ github.event_name == 'push' }}
   GITHUB_USERNAME: ${{ secrets.EC2_BOT_GITHUB_USERNAME }}
