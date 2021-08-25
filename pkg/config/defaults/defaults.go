@@ -14,17 +14,14 @@
 package defaults
 
 import (
-	"encoding/base64"
+	// Blank import else compiler complains it's unused
+	_ "embed"
 )
 
-// DO NOT EDIT: encodedDefaultValues is populated by the Makefile.
-var (
-	encodedDefaultValues = "{}"
-	decodedDefaultValues []byte
-)
+//go:embed aemm-metadata-default-values.json
+var defaultValues []byte
 
 // GetDefaultValues returns default metadata values populated via aemm-metadata-default-values.json
 func GetDefaultValues() []byte {
-	decodedDefaultValues, _ := base64.StdEncoding.DecodeString(encodedDefaultValues)
-	return decodedDefaultValues
+	return defaultValues
 }
