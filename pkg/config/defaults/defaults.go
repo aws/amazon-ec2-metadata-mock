@@ -13,7 +13,10 @@
 
 package defaults
 
-import _ "embed"
+import (
+	// Blank import else compiler complains it's unused
+	_ "embed"
+)
 
 //go:embed aemm-metadata-default-values.json
 var defaultValues []byte
