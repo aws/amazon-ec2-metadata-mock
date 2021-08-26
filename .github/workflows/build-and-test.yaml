@@ -1,0 +1,83 @@
+name: Build and Test
+
+on:
+  push:
+    tags-ignore:
+      - "v*.*.*"
+  pull_request:
+  workflow_dispatch:
+  # Run M-F at 5AM CDT
+  schedule:
+    - cron: '0 10 * * 1-5'
+
+env:
+  DEFAULT_GO_VERSION: ^1.17
+  DEFAULT_PY_VERSION: "3.9"
+  IS_PUSH: ${{ github.event_name == 'push' }}
+
+jobs:
+  buildAndTest:
+    name: Build and Test
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.DEFAULT_GO_VERSION }}
+
+    - name: Set up Python ${{ env.DEFAULT_PY_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.DEFAULT_PY_VERSION }}
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: make build
+
+    - name: Unit Tests
+      run: make unit-test
+
+    - name: Lints
+      run: make spellcheck shellcheck
+
+    - name: Go Report Card Tests
+      run: make go-report-card-test
+
+    - name: Readme Length Validator
+      run: make validate-readme
+
+    - name: Brew Sync Dry run
+      run: make homebrew-sync-dry-run
+
+    - name: License Test
+      if: ${{ env.IS_PUSH == true }}
+      run: make license-test
+
+    - name: E2E Tests
+      run: make e2e-test
+
+    - name: Mock IP Count Test
+      run: make helm-mock-ip-count-test
+
+    - name: Build Release Assets
+      run: make build-release-assets
+
+    - name: Build Docker Images Linux
+      run: make build-docker-images-linux
+
+  buildWindows:
+    name: Build Docker Images Windows
+    runs-on: windows-2019
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.DEFAULT_GO_VERSION }}
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Build Docker Images Windows
+      run: choco install make && RefreshEnv.cmd && make build-docker-images-windows
