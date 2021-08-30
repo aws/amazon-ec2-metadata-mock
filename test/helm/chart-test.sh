@@ -116,16 +116,6 @@ setup_ct_container() {
     echo
 }
 
-setup_test_container() {
-    c_echo "Building test container..."
-    TEST_IMAGE_NAME="al2-test:latest"
-    docker build -t $TEST_IMAGE_NAME - <<EOF
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
-RUN yum update -y && yum install tar -y
-EOF
-    kind load docker-image --name $CLUSTER_NAME --nodes=$CLUSTER_NAME-worker,$CLUSTER_NAME-control-plane $TEST_IMAGE_NAME
-}
-
 install_kind() {
     c_echo "Installing kind..."
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/$KIND_VERSION/kind-$PLATFORM-amd64
@@ -279,7 +269,6 @@ install_and_test_charts() {
         mkdir -p $TMP_DIR
         install_kind
         create_kind_cluster
-        setup_test_container
     fi
 
     c_echo "Installing helm charts and running tests for each *-values.yaml configuration in helm/<chart>/ci dir...\n"
@@ -380,7 +369,6 @@ test_mock_ip_count() {
         mkdir -p $TMP_DIR
         install_kind
         create_kind_cluster
-        setup_test_container
     fi
 
     build_and_load_image

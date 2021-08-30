@@ -7,7 +7,7 @@ spec:
   containers:
   - name: mock-ip-test
     imagePullPolicy: "IfNotPresent"
-    image: "al2-test:latest"
+    image: "mirror.gcr.io/library/centos:latest"
     command:
     - "bash"
     - "-c"
