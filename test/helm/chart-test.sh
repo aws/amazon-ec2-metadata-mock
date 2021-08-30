@@ -19,7 +19,7 @@ set -euo pipefail
 
 # KIND / Kubernetes
 # shellcheck disable=SC2034
-readonly K8s_1_21="v1.21.0"
+readonly K8s_1_21="v1.21.1"
 # shellcheck disable=SC2034
 readonly K8s_1_20="v1.20.0"
 # shellcheck disable=SC2034
