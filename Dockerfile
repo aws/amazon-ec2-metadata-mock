@@ -1,18 +1,32 @@
 # Build the manager binary
-FROM golang:1.17 as builder
+FROM golang:1.17 as mod
 
 ## GOLANG env
 ARG GOPROXY="direct"
 ARG GO111MODULE="on"
-ARG CGO_ENABLED=0
-ARG GOOS=linux
-ARG GOARCH=amd64
+ARG GOPATH=/go
+ARG GOCACHE=/go
 
 # Copy go.mod and download dependencies
 WORKDIR /amazon-ec2-metadata-mock
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
+
+# Build the manager binary
+FROM golang:1.17 as builder
+
+## GOLANG env
+ARG CGO_ENABLED=0
+ARG GOOS=linux
+ARG GOARCH=amd64
+ARG GOPATH=/go
+ARG GOCACHE=/go
+
+# Copy go.mod and download dependencies
+WORKDIR /amazon-ec2-metadata-mock
+COPY --from=mod $GOCACHE $GOCACHE
+COPY --from=mod $GOPATH/pkg/mod $GOPATH/pkg/mod
 
 # Build
 COPY . .
