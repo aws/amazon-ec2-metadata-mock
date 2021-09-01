@@ -1,4 +1,4 @@
-# Build the manager binary
+# Download the go modules
 FROM golang:1.17 as mod
 
 ## GOLANG env
@@ -13,7 +13,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-# Build the manager binary
+# Build binary image
 FROM golang:1.17 as builder
 
 ## GOLANG env
@@ -23,7 +23,7 @@ ARG GOARCH=amd64
 ARG GOPATH=/go
 ARG GOCACHE=/go
 
-# Copy go.mod and download dependencies
+# Copy the dependencies
 WORKDIR /amazon-ec2-metadata-mock
 COPY --from=mod $GOCACHE $GOCACHE
 COPY --from=mod $GOPATH/pkg/mod $GOPATH/pkg/mod
@@ -35,6 +35,7 @@ RUN make build
 # $ docker build  --target=builder -t test .
 ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock"]
 
+# Build the final image with only the binary
 FROM scratch
 WORKDIR /
 COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock .
