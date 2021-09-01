@@ -14,6 +14,8 @@
 package root
 
 import (
+	// Blank import else compiler complains it's unused
+	_ "embed"
 	"errors"
 	"fmt"
 	"log"
@@ -34,7 +36,8 @@ import (
 var (
 	c       cfg.Config
 	command *cobra.Command
-	version = "dev"
+	//go:embed version.txt
+	version string
 
 	// defaults
 	cfgMdPrefix = cfg.GetCfgMdValPrefix()

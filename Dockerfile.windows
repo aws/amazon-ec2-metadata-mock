@@ -16,35 +16,16 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-# Setup to use git-bash on Windows
-SHELL ["cmd", "/S", "/C"]
-# Install Chocolatey
-RUN @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"
-# Update Path
-RUN RefreshEnv.cmd
-
-# New Powershell, so choco is available
-SHELL ["powershell"]
-RUN choco feature disable --name showDownloadProgress
-
-# Install make, git-bash, python
-RUN choco install make
-RUN choco install git -y
-RUN choco install python3 -y --params "/InstallDir:C:\Python3"
-# Update Path; need to append C:\Windows\system32 to the end to give GitBash find priority
-SHELL ["cmd", "/S", "/C"]
-RUN setx /M PATH "C:\Program Files\Go\bin;C:\go\bin;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\bin;C:\Program Files\Git\usr\bin;C:\Python3;C:\Windows\system32;"
-
 # Build
 COPY . .
-RUN make build
+RUN go build -a -tags aemm-windows -o ./build/ec2-metadata-mock.exe ./cmd/amazon-ec2-metadata-mock.go
 # In case the target is build for testing:
 # $ docker build  --target=builder -t test .
-ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock"]
+ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock.exe"]
 
 # Copy the controller-manager into a thin image
 FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_VERSION}
 WORKDIR /
-COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock .
+COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock.exe .
 COPY THIRD_PARTY_LICENSES .
-ENTRYPOINT ["/ec2-metadata-mock"]
+ENTRYPOINT ["/ec2-metadata-mock.exe"]
