@@ -14,6 +14,7 @@
 package root
 
 import (
+	// Blank import else compiler complains it's unused
 	_ "embed"
 	"errors"
 	"fmt"

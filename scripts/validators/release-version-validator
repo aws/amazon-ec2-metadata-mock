@@ -5,6 +5,7 @@
 ## - helm charts' values.yaml
 ## - helm charts' README
 ## - README.md
+## - version.txt
 
 set -euo pipefail
 
@@ -29,6 +30,13 @@ trap 'print_note' EXIT
 README_HAS_INCORRECT_VERSION=$(cat $REPO_ROOT_PATH/README.md | grep $PREVIOUS_VERSION)
 if [[ ! -z  $README_HAS_INCORRECT_VERSION ]]; then
     echo "❌ Please update AEMM version in README.md. Expected version v$LATEST_VERSION, but got v$PREVIOUS_VERSION ❌"
+    UPDATE_NEEDED=true
+fi
+
+# Verify version in version.txt
+APP_HAS_INCORRECT_VERSION=$(cat $REPO_ROOT_PATH/pkg/cmd/root/version.txt | grep $PREVIOUS_VERSION)
+if [[ ! -z  $APP_HAS_INCORRECT_VERSION ]]; then
+    echo "❌ Please update AEMM version in pkg/cmd/root/version.txt. Expected version v$LATEST_VERSION, but got v$PREVIOUS_VERSION ❌"
     UPDATE_NEEDED=true
 fi
 
