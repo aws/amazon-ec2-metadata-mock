@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Release Windows Docker Image
-        run: choco install make && RefreshEnv.cmd && make release-docker-windows
+        run: make release-docker-windows
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
