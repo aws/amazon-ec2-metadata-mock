@@ -6,6 +6,7 @@
 ## - helm charts' values.yaml
 ## - helm charts' README
 ## - README.md
+## - version.txt
 
 # This script is run AFTER creating a new local tag (see `make release-prep`).
 
@@ -18,11 +19,12 @@ PREVIOUS_VERSION=$(make -s -f $MAKEFILE_PATH previous-release-tag | cut -b 2- )
 
 # Files to update
 REPO_README=$REPO_ROOT_PATH/README.md
+APP_VERSION=$REPO_ROOT_PATH/pkg/cmd/root/version.txt
 CHART=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/Chart.yaml
 CHART_VALUES=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/values.yaml
 CHART_README=$REPO_ROOT_PATH/helm/amazon-ec2-metadata-mock/README.md
 
-FILES=("$REPO_README"  "$CHART"  "$CHART_README"  "$CHART_VALUES")
+FILES=("$REPO_README"  "$CHART"  "$CHART_README"  "$CHART_VALUES" "$APP_VERSION")
 FILES_CHANGED=()
 
 echo -e "🥑 Attempting to update AEMM release version and Helm chart version in preparation for a new release.\n   Previous version: $PREVIOUS_VERSION ---> Latest version: $LATEST_VERSION"
