@@ -54,8 +54,9 @@ jobs:
       run: make homebrew-sync-dry-run
 
     - name: License Test
-      if: ${{ env.IS_PUSH == true }}
       run: make license-test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: E2E Tests
       run: make e2e-test
