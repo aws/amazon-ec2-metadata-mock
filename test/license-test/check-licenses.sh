@@ -1,4 +1,4 @@
-et -euo pipefail
+set -euo pipefail
 
 ROOT_PATH="$( cd "$(dirname "$0")" ; pwd -P )/../../"
 EXIT_CODE=0
