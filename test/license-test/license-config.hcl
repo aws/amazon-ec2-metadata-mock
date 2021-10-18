@@ -9,6 +9,7 @@ allow = [
 deny = [
    "GNU General Public License v2.0"
 ]
-translate = {
-
+override = {
+    # License file changed to a non-standard format
+   "github.com/pelletier/go-toml": "MIT"
 }
