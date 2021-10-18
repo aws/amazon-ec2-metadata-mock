@@ -1,7 +1,7 @@
 FROM golang:1.17 as builder
 
 ## GOLANG env
-ARG GOPROXY="direct"
+ARG GOPROXY="https://proxy.golang.org|direct"
 ARG GO111MODULE="on"
 
 # Copy go.mod and download dependencies
