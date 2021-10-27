@@ -160,9 +160,6 @@ docker-push:
 	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
-draft-release-notes:
-	${MAKEFILE_PATH}/scripts/draft-release-notes
-
 create-local-release-tag-major:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -m
 
