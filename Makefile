@@ -7,8 +7,6 @@ ECR_REPO ?= ${ECR_REGISTRY}/amazon-ec2-metadata-mock
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
-DOCKERHUB_USERNAME ?= ""
-DOCKERHUB_TOKEN ?= ""
 GOOS ?= linux
 GOARCH ?= amd64
 GOPROXY ?= "https://proxy.golang.org,direct"
@@ -106,21 +104,14 @@ build-docker-images-windows:
 	${MAKEFILE_PATH}/scripts/build-docker-images -d -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION}
 
 push-docker-images-linux:
-	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
-	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${IMG} -v ${VERSION} -m
 	${MAKEFILE_PATH}/scripts/retag-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -v ${VERSION} -o ${IMG} -n ${ECR_REPO}
 	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_LINUX} -r ${ECR_REPO} -v ${VERSION} -m
 
 push-docker-images-windows:
-	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
-	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${IMG} -v ${VERSION} -m
 	${MAKEFILE_PATH}/scripts/retag-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -v ${VERSION} -o ${IMG} -n ${ECR_REPO}
 	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${ECR_REPO} -v ${VERSION} -m
-
-sync-readme-to-dockerhub:
-	${MAKEFILE_PATH}/scripts/sync-readme-to-dockerhub
 
 sync-readme-to-ecr-public:
 	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
@@ -157,10 +148,6 @@ docker-build:
 
 docker-run:
 	docker run ${IMG_W_TAG}
-
-docker-push:
-	@docker login -u ${DOCKERHUB_USERNAME} -p="${DOCKERHUB_TOKEN}"
-	docker push ${IMG_W_TAG}
 
 ## Targets intended to be run in preparation for a new release
 create-local-release-tag-major:
