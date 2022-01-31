@@ -10,6 +10,22 @@ Amazon EC2 Metadata Mock(AEMM) Helm chart for Kubernetes. For more information o
 
 The helm chart can be installed from several sources. To install the chart with the release name amazon-ec2-metadata-mock and default configuration, pick a source below:
 
+#### eks-charts
+The chart for this project is hosted in [eks-charts](https://github.com/aws/eks-charts).
+
+To get started you need to add the eks-charts repo to helm:
+
+```
+helm repo add eks https://aws.github.io/eks-charts
+```
+
+Then install with desired configs:
+
+```
+helm install amazon-ec2-metadata-mock \
+  --namespace default
+```
+
 #### Local chart archive
 
 Download and Install the chart archive from the latest release

@@ -89,6 +89,9 @@ jobs:
 
       - name: Sync to Homebrew
         run: make homebrew-sync
+      
+      - name: Sync to aws/eks-charts
+        run: make ekscharts-sync-release
 
 
   helmLint:

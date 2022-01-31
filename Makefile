@@ -132,6 +132,9 @@ homebrew-sync-dry-run:
 homebrew-sync:
 	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX}
 
+ekscharts-sync-release:
+	${MAKEFILE_PATH}/scripts/sync-to-aws-eks-charts -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -n
+
 validate-release-version:
 	${MAKEFILE_PATH}/scripts/validators/release-version-validator
 
