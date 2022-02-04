@@ -105,8 +105,8 @@ curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/relea
 
 ### Install w/ Docker
 ```
-docker pull amazon/amazon-ec2-metadata-mock:v1.10.0
-docker run -it --rm -p 1338:1338 amazon/amazon-ec2-metadata-mock:v1.10.0
+docker pull public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.0
+docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.0
 ```
 
 ### On Kubernetes
@@ -236,7 +236,7 @@ services/partition
 spot/instance-action
 spot/termination-time
 ```
-        
+
 
 # Configuration
 AEMM's wide-range of configurability ranges from overriding port numbers to enabling IMDSv2-only to updating specific metadata values and paths.
@@ -245,18 +245,18 @@ These configurations can be loaded from various sources with a deterministic pre
 ## Defaults
 Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **CLI flags**
-  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/server.go#L22) 
+  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/server.go#L22)
 * **Metadata mock responses**
   * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/defaults/aemm-metadata-default-values.json)
 * **Commands**
-  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/events/events.go#L72) 
+  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/events/events.go#L72)
 
 ## Overrides
 AEMM supports configuration from various sources including: cli flags, env variables, and config files. Details regarding
 configuration steps, behavior, and precedence are outlined [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/configuration.md).
 
 # Usage
-AEMM is primarily used as a developer tool to help test behavior related to Metadata Service. Popular use cases include: emulating spot instance interrupts after a designated delay, mocking scheduled maintenance events, IMDSv2 migrations, 
+AEMM is primarily used as a developer tool to help test behavior related to Metadata Service. Popular use cases include: emulating spot instance interrupts after a designated delay, mocking scheduled maintenance events, IMDSv2 migrations,
 and requesting static metadata. This section outlines the common use cases of AEMM; advanced usage and behavior are documented [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md).
 
 ## Spot Interruption
@@ -476,7 +476,7 @@ $ curl -X PUT "localhost:1338/latest/api/token" -H "X-aws-ec2-metadata-token-ttl
 Providing an expired token is synonymous to no token at all resulting in **401 - Unauthorized**.
 
 ## Static Metadata
-Static metadata is classified as instance-specific metadata that is **always** available regardless of which command is used to start the tool. 
+Static metadata is classified as instance-specific metadata that is **always** available regardless of which command is used to start the tool.
 
 Examples of static metadata include *all* [metadata categories](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-categories.html) from the non-dynamic category table (ami-id, instance-id, mac) **except for events and spot categories (classified as commands in AEMM).**
 
@@ -507,12 +507,12 @@ Details on overriding static metadata values and behavior can be found [here](ht
 |Warning: Failed to find home directory due to error: _error string_|Failure to get home directory| working directory is used instead|
 
 # Integrations
-[aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler) uses AEMM in its [e2e test suite](https://github.com/aws/aws-node-termination-handler/tree/master/test/e2e) 
-to mock the metadata service and interrupt events. 
+[aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler) uses AEMM in its [e2e test suite](https://github.com/aws/aws-node-termination-handler/tree/master/test/e2e)
+to mock the metadata service and interrupt events.
 
 In the [NTH imds-v2-test](https://github.com/aws/aws-node-termination-handler/blob/master/test/e2e/imds-v2-test), Helm is used
 to download the latest AEMM release, install it onto the cluster, and start it with imdsv2-only access. NTH then acquires the v2 token from AEMM, consumes the interrupt event, then
-cordons the worker node and evicts the test pod, thus validating NTH functionality. For more details on NTH e2e tests refer to the documentation [here](https://github.com/aws/aws-node-termination-handler/blob/master/test/README.md). 
+cordons the worker node and evicts the test pod, thus validating NTH functionality. For more details on NTH e2e tests refer to the documentation [here](https://github.com/aws/aws-node-termination-handler/blob/master/test/README.md).
 
 # Building
 For build instructions, please consult [BUILD.md](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/BUILD.md)
