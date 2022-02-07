@@ -58,3 +58,5 @@ reservation-id
 security-groups
 services/domain
 services/partition
+tags/instance/Name
+tags/instance/Test
