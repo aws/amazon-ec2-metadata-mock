@@ -85,28 +85,28 @@ brew install ec2-metadata-mock
 
 #### MacOS/Linux
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.0/ec2-metadata-mock-`uname | tr '[:upper:]' '[:lower:]'`-amd64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.1/ec2-metadata-mock-`uname | tr '[:upper:]' '[:lower:]'`-amd64
 chmod +x ec2-metadata-mock
 ```
 
 #### ARM Linux
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.0/ec2-metadata-mock-linux-arm
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.1/ec2-metadata-mock-linux-arm
 ```
 
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.0/ec2-metadata-mock-linux-arm64
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.1/ec2-metadata-mock-linux-arm64
 ```
 
 #### Windows
 ```
-curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.0/ec2-metadata-mock-windows-amd64.exe
+curl -Lo ec2-metadata-mock https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.1/ec2-metadata-mock-windows-amd64.exe
 ```
 
 ### Install w/ Docker
 ```
-docker pull public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.0
-docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.0
+docker pull public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.1
+docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock:v1.10.1
 ```
 
 ### On Kubernetes
@@ -117,7 +117,7 @@ docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock
 [See Helm README here.](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md)
 
 #### kubectl
-kubectl apply -f https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.0/all-resources.yaml
+kubectl apply -f https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.10.1/all-resources.yaml
 
 ## Starting AEMM
 Use `ec2-metadata-mock --help` to view examples and explanations of supported flags and commands:
