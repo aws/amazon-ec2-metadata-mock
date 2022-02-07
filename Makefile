@@ -54,9 +54,6 @@ build: validate-json compile
 unit-test:
 	go test -bench=. ${MAKEFILE_PATH}/... -v -coverprofile=coverage.out -covermode=atomic -outputdir=${BUILD_DIR_PATH}
 
-validate-readme:
-	${MAKEFILE_PATH}/scripts/validators/readme-validator
-
 e2e-test: build
 	${MAKEFILE_PATH}/test/e2e/run-tests
 
