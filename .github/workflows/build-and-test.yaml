@@ -47,9 +47,6 @@ jobs:
     - name: Go Report Card Tests
       run: make go-report-card-test
 
-    - name: Readme Length Validator
-      run: make validate-readme
-
     - name: Brew Sync Dry run
       run: make homebrew-sync-dry-run
 
