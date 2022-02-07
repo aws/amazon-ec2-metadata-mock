@@ -235,6 +235,8 @@ services/domain
 services/partition
 spot/instance-action
 spot/termination-time
+tags/instance/Name
+tags/instance/Test
 ```
 
 

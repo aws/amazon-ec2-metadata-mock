@@ -126,6 +126,8 @@ type Paths struct {
 	Spot                         string `mapstructure:"spot"`
 	SpotTerminationTime          string `mapstructure:"spot-termination-time"`
 	RebalanceRecTime             string `mapstructure:"rebalance-rec-time"`
+	TagsInstanceName             string `mapstructure:"tags-instance-name"`
+	TagsInstanceTest             string `mapstructure:"tags-instance-test"`
 }
 
 // Values represents config used in the mock responses
@@ -188,6 +190,8 @@ type Values struct {
 	SecurityGroups               string                            `mapstructure:"security-groups"`
 	ServicesDomain               string                            `mapstructure:"services-domain"`
 	ServicesPartition            string                            `mapstructure:"services-partition"`
+	TagsInstanceName             string                            `mapstructure:"tags-instance-name"`
+	TagsInstanceTest             string                            `mapstructure:"tags-instance-test"`
 }
 
 // DynamicPaths represents EC2 dynamic paths

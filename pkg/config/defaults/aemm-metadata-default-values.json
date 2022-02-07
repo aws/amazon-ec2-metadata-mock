@@ -61,7 +61,9 @@
       "services-partition": "/latest/meta-data/services/partition",
       "spot": "/latest/meta-data/spot/instance-action",
       "spot-termination-time": "/latest/meta-data/spot/termination-time",
-      "rebalance-rec-time": "/latest/meta-data/events/recommendations/rebalance"
+      "rebalance-rec-time": "/latest/meta-data/events/recommendations/rebalance",
+      "tags-instance-name": "/latest/meta-data/tags/instance/Name",
+      "tags-instance-test": "/latest/meta-data/tags/instance/Test"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",
@@ -117,6 +119,8 @@
       "security-groups": "ura-launch-wizard-harry-1",
       "services-domain": "amazonaws.com",
       "services-partition": "aws",
+      "tags-instance-name": "test-instance",
+      "tags-instance-test": "test-tag",
       "iam-info": {
         "Code": "Success",
         "LastUpdated": "2020-04-02T18:50:40Z",

@@ -83,3 +83,5 @@ reservation-id | r-046cb3eca3e201d2f
 security-groups | ura-launch-wizard-harry-1
 services-domain | amazonaws.com
 services-partition | aws
+tags-instance-name | test-instance
+tags-instance-test | test-tag
