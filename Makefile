@@ -69,16 +69,13 @@ helm-mock-ip-count-test:
 license-test:
 	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
 
-go-report-card-test:
-	${MAKEFILE_PATH}/test/go-report-card-test/run-report-card-test.sh
-
 shellcheck:
 	${MAKEFILE_PATH}/test/shellcheck/run-shellcheck
 
 spellcheck:
 	${MAKEFILE_PATH}/test/readme-test/run-readme-spellcheck
 
-test: spellcheck shellcheck unit-test e2e-test helm-install-e2e-test license-test go-report-card-test
+test: spellcheck shellcheck unit-test e2e-test helm-install-e2e-test license-test
 
 build-binaries:
 	${MAKEFILE_PATH}/scripts/build-binaries -d -p ${SUPPORTED_PLATFORMS_LINUX},${SUPPORTED_PLATFORMS_WINDOWS} -v ${VERSION}
