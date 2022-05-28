@@ -120,6 +120,14 @@ func FormatAndReturnTextResponse(res http.ResponseWriter, data string) {
 	return
 }
 
+// FormatAndReturnOctetResponse formats the given data as plaintext and returns the response
+func FormatAndReturnOctetResponse(res http.ResponseWriter, data string) {
+	res.Header().Set("Content-Type", "application/octet-stream")
+	res.Write([]byte(data))
+	log.Println("Returned text mock response successfully.")
+	return
+}
+
 // FormatAndReturnJSONTextResponse formats the given data into JSON and returns a plaintext response
 func FormatAndReturnJSONTextResponse(res http.ResponseWriter, data interface{}) {
 	res.Header().Set("Content-Type", "text/plain")

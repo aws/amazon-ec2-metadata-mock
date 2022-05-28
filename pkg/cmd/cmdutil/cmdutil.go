@@ -26,6 +26,7 @@ import (
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/spot"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/userdata"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 
 	"github.com/spf13/cobra"
@@ -91,6 +92,7 @@ func RegisterHandlers(cmd *cobra.Command, config cfg.Config) {
 
 	static.RegisterHandlers(config)
 	dynamic.RegisterHandlers(config)
+	userdata.RegisterHandlers(config)
 
 	// paths without explicit handler bindings will fallback to CatchAllHandler
 	server.HandleFuncPrefix("/", handlers.CatchAllHandler)
@@ -104,6 +106,7 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 		{path: "/latest", handler: handlers.ListRoutesHandler},
 		{path: static.ServicePath, handler: handlers.ListRoutesHandler},
 		{path: dynamic.ServicePath, handler: handlers.ListRoutesHandler},
+		{path: userdata.ServicePath, handler: handlers.ListRoutesHandler},
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")
