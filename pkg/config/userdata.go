@@ -1,4 +1,4 @@
-// Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -25,11 +25,7 @@ var (
 	udValuesCfgPrefix = udCfgPrefix + "values."
 
 	// mapping of udValue KEYS to udPath KEYS requiring path substitutions on override
-	udValueToPlaceholderPathsKeyMap = map[string][]string{
-		// ex: "metadata.values.mac-address" : {"metadata.paths.network-interface-id", "metadata.paths.device-index", ...}
-		//	udValuesCfgPrefix + publicIpv4: {
-		//	udPathsCfgPrefix + macIpv4Associations}
-	}
+	udValueToPlaceholderPathsKeyMap = map[string][]string{}
 
 	// supported URL paths to run a mock
 	udPathsDefaults = map[string]interface{}{}
@@ -38,22 +34,22 @@ var (
 	udValuesDefaults = map[string]interface{}{}
 )
 
-// GetCfgUdValPrefix returns the prefix to use to access metadata values in config
+// GetCfgUdValPrefix returns the prefix to use to access userdata values in config
 func GetCfgUdValPrefix() string {
 	return udCfgPrefix + "." + udValuesCfgPrefix + "."
 }
 
-// GetCfgUdPathsPrefix returns the prefix to use to access metadata values in config
+// GetCfgUdPathsPrefix returns the prefix to use to access userdata values in config
 func GetCfgUdPathsPrefix() string {
 	return udCfgPrefix + "." + udPathsCfgPrefix + "."
 }
 
-// BindUserdataCfg binds a flag that represents a metadata value to configuration
+// BindUserdataCfg binds a flag that represents a userdata value to configuration
 func BindUserdataCfg(flag *pflag.Flag) {
 	bindFlagWithKeyPrefix(flag, udValuesCfgPrefix)
 }
 
-// SetUserdataDefaults sets config defaults for metadata paths and values
+// SetUserdataDefaults sets config defaults for userdata paths and values
 func SetUserdataDefaults(jsonWithDefaults []byte) {
 	// Unmarshal to map to preserve keys for Paths and Values
 	var defaultsMap map[string]interface{}
@@ -78,7 +74,7 @@ func SetUserdataDefaults(jsonWithDefaults []byte) {
 	LoadConfigFromDefaults(udValuesDefaults)
 }
 
-// GetUserdataDefaults returns config defaults for metadata paths and values
+// GetUserdataDefaults returns config defaults for userdata paths and values
 func GetUserdataDefaults() (map[string]interface{}, map[string]interface{}) {
 	return udPathsDefaults, udValuesDefaults
 }

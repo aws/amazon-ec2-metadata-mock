@@ -178,10 +178,10 @@
   },
   "userdata": {
     "paths": {
-      "userdata": "/latest/user-data/a"
+      "userdata": "/latest/user-data"
     },
     "values": {
-      "userdata": "/bin/bash aws sts get-caller-identity"
+      "userdata": "#!/bin/bash \n #"
     }
   }
 }

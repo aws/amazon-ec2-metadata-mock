@@ -120,7 +120,7 @@ func FormatAndReturnTextResponse(res http.ResponseWriter, data string) {
 	return
 }
 
-// FormatAndReturnOctetResponse formats the given data as plaintext and returns the response
+// FormatAndReturnOctetResponse formats the given data into an octet stream and returns the response
 func FormatAndReturnOctetResponse(res http.ResponseWriter, data string) {
 	res.Header().Set("Content-Type", "application/octet-stream")
 	res.Write([]byte(data))

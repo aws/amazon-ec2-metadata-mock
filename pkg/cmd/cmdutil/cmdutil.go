@@ -106,7 +106,6 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 		{path: "/latest", handler: handlers.ListRoutesHandler},
 		{path: static.ServicePath, handler: handlers.ListRoutesHandler},
 		{path: dynamic.ServicePath, handler: handlers.ListRoutesHandler},
-		{path: userdata.ServicePath, handler: handlers.ListRoutesHandler},
 	}
 
 	isSpot := strings.Contains(cmd.Name(), "spot")

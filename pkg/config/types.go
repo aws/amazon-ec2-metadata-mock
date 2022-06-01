@@ -59,7 +59,7 @@ type Metadata struct {
 	Values Values `mapstructure:"values"`
 }
 
-// Userdatadata represents userdata config used by the mock (Json values in metadata-config.json)
+// Userdata represents userdata config used by the mock (Json values in metadata-config.json)
 type Userdata struct {
 	Paths  UserdataPaths  `mapstructure:"paths"`
 	Values UserdataValues `mapstructure:"values"`

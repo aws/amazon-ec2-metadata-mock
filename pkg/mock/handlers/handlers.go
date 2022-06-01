@@ -30,7 +30,6 @@ const (
 	shortestRouteLength = 4
 	versionsPath        = "/"
 	latestPath          = "/latest"
-	userdataPath        = "/latest/user-data"
 )
 
 var (
@@ -131,14 +130,14 @@ func ListRoutesHandler(res http.ResponseWriter, req *http.Request) {
 
 	// these paths do not use routeLookupTable due to inconsistency of trailing "/" with IMDS
 	switch req.URL.Path {
+	case userdata.ServicePath:
+		server.FormatAndReturnOctetResponse(res, strings.Join(trimmedRoutesUserdata, "\n")+"\n")
 	case static.ServicePath:
 		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutes, "\n")+"\n")
 	case dynamic.ServicePath:
 		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutesDynamic, "\n")+"\n")
 	case latestPath:
 		server.FormatAndReturnTextResponse(res, strings.Join(supportedCategories, "\n")+"\n")
-	case userdataPath:
-		server.FormatAndReturnOctetResponse(res, strings.Join(trimmedRoutesUserdata, "\n")+"\n")
 	case versionsPath:
 		server.FormatAndReturnTextResponse(res, strings.Join(supportedVersions, "\n")+"\n")
 	default:

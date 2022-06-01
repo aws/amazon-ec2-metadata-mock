@@ -14,7 +14,6 @@
 package userdata
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"reflect"
@@ -33,7 +32,7 @@ var (
 
 // Handler processes http requests
 func Handler(res http.ResponseWriter, req *http.Request) {
-	log.Println("Received request to mock static userdata:", req.URL.Path)
+	log.Println("Received request to mock userdata:", req.URL.Path)
 
 	if val, ok := supportedPaths[req.URL.Path]; ok {
 
@@ -41,7 +40,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	} else {
 		response = "Something went wrong with: " + req.URL.Path
 	}
-	server.FormatAndReturnTextResponse(res, response.(string))
+	server.FormatAndReturnOctetResponse(res, response.(string))
 
 }
 
@@ -60,16 +59,13 @@ func RegisterHandlers(config cfg.Config) {
 		if udValueFieldName.IsValid() {
 			path := pathValues.Field(i).Interface().(string)
 			value := udValueFieldName.Interface()
-			fmt.Printf("%s %s", path, value)
 			if path != "" && value != nil {
 				// Ex: "/latest/meta-data/instance-id" : "i-1234567890abcdef0"
 				supportedPaths[path] = value
 				if config.Imdsv2Required {
-					fmt.Printf("a%s", path)
 					server.HandleFunc(path, imdsv2.ValidateToken(Handler))
 				} else {
 
-					fmt.Printf("b%s", path)
 					server.HandleFunc(path, Handler)
 				}
 			} else {
