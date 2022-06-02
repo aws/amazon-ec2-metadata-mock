@@ -31,5 +31,13 @@
         "instanceType": "m4.xlarge",
         "region": "us-east-1"      }
     }
+  },
+  "userdata": {
+    "paths": {
+      "userdata": "/latest/user-data"
+    },
+    "values": {
+      "userdata": "#!/bin/bash \n #"
+    }
   }
 }
