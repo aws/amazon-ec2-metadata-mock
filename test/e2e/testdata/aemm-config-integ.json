@@ -37,7 +37,7 @@
       "userdata": "/latest/user-data"
     },
     "values": {
-      "userdata": "#!/bin/bash \n #"
+      "userdata": "1234,john,reboot,true | 4512,richard, | 173,,,"
     }
   }
 }

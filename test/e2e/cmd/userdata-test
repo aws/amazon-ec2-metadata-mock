@@ -18,7 +18,7 @@ function test_userdata_defaults() {
   health_check $test_url
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
-  actual_userdata=$(curl -s -H "X-aws-ec2-userdata-token: $TOKEN" $USERDATA_TEST_PATH)
+  actual_userdata=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $USERDATA_TEST_PATH)
   assert_value "$actual_userdata" $USERDATA_DEFAULT "userdata $test_name"
 
   clean_up $pid
@@ -32,7 +32,7 @@ function test_userdata_overrides() {
   health_check $test_url
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
-  updated_userdata=$(curl -s -H "X-aws-ec2-userdata-token: $TOKEN" $USERDATA_TEST_PATH)
+  updated_userdata=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $USERDATA_TEST_PATH)
   assert_value "$updated_userdata" $USERDATA_OVERRIDDEN "userdata $test_name"
 
   clean_up $pid
@@ -45,7 +45,7 @@ echo "==========================================================================
 
 
 # userdata data defaults
-start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
 $start_cmd &
 USERDATA_PID=$!
 test_userdata_defaults $USERDATA_PID $USERDATA_TEST_PATH $USERDATA_DEFAULT

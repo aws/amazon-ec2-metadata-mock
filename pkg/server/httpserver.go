@@ -124,7 +124,7 @@ func FormatAndReturnTextResponse(res http.ResponseWriter, data string) {
 func FormatAndReturnOctetResponse(res http.ResponseWriter, data string) {
 	res.Header().Set("Content-Type", "application/octet-stream")
 	res.Write([]byte(data))
-	log.Println("Returned text mock response successfully.")
+	log.Println("Returned octet stream response successfully.")
 	return
 }
 
