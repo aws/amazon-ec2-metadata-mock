@@ -4,8 +4,8 @@ set -euo pipefail
 
 TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
 
-USERDATA_DEFAULT="#!/bin/bash \n #"
-USERDATA_OVERRIDDEN="#!/bin/bash"
+USERDATA_DEFAULT="1234,john,reboot,true|4512,richard,|173,,,"
+USERDATA_OVERRIDDEN="1234"
 
 ROOT_PATH="http://$HOSTNAME:$AEMM_PORT"
 USERDATA_TEST_PATH="$ROOT_PATH/latest/user-data"

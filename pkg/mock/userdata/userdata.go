@@ -46,8 +46,6 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 // RegisterHandlers registers handlers for userdata paths
 func RegisterHandlers(config cfg.Config) {
-	server.HandleFunc("/latest/api/token", imdsv2.GenerateToken)
-
 	pathValues := reflect.ValueOf(config.Userdata.Paths)
 	udValues := reflect.ValueOf(config.Userdata.Values)
 	// Iterate over fields in config.Userdata.Paths to

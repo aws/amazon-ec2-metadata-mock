@@ -181,7 +181,7 @@
       "userdata": "/latest/user-data"
     },
     "values": {
-      "userdata": "1234,john,reboot,true | 4512,richard, | 173,,,"
+      "userdata": "1234,john,reboot,true|4512,richard,|173,,,"
     }
   }
 }
