@@ -66,7 +66,7 @@ func SetUserdataDefaults(jsonWithDefaults []byte) {
 
 	for k, v := range udValues {
 		newKey := udValuesCfgPrefix + k
-		// ex: "userdata": "#!/bin/bash"
+		// ex: "userdata": "1234,john,reboot,true|4512,richard,|173,,,"
 		udValuesDefaults[newKey] = v
 	}
 
