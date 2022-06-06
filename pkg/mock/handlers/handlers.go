@@ -21,6 +21,7 @@ import (
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/static"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/userdata"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
 
@@ -35,11 +36,12 @@ var (
 	routeLookupTable = make(map[string][]string)
 
 	supportedVersions   = []string{"latest"}
-	supportedCategories = []string{"dynamic", "meta-data"}
+	supportedCategories = []string{"dynamic", "meta-data", "user-data"}
 
 	// trimmedRoutes represents the list of routes served by the http server without "latest/meta-data/" prefix
-	trimmedRoutes        []string
-	trimmedRoutesDynamic []string
+	trimmedRoutes         []string
+	trimmedRoutesDynamic  []string
+	trimmedRoutesUserdata []string
 )
 
 // CatchAllHandler returns subpath listings, if available; 404 status code otherwise
@@ -62,6 +64,10 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 		trimmedRoute = strings.TrimPrefix(trimmedRoute, dynamic.ServicePath+"/")
 		log.Println("dynamic prefix detected..trimming: ", trimmedRoute)
 		routes = trimmedRoutesDynamic
+	} else if strings.HasPrefix(trimmedRoute, userdata.ServicePath) {
+		trimmedRoute = strings.TrimPrefix(trimmedRoute, userdata.ServicePath+"/")
+		log.Println("userdata prefix detected..trimming: ", trimmedRoute)
+		routes = trimmedRoutesUserdata
 	} else {
 		server.ReturnNotFoundResponse(res)
 		return
@@ -124,6 +130,8 @@ func ListRoutesHandler(res http.ResponseWriter, req *http.Request) {
 
 	// these paths do not use routeLookupTable due to inconsistency of trailing "/" with IMDS
 	switch req.URL.Path {
+	case userdata.ServicePath:
+		server.FormatAndReturnOctetResponse(res, strings.Join(trimmedRoutesUserdata, "\n")+"\n")
 	case static.ServicePath:
 		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutes, "\n")+"\n")
 	case dynamic.ServicePath:
@@ -142,15 +150,24 @@ func formatRoutes() {
 	var trimmedRoute string
 	for _, route := range server.Routes {
 		if strings.HasPrefix(route, dynamic.ServicePath) {
-			// Omit /latest/dynamic
+			// Omit /latest/dynamic and /latest/user-data
 			trimmedRoute = strings.TrimPrefix(route, dynamic.ServicePath)
 			// Omit empty paths and "/"
 			if len(trimmedRoute) >= shortestRouteLength {
 				trimmedRoute = strings.TrimPrefix(trimmedRoute, "/")
 				trimmedRoutesDynamic = append(trimmedRoutesDynamic, trimmedRoute)
 			}
+		} else if strings.HasPrefix(route, userdata.ServicePath) {
+			// Omit /latest/dynamic and /latest/meta-data
+			trimmedRoute = strings.TrimPrefix(route, userdata.ServicePath)
+			// Omit empty paths and "/"
+			if len(trimmedRoute) >= shortestRouteLength {
+				trimmedRoute = strings.TrimPrefix(trimmedRoute, "/")
+				trimmedRoutesUserdata = append(trimmedRoutesUserdata, trimmedRoute)
+			}
+
 		} else {
-			// Omit /latest/meta-data
+			// Omit /latest/meta-data and /latest/user-data
 			trimmedRoute = strings.TrimPrefix(route, static.ServicePath)
 			// Omit empty paths and "/"
 			if len(trimmedRoute) >= shortestRouteLength {
@@ -161,4 +178,5 @@ func formatRoutes() {
 	}
 	sort.Sort(sort.StringSlice(trimmedRoutes))
 	sort.Sort(sort.StringSlice(trimmedRoutesDynamic))
+	sort.Sort(sort.StringSlice(trimmedRoutesUserdata))
 }

@@ -1,0 +1,59 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
+
+USERDATA_DEFAULT="1234,john,reboot,true|4512,richard,|173,,,"
+USERDATA_OVERRIDDEN="1234"
+
+ROOT_PATH="http://$HOSTNAME:$AEMM_PORT"
+USERDATA_TEST_PATH="$ROOT_PATH/latest/user-data"
+
+function test_userdata_defaults() {
+  pid=$1
+  test_url=$2
+  test_name=$3
+  tput setaf $BLUE
+  health_check $test_url
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_userdata=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $USERDATA_TEST_PATH)
+  assert_value "$actual_userdata" $USERDATA_DEFAULT "userdata $test_name"
+
+  clean_up $pid
+}
+
+function test_userdata_overrides() {
+  pid=$1
+  test_url=$2
+  test_name=$3
+  tput setaf $BLUE
+  health_check $test_url
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  updated_userdata=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $USERDATA_TEST_PATH)
+  assert_value "$updated_userdata" $USERDATA_OVERRIDDEN "userdata $test_name"
+
+  clean_up $pid
+}
+
+tput setaf $BLUE
+echo "======================================================================================================"
+echo "🥑 Starting userdata integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+
+# userdata data defaults
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+USERDATA_PID=$!
+test_userdata_defaults $USERDATA_PID $USERDATA_TEST_PATH $USERDATA_DEFAULT
+
+# userdata data overrides
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT -c $TEST_CONFIG_FILE)
+$start_cmd &
+USERDATA_PID=$!
+test_userdata_overrides $USERDATA_PID $USERDATA_TEST_PATH $USERDATA_OVERRIDDEN
+
+exit $EXIT_CODE_TO_RETURN

@@ -175,5 +175,13 @@
       "instance-identity-signature": "TesTTKmBbj+DUw6ut6BOr4mFGpax/k6BhIbsotUHvSIhqv7oKqwB4HZhgGP2Gvcxtz5m3QGUbnwI\nhy33GWxjn7+qfZ/GUeZB1Ilc+3rW/P9G/tGxIB3HtqB6q2J6B4DOh6CJiH+BnrHazGW+bJD406Nz\neP9n/rGEGGm0cGEbbeB=",
       "fws-instance-monitoring": "disabled"
     }
+  },
+  "userdata": {
+    "paths": {
+      "userdata": "/latest/user-data"
+    },
+    "values": {
+      "userdata": "1234,john,reboot,true|4512,richard,|173,,,"
+    }
   }
 }

@@ -95,7 +95,8 @@
       "services-domain": "/latest/meta-data/services/domain",
       "services-partition": "/latest/meta-data/services/partition",
       "spot": "/latest/meta-data/spot/instance-action",
-      "spot-termination-time": "/latest/meta-data/spot/termination-time"
+      "spot-termination-time": "/latest/meta-data/spot/termination-time",
+      "userdata": "/latest/user-data"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",
@@ -173,7 +174,8 @@
       "reservation-id": "r-046cb3eca3e201d2f",
       "security-groups": "ura-launch-wizard-harry-1",
       "services-domain": "amazonaws.com",
-      "services-partition": "aws"
+      "services-partition": "aws",
+      "userdata": "1234,john,reboot,true|4512,richard,|173,,,"
     }
   },
   "mock-delay-sec": 0,

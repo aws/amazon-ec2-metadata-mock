@@ -24,6 +24,8 @@ import (
 type Config struct {
 	// ----- metadata config ----- //
 	Metadata Metadata `mapstructure:"metadata"`
+	// ----- userdata config ----- //
+	Userdata Userdata `mapstructure:"userdata"`
 
 	// ----- CLI config ----- //
 	// config keys that are also cli flags
@@ -55,6 +57,12 @@ type Server struct {
 type Metadata struct {
 	Paths  Paths  `mapstructure:"paths"`
 	Values Values `mapstructure:"values"`
+}
+
+// Userdata represents userdata config used by the mock (Json values in metadata-config.json)
+type Userdata struct {
+	Paths  UserdataPaths  `mapstructure:"paths"`
+	Values UserdataValues `mapstructure:"values"`
 }
 
 // Dynamic represents metadata config used by the mock (Json values in metadata-config.json)
@@ -192,6 +200,16 @@ type Values struct {
 	ServicesPartition            string                            `mapstructure:"services-partition"`
 	TagsInstanceName             string                            `mapstructure:"tags-instance-name"`
 	TagsInstanceTest             string                            `mapstructure:"tags-instance-test"`
+}
+
+// UserdataPaths represents EC2 userdata paths
+type UserdataPaths struct {
+	Userdata string `mapstructure:"userdata"`
+}
+
+// UserdataValues represents EC2 userdata paths
+type UserdataValues struct {
+	Userdata string `mapstructure:"userdata"`
 }
 
 // DynamicPaths represents EC2 dynamic paths
