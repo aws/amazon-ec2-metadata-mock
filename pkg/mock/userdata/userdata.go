@@ -14,6 +14,8 @@
 package userdata
 
 import (
+	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"reflect"
@@ -59,6 +61,13 @@ func RegisterHandlers(config cfg.Config) {
 			value := udValueFieldName.Interface()
 			if path != "" && value != nil {
 				// Ex: "/latest/meta-data/instance-id" : "i-1234567890abcdef0"
+				bvalue, err := base64.StdEncoding.DecodeString(config.Userdata.Values.Userdata)
+				value = string(bvalue)
+
+				if err != nil {
+					fmt.Println("There was an issue decoding base64 data from config")
+					panic(err)
+				}
 				supportedPaths[path] = value
 				if config.Imdsv2Required {
 					server.HandleFunc(path, imdsv2.ValidateToken(Handler))

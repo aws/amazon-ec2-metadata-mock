@@ -175,7 +175,7 @@
       "security-groups": "ura-launch-wizard-harry-1",
       "services-domain": "amazonaws.com",
       "services-partition": "aws",
-      "userdata": "1234,john,reboot,true|4512,richard,|173,,,"
+      "userdata": "MTIzNCxqb2huLHJlYm9vdCx0cnVlCg=="
     }
   },
   "mock-delay-sec": 0,
