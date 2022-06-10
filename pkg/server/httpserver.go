@@ -14,7 +14,6 @@
 package server
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -124,12 +123,6 @@ func FormatAndReturnTextResponse(res http.ResponseWriter, data string) {
 // FormatAndReturnOctetResponse formats the given data into an octet stream and returns the response
 func FormatAndReturnOctetResponse(res http.ResponseWriter, data string) {
 	res.Header().Set("Content-Type", "application/octet-stream")
-	b64d, err := base64.StdEncoding.DecodeString(data)
-	if err != nil {
-		data = ""
-	} else {
-		data = string(b64d)
-	}
 	res.Write([]byte(data))
 	log.Println("Returned octet stream response successfully.")
 	return
