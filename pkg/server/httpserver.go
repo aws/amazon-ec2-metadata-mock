@@ -107,6 +107,10 @@ func FormatAndReturnJSONResponse(res http.ResponseWriter, data interface{}) {
 	if metadataPrettyJSON, err = json.MarshalIndent(data, "", "\t"); err != nil {
 		log.Fatalf("Error while attempting to format data %s for response: %s", data, err)
 	}
+
+	// In order to align with IMDS formatting, it is necessary to indent the response
+	// EXCEPT FOR values of type list, ex: marketplaceProductCodes
+	metadataPrettyJSON = removeIndentFromLists(metadataPrettyJSON)
 	res.Write(metadataPrettyJSON)
 	log.Println("Returned JSON mock response successfully.")
 	return
@@ -168,4 +172,37 @@ func trailingSlashMiddleware(pathHandler http.Handler) http.Handler {
 		}
 		pathHandler.ServeHTTP(w, r)
 	})
+}
+
+// removeIndentFromLists takes a JSON encoding and
+// removes indentation from list elements
+func removeIndentFromLists(bytes []byte) []byte {
+	strInput := string(bytes)
+	i := strings.Index(strInput, "[")
+	j := strings.Index(strInput, "]")
+	if i == 0 {
+		// the JSON encoding is a list itself, ex: scheduled maintenance events
+		// do not process unless the list is an element
+		// WITHIN the JSON blob
+		return bytes
+	}
+	for i != -1 && j != -1 {
+		// ex: [
+		//	"4i20ezfza3p7xx2kt2g8weu2u"
+		//	]
+		listVal := strInput[i : j+1]
+		listValNoFormat := strings.ReplaceAll(listVal, "\t", "")
+		listValNoFormat = strings.ReplaceAll(listValNoFormat, "\n", "")
+
+		// replace indented value with unformatted list, ex: ["4i20ezfza3p7xx2kt2g8weu2u"]
+		strInput = strings.Replace(strInput, listVal, "", 1)
+		strInput = strInput[:i] + listValNoFormat + "," + strInput[i+1:]
+
+		// find the next list element
+		listValIndex := strings.Index(strInput, listValNoFormat)
+		remainingString := strInput[listValIndex+len(listValNoFormat)+1:]
+		i = strings.Index(remainingString, "[")
+		j = strings.Index(remainingString, "]")
+	}
+	return []byte(strInput)
 }

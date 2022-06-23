@@ -45,6 +45,7 @@ function test_dynamic_idc_overrides() {
   pid=$1
   expected_account_id=$2
   expected_instance_id=$3
+  expected_mp_codes=[\""4i20ezfza3p7xx2kt2g8weu2u\""]
   tput setaf $YELLOW
   health_check $DYNAMIC_TEST_PATH
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
@@ -52,9 +53,12 @@ function test_dynamic_idc_overrides() {
   response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_IDC_TEST_PATH)
   actual_account_id=$(get_value '"accountId"' "$response")
   actual_instance_id=$(get_value '"instanceId"' "$response")
+  # use '--compact-output' to return the value on a single line (i.e. do not pretty print)  
+  actual_marketplace_codes=$(echo "$response" | jq -c '.marketplaceProductCodes')
 
   assert_value "$actual_account_id" $expected_account_id 'Override dynamic_idc::accountId'
   assert_value "$actual_instance_id" $expected_instance_id 'Override dynamic_idc::instanceId'
+  assert_value "$actual_marketplace_codes" "$expected_mp_codes" 'Override dynamic_idc::marketplaceProductCodes'
 
   clean_up $pid
 }

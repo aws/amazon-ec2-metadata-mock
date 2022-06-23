@@ -21,7 +21,7 @@
         "ramdiskId": null,
         "kernelId": null,
         "devpayProductCodes": null,
-        "marketplaceProductCodes": null,
+        "marketplaceProductCodes": ["4i20ezfza3p7xx2kt2g8weu2u"],
         "version": "2017-09-30",
         "privateIp": "10.0.7.10",
         "billingProducts": null,
