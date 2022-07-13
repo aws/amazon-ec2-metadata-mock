@@ -1,9 +1,9 @@
 name: Helm Chart Tests
 
 on:
-  # Run M-F at 5AM CDT
+  # Run M-F at 2pm CDT
   schedule:
-    - cron: '0 10 * * 1-5'
+    - cron: '0 19 * * 1-5'
 
 jobs:
   chartTests:
