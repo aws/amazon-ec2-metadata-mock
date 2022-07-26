@@ -3,7 +3,13 @@
 set -euo pipefail
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-JSON_FILES=$(find $SCRIPTPATH/../../ -name "*.json" -type f)
+# Find all JSON files but ignore any that are also ignored by git (e.g. IDE settings files).
+JSON_FILES=$(find \
+  $SCRIPTPATH/../../ \
+  -name "*.json" \
+  -type f \
+  -not -exec git check-ignore --quiet {} \; \
+  -print)
 FAILED_FILES=()
 
 if [[ -z `which python` ]] && [[ ! -z `which python3` ]]; then
