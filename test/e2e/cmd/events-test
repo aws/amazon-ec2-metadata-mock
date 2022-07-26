@@ -18,9 +18,23 @@ function test_events_paths() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
-  expected_paths=$(cat $SCRIPTPATH/golden/events_paths.golden)
+  expected_paths=$(cat $SCRIPTPATH/golden/events/latest/meta-data/index.golden)
 
   assert_value "$actual_paths" "$expected_paths" "test_events_paths"
+
+  clean_up $pid
+}
+
+function test_events_subpath() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $EVENTS_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11)
+  expected_paths=$(cat $SCRIPTPATH/golden/events/latest/meta-data/network/interfaces/macs/0e_49_61_0f_c3_11/index.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_events_paths::/network/interfaces/macs/0e:49:61:0f:c3:11"
 
   clean_up $pid
 }
@@ -138,6 +152,11 @@ start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT)
 $start_cmd &
 EVENTS_PID=$!
 test_events_paths $EVENTS_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION events --port $AEMM_PORT)
+$start_cmd &
+EVENTS_PID=$!
+test_events_subpath $EVENTS_PID
 
 $start_cmd &
 EVENTS_PID=$!

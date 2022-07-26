@@ -18,9 +18,38 @@ function test_dynamic_paths() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_TEST_PATH)
-  expected_paths=$(cat $SCRIPTPATH/golden/dynamic_paths.golden)
+  expected_paths=$(cat $SCRIPTPATH/golden/dynamic/index.golden)
 
   assert_value "$actual_paths" "$expected_paths" "test_dynamic_paths"
+
+  clean_up $pid
+}
+
+function test_dynamic_subpath_fws() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $DYNAMIC_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_TEST_PATH/fws)
+  expected_paths=$(cat $SCRIPTPATH/golden/dynamic/fws.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_dynamic_subpath::/latest/dynamic/fws"
+
+  clean_up $pid
+}
+
+
+function test_dynamic_subpath_instance-identity() {
+  pid=$1
+  tput setaf $YELLOW
+  health_check $DYNAMIC_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $DYNAMIC_TEST_PATH/instance-identity)
+  expected_paths=$(cat $SCRIPTPATH/golden/dynamic/instance-identity.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_dynamic_subpath::/latest/dynamic/instance-identity"
 
   clean_up $pid
 }
@@ -72,6 +101,16 @@ start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
 $start_cmd &
 DYNAMIC_PID=$!
 test_dynamic_paths $DYNAMIC_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+DYNAMIC_PID=$!
+test_dynamic_subpath_fws $DYNAMIC_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT)
+$start_cmd &
+DYNAMIC_PID=$!
+test_dynamic_subpath_instance-identity $DYNAMIC_PID
 
 $start_cmd &
 DYNAMIC_PID=$!

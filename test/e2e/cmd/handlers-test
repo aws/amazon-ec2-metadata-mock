@@ -14,7 +14,7 @@ function test_subpaths() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_subpaths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TEST_PATH)
-  expected_subpaths=$(cat $SCRIPTPATH/golden/spot_subpaths.golden)
+  expected_subpaths=$(cat $SCRIPTPATH/golden/spot/latest/meta-data/spot.golden)
 
   assert_value "$actual_subpaths" "$expected_subpaths" "test_spot_subpaths"
 
@@ -28,7 +28,7 @@ function test_trailing_slash() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_subpaths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $SPOT_TEST_PATH_TRAILING)
-  expected_subpaths=$(cat $SCRIPTPATH/golden/spot_subpaths.golden)
+  expected_subpaths=$(cat $SCRIPTPATH/golden/spot/latest/meta-data/spot.golden)
   assert_value "$actual_subpaths" "$expected_subpaths" "test_spot_subpaths_trailing"
 
 
