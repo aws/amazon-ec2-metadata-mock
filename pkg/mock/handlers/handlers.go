@@ -52,7 +52,7 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 		formatRoutes()
 	}
 
-	var routes, results []string
+	var routes []string
 
 	// Clean request path and determine which route list to search
 	trimmedRoute := req.URL.Path
@@ -85,34 +85,25 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 		ex: iam/security-credentials/baskinc-role should not be added because security-credentials/ already exists
 		results are cached in routeLookupTable
 	*/
-	appendToResults := true
+	resultSet := map[string]bool{}
 	for _, route := range routes {
 		if strings.Contains(route, trimmedRoute) {
 			// ex: iam/security-credentials contains iam
 			route = strings.TrimPrefix(route, trimmedRoute+"/")
-			// route is now security-credentials
-			for i, existingRoute := range results {
-				if strings.Contains(route, existingRoute) {
-					// security-credentials/baskinc-role contains security-credentials
-					results[i] = existingRoute + "/"
-					// display as security-credentials/
-					appendToResults = false
-					// do not add security-credentials/baskinc-role to results
-					break
-				}
-			}
-			if appendToResults {
-				log.Printf("adding route: %s to results\n", route)
-				results = append(results, route)
-			}
-			appendToResults = true
+			resultSet[trimRoute(route)] = true
 		}
 	}
 
-	if len(results) <= 0 {
+	if len(resultSet) <= 0 {
 		server.ReturnNotFoundResponse(res)
 		return
 	}
+
+	results := make([]string, 0, len(resultSet))
+	for key := range resultSet {
+		results = append(results, key)
+	}
+	sort.Strings(results)
 
 	routeLookupTable[trimmedRoute] = results
 	log.Printf("CatchAllHandler: adding  %s  and its routes: %v to the map\n", trimmedRoute, results)
@@ -133,9 +124,9 @@ func ListRoutesHandler(res http.ResponseWriter, req *http.Request) {
 	case userdata.ServicePath:
 		server.FormatAndReturnOctetResponse(res, strings.Join(trimmedRoutesUserdata, "\n")+"\n")
 	case static.ServicePath:
-		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutes, "\n")+"\n")
+		server.FormatAndReturnTextResponse(res, strings.Join(trimAndSortRoutes(trimmedRoutes), "\n")+"\n")
 	case dynamic.ServicePath:
-		server.FormatAndReturnTextResponse(res, strings.Join(trimmedRoutesDynamic, "\n")+"\n")
+		server.FormatAndReturnTextResponse(res, strings.Join(trimAndSortRoutes(trimmedRoutesDynamic), "\n")+"\n")
 	case latestPath:
 		server.FormatAndReturnTextResponse(res, strings.Join(supportedCategories, "\n")+"\n")
 	case versionsPath:
@@ -166,8 +157,7 @@ func formatRoutes() {
 				trimmedRoutesUserdata = append(trimmedRoutesUserdata, trimmedRoute)
 			}
 
-		} else {
-			// Omit /latest/meta-data and /latest/user-data
+		} else if strings.HasPrefix(route, static.ServicePath) {
 			trimmedRoute = strings.TrimPrefix(route, static.ServicePath)
 			// Omit empty paths and "/"
 			if len(trimmedRoute) >= shortestRouteLength {
@@ -179,4 +169,28 @@ func formatRoutes() {
 	sort.Sort(sort.StringSlice(trimmedRoutes))
 	sort.Sort(sort.StringSlice(trimmedRoutesDynamic))
 	sort.Sort(sort.StringSlice(trimmedRoutesUserdata))
+}
+
+func trimRoute(route string) string {
+	// Remove trailing path elements, e.g. "0e:49:61:0f:c3:11/device-number" => "0e:49:61:0f:c3:11"
+	route, _, foundSlash := strings.Cut(route, "/")
+	if !foundSlash {
+		return route
+	}
+	return route + "/"
+}
+
+func trimAndSortRoutes(notTrimmedRoutes []string) []string {
+	trimmedRouteSet := map[string]bool{}
+	for _, route := range notTrimmedRoutes {
+		trimmedRouteSet[trimRoute(route)] = true
+	}
+
+	trimmedRoutes := make([]string, 0, len(trimmedRouteSet))
+	for key := range trimmedRouteSet {
+		trimmedRoutes = append(trimmedRoutes, key)
+	}
+	sort.Strings(trimmedRoutes)
+
+	return trimmedRoutes
 }
