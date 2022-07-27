@@ -173,11 +173,19 @@ func formatRoutes() {
 
 func trimRoute(route string) string {
 	// Remove trailing path elements, e.g. "0e:49:61:0f:c3:11/device-number" => "0e:49:61:0f:c3:11"
-	route, _, foundSlash := strings.Cut(route, "/")
+	route, _, foundSlash := stringCut(route, "/")
 	if !foundSlash {
 		return route
 	}
 	return route + "/"
+}
+
+// stringCut is a backfill for `strings.Cut` in Go <1.18.
+func stringCut(s, sep string) (before, after string, found bool) {
+	if i := strings.Index(s, sep); i > -1 {
+		return s[:i], s[i+len(sep):], true
+	}
+	return s, "", false
 }
 
 func trimAndSortRoutes(notTrimmedRoutes []string) []string {
