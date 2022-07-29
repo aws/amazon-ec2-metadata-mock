@@ -90,7 +90,11 @@ func CatchAllHandler(res http.ResponseWriter, req *http.Request) {
 		if strings.Contains(route, trimmedRoute) {
 			// ex: iam/security-credentials contains iam
 			route = strings.TrimPrefix(route, trimmedRoute+"/")
-			resultSet[trimRoute(route)] = true
+			// route is now security-credentials
+			route = trimRoute(route)
+			// store unique route
+			resultSet[route] = true
+			log.Printf("adding route: %s to results\n", route)
 		}
 	}
 
@@ -158,6 +162,7 @@ func formatRoutes() {
 			}
 
 		} else if strings.HasPrefix(route, static.ServicePath) {
+			// Omit /latest/meta-data and /latest/user-data
 			trimmedRoute = strings.TrimPrefix(route, static.ServicePath)
 			// Omit empty paths and "/"
 			if len(trimmedRoute) >= shortestRouteLength {
