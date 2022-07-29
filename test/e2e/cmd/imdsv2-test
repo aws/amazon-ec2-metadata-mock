@@ -28,7 +28,7 @@ if [[ "$METADATA_VERSION" == "v2" ]]; then
 
   $SCRIPTPATH/../../build/$BIN --imdsv2 --port $AEMM_PORT &
   IMDSV2_PID=$!
-  test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/root_paths.golden" "21600" "imdsv2::valid_token"
+  test_imdsv2 $IMDSV2_PID "$SCRIPTPATH/golden/default/latest/meta-data/index.golden" "21600" "imdsv2::valid_token"
 
   $SCRIPTPATH/../../build/$BIN --imdsv2 --port $AEMM_PORT &
   IMDSV2_PID=$!

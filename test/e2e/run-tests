@@ -46,13 +46,30 @@ function health_check() {
 }
 
 function assert_value() {
+  actual="$1"
+  expected="$2"
+  test_name="$3"
+
   # assert actual == expected
-  if [[ $1 == "$2" ]]; then
-    echo "✅ Verified $3"
-  else
-    echo "❌ Failed $3 verification. Actual: $1 Expected: $2"
-    EXIT_CODE_TO_RETURN=1
+  if [[ "$actual" == "$expected" ]]; then
+    echo "✅ Verified $test_name"
+    return
   fi
+
+  tmp_dir="$(mktemp -d)"
+  actual_filepath="${tmp_dir}/actual"
+  expected_filepath="${tmp_dir}/expected"
+
+  echo "$actual">"$actual_filepath"
+  echo "$expected">"$expected_filepath"
+
+  echo "❌ Failed $test_name verification."
+  diff -u "$expected_filepath" "$actual_filepath" | tail -n +3
+
+  rm -f "$actual_filepath" "$expected_filepath"
+  rmdir "$tmp_dir"
+
+  EXIT_CODE_TO_RETURN=1
 }
 
 function assert_value_within_range() {

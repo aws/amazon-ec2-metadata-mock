@@ -21,7 +21,7 @@ function test_spot_paths() {
   TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
 
   actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
-  expected_paths=$(cat $SCRIPTPATH/golden/spot_paths.golden)
+  expected_paths=$(cat $SCRIPTPATH/golden/spot/latest/meta-data/index.golden)
 
   assert_value "$actual_paths" "$expected_paths" "test_spot_paths"
 
