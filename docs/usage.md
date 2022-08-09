@@ -192,9 +192,45 @@ $ curl http://localhost:1338/latest/meta-data/mac
 FOO
 ```
 
+---
+
 ## Community Use Cases
 Common use cases sourced from members of the AEMM community. All are welcome to add/edit!
 
 ### Testing EKS bootstrap via EKS Optimized AMI
-ec2-metadata-mock can be used to imitate the [Amazon EKS Optimized AMI](https://github.com/awslabs/amazon-eks-ami) in a docker container to run local test involving the EKS bootstrap script. A local test improves the dev-loop by not having to launch a real EC2 instance until you are pretty sure everything is working properly.
-* Contributor: `@bwagner5`
+From `@bwagner5`: ec2-metadata-mock can be used to imitate the [Amazon EKS Optimized AMI](https://github.com/awslabs/amazon-eks-ami) in a docker container to run local test involving the EKS bootstrap script. A local test improves the dev-loop by not having to launch a real EC2 instance until you are pretty sure everything is working properly.
+
+**Dockerfile**
+```
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
+
+# env vars consumed by AEMM
+ENV IMDS_IP=127.0.0.1 
+ENV IMDS_PORT=1338
+
+COPY files/kubelet-config.json /etc/kubernetes/kubelet/kubelet-config.json
+COPY files/kubelet-kubeconfig /var/lib/kubelet/kubeconfig
+COPY tests/entrypoint.sh /entrypoint.sh
+COPY files /etc/eks
+COPY tests/mocks/ /sbin/
+
+RUN yum install -y jq
+# script to install AEMM
+RUN /sbin/install-imds
+
+ENTRYPOINT ["/entrypoint.sh"]
+```
+
+**install-imds script**
+```
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+VERSION="v1.10.1"
+OS=$(uname | tr '[:upper:]' '[:lower:]')
+ARCH=$([[ `uname -m` = "x86_64" ]] && echo "amd64" || echo "arm64")
+
+curl -Lo "${SCRIPTPATH}/ec2-metadata-mock" https://github.com/aws/amazon-ec2-metadata-mock/releases/download/${VERSION}/ec2-metadata-mock-${OS}-${ARCH}
+chmod +x "${SCRIPTPATH}/ec2-metadata-mock"
+```
