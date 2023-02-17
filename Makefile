@@ -66,9 +66,6 @@ helm-install-e2e-test:
 helm-mock-ip-count-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh -m
 
-license-test:
-	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
-
 shellcheck:
 	${MAKEFILE_PATH}/test/shellcheck/run-shellcheck
 
