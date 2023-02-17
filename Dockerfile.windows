@@ -27,5 +27,5 @@ ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock.exe"]
 FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_VERSION}
 WORKDIR /
 COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock.exe .
-COPY THIRD_PARTY_LICENSES .
+COPY THIRD_PARTY_LICENSES.md .
 ENTRYPOINT ["/ec2-metadata-mock.exe"]
