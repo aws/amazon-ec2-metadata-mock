@@ -26,5 +26,5 @@ ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock"]
 FROM scratch
 WORKDIR /
 COPY --from=builder /amazon-ec2-metadata-mock/build/ec2-metadata-mock .
-COPY THIRD_PARTY_LICENSES .
+COPY THIRD_PARTY_LICENSES.md .
 ENTRYPOINT ["/ec2-metadata-mock"]

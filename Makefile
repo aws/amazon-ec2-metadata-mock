@@ -14,9 +14,15 @@ SUPPORTED_PLATFORMS_LINUX ?= "linux/amd64,linux/arm64,linux/arm,darwin/amd64,dar
 SUPPORTED_PLATFORMS_WINDOWS ?= "windows/amd64"
 MAKEFILE_PATH = $(dir $(realpath -s $(firstword $(MAKEFILE_LIST))))
 BUILD_DIR_PATH = ${MAKEFILE_PATH}/build
+BIN_DIR = ${MAKEFILE_PATH}/bin
 BINARY_NAME ?= ec2-metadata-mock
+THIRD_PARTY_LICENSES = ${MAKEFILE_PATH}/THIRD_PARTY_LICENSES.md
+GOLICENSES = ${BIN_DIR}/go-licenses
 
 $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
+
+$(GOLICENSES):
+	GOBIN="$(BIN_DIR)" go install github.com/google/go-licenses@v1.6.0
 
 help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*$$' $(MAKEFILE_LIST) | sort
@@ -66,11 +72,23 @@ helm-install-e2e-test:
 helm-mock-ip-count-test:
 	${MAKEFILE_PATH}/test/helm/chart-test.sh -m
 
-license-test:
-	${MAKEFILE_PATH}/test/license-test/run-license-test.sh
-
 shellcheck:
 	${MAKEFILE_PATH}/test/shellcheck/run-shellcheck
+
+.PHONY: third-party-licenses
+third-party-licenses: $(GOLICENSES)
+	@$(GOLICENSES) report \
+		--include_tests \
+		--template "${MAKEFILE_PATH}/templates/third-party-licenses.tmpl" \
+		"${MAKEFILE_PATH}/..." > "${THIRD_PARTY_LICENSES}"
+
+.PHONY: license-test
+license-test: $(GOLICENSES)
+	@$(GOLICENSES) check \
+		--allowed_licenses="Apache-2.0,BSD-2-Clause,BSD-3-Clause,BSD-4-Clause,ISC,MIT,MPL-2.0" \
+		--include_tests \
+		"${MAKEFILE_PATH}/..." \
+		&& echo "✅ Passed" || echo "❌ Failed"
 
 spellcheck:
 	${MAKEFILE_PATH}/test/readme-test/run-readme-spellcheck
