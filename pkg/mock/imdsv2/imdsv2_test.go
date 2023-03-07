@@ -30,7 +30,7 @@ import (
 
 const (
 	testURL             = "http://test-example.com/"
-	tokenRegex          = "^[a-zA-Z0-9]{43}="
+	tokenRegex          = "^[a-zA-Z0-9+/]{43}="
 	successMockResponse = "Success!"
 )
 
