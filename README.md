@@ -114,7 +114,9 @@ docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock
 * Kubernetes >= 1.14
 
 #### Helm
-[See Helm README here.](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md)
+We are hosting helm-charts for Amazon EC2 Metadata Mock in ecr-public. The chart for this project is hosted in [helm/amazon-ec2-metadata-mock](https://gallery.ecr.aws/aws-ec2/helm/amazon-ec2-metadata-mock).
+ 
+Detailed instructions on installing Amazon EC2 Metadata Mock using Helm can be found here [Helm README](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md)
 
 #### kubectl
 kubectl apply -f https://github.com/aws/amazon-ec2-metadata-mock/releases/download/v1.11.2/all-resources.yaml

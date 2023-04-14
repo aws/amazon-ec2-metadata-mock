@@ -1,9 +1,12 @@
 VERSION ?= $(shell git describe --tags --always --dirty)
 LATEST_RELEASE_TAG=$(shell git describe --tags --abbrev=0)
 PREVIOUS_RELEASE_TAG=$(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1  --max-count=1`)
+LATEST_COMMIT_HASH=$(shell git rev-parse HEAD)
+LATEST_COMMIT_CHART_VERSION=$(shell git --no-pager show ${LATEST_COMMIT_HASH}:helm/amazon-ec2-metadata-mock/Chart.yaml | grep 'version:' | cut -d' ' -f2 | tr -d '[:space:]')
 REPO_FULL_NAME=aws/amazon-ec2-metadata-mock
 ECR_REGISTRY ?= public.ecr.aws/aws-ec2
 ECR_REPO ?= ${ECR_REGISTRY}/amazon-ec2-metadata-mock
+ECR_REPO_CHART ?= amazon-ec2-metadata-mock
 IMG ?= amazon/amazon-ec2-metadata-mock
 IMG_TAG ?= ${VERSION}
 IMG_W_TAG = ${IMG}:${IMG_TAG}
@@ -29,6 +32,9 @@ help:
 
 version:
 	@echo ${VERSION}
+
+chart-version:
+	@echo ${LATEST_COMMIT_CHART_VERSION}
 
 latest-release-tag:
 	@echo ${LATEST_RELEASE_TAG}
@@ -125,18 +131,23 @@ push-docker-images-windows:
 	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${ECR_REPO} -v ${VERSION} -m
 
+push-helm-chart:
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/helm-login
+	${MAKEFILE_PATH}/scripts/push-helm-chart -r ${ECR_REPO_CHART} -v ${LATEST_COMMIT_CHART_VERSION} -h ${ECR_REGISTRY}
+
 sync-readme-to-ecr-public:
 	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
 	${MAKEFILE_PATH}/scripts/sync-readme-to-ecr-public
+
+sync-catalog-information-for-helm-chart:
+	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/helm-login
+	${MAKEFILE_PATH}/scripts/sync-catalog-information-for-helm-chart
 
 homebrew-sync-dry-run:
 	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -d -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX} -v ${LATEST_RELEASE_TAG}
 
 homebrew-sync:
 	${MAKEFILE_PATH}/scripts/sync-to-aws-homebrew-tap -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -p ${SUPPORTED_PLATFORMS_LINUX}
-
-ekscharts-sync-release:
-	${MAKEFILE_PATH}/scripts/sync-to-aws-eks-charts -b ${BINARY_NAME} -r ${REPO_FULL_NAME} -n
 
 validate-release-version:
 	${MAKEFILE_PATH}/scripts/validators/release-version-validator
@@ -171,20 +182,20 @@ create-local-release-tag-minor:
 create-local-release-tag-patch:
 	${MAKEFILE_PATH}/scripts/create-local-tag-for-release -p
 
-create-release-prep-pr:
+create-release-pr:
 	${MAKEFILE_PATH}/scripts/prepare-for-release
 
-create-release-prep-pr-draft:
+create-release-pr-draft:
 	${MAKEFILE_PATH}/scripts/prepare-for-release -d
 
-release-prep-major: create-local-release-tag-major create-release-prep-pr
+release-prep-major: create-local-release-tag-major create-release-pr
 
-release-prep-minor: create-local-release-tag-minor create-release-prep-pr
+release-prep-minor: create-local-release-tag-minor create-release-pr
 
-release-prep-patch: create-local-release-tag-patch create-release-prep-pr
+release-prep-patch: create-local-release-tag-patch create-release-pr
 
 release-prep-custom: # Run make NEW_VERSION=v1.2.3 release-prep-custom to prep for a custom release version
 ifdef NEW_VERSION
-	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make create-release-prep-pr")
+	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make create-release-pr")
 endif
 	
