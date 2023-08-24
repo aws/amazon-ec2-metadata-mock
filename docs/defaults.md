@@ -9,6 +9,7 @@ input config file | $HOME/aemm-config.json
 output / used config file | {$HOME or working dir}/.ec2-metadata-mock/.aemm-config-used.json
 mock delay seconds | 0
 IMDS v2 only (http requests require a session token) | false
+autoscaling target lifecycle state | InService
 spot instance action | terminate
 spot termination time | request time + 2 minutes in UTC
 scheduled events code | systemReboot

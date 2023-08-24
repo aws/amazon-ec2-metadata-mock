@@ -2,27 +2,122 @@
 This page serves as documentation for AEMM's advanced use cases and behavior.
 
 ## Commands
-AEMM's supported commands (`spot`, `events`) are viewed using `--help`:
+AEMM's supported commands (`autoscaling`, `spot`, `events`) are viewed using `--help`:
 ```
 $ ec2-metadata-mock --help
 
 ...
 Available Commands:
-  events          Mock EC2 maintenance events
-  help            Help about any command
-  spot            Mock EC2 Spot interruption notice
+  autoscaling Mock autoscaling information
+  events      Mock EC2 maintenance events
+  help        Help about any command
+  spot        Mock EC2 Spot interruption notice
 
 ...
 ```
 commands are designed as follows:
 * Run independently from other commands
-  * i.e. when AEMM is started with `events` subcommand, `spot` routes will **NOT** be available and vice-versa 
+  * i.e. when AEMM is started with `events` subcommand, `autoscaling` and `spot` routes will **NOT** be available and vice-versa 
 * Local flag availability so that commands can be configured directly via CLI parameters
     * With validation checks
 * Contain additional `--help` documentation
 * Default values sourced from code
 
 Metadata categories that are always available, irrespective of the CLI command run are referred to as **static metadata**.
+
+## Auto Scaling
+To view the available flags for the Auto Scaling command use `autoscaling --help`:
+```
+Mock autoscaling information
+
+Usage:
+  ec2-metadata-mock autoscaling [flags]
+  ec2-metadata-mock autoscaling [command]
+
+Available Commands:
+  target-lifecycle-state Mock autoscaling lifecycle state transitions
+
+Flags:
+  -h, --help   help for autoscaling
+
+Global Flags:
+  -c, --config-file string              config file for cli input parameters in json format (default: $HOME/aemm-config.json)
+  -n, --hostname string                 the HTTP hostname for the mock url (default: 0.0.0.0)
+  -I, --imdsv2                          whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
+  -d, --mock-delay-sec int              spot itn delay in seconds, relative to the application start time (default: 0 seconds)
+  -x, --mock-ip-count int               number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event (default 2)
+      --mock-trigger-time string        spot itn trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
+  -p, --port string                     the HTTP port where the mock runs (default: 1338)
+      --rebalance-delay-sec int         rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)
+      --rebalance-trigger-time string   rebalance rec trigger time in RFC3339 format. This takes priority over rebalance-delay-sec (default: none)
+  -s, --save-config-to-file             whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+
+Use "ec2-metadata-mock autoscaling [command] --help" for more information about a command.
+```
+
+### Auto Scaling Target Lifecycle State
+To view the available flags for the Auto Scaling Target Lifecycle State command use `autoscaling target-lifecycle-state --help`:
+```
+Mock autoscaling lifecycle state transitions.
+
+Target states may be changed at a specified time or after a delay, e.g. "InService 2m Terminated" will initially return the InService target lifecycle state then after 2 minutes will return Terminated.
+Valid states are Detached, InService, Standby, Terminated, Warmed:Hibernated, Warmed:Running, Warmed:Stopped, Warmed:Terminated
+Times must be in RFC 3339 format, e.g. "2018-09-01T12:00:00Z".
+Delays are specified as one or more numbers and suffixes, e.g. "2m30s". Valid suffixes are "h", "m", "s", "ms", "us", "ns".
+
+Usage:
+  ec2-metadata-mock autoscaling target-lifecycle-state -h | --help | [STATE [TIME|DELAY STATE]...] [flags]
+
+Examples:
+  target-lifecycle-state InService 2m Terminated
+
+Flags:
+  -h, --help   help for target-lifecycle-state
+
+Global Flags:
+  -c, --config-file string              config file for cli input parameters in json format (default: $HOME/aemm-config.json)
+  -n, --hostname string                 the HTTP hostname for the mock url (default: 0.0.0.0)
+  -I, --imdsv2                          whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
+  -d, --mock-delay-sec int              spot itn delay in seconds, relative to the application start time (default: 0 seconds)
+  -x, --mock-ip-count int               number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event (default 2)
+      --mock-trigger-time string        spot itn trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
+  -p, --port string                     the HTTP port where the mock runs (default: 1338)
+      --rebalance-delay-sec int         rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)
+      --rebalance-trigger-time string   rebalance rec trigger time in RFC3339 format. This takes priority over rebalance-delay-sec (default: none)
+  -s, --save-config-to-file             whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
+```
+
+1. **Starting AEMM with `autoscaling target-lifecycle-state`**:  `autoscaling/target-lifecycle-state` route available immediately:
+```sh
+$ ec2-metadata-mock autoscaling target-lifecycle-state
+Initiating ec2-metadata-mock for autoscaling target lifecycle state on port 1338
+Setting autoscaling target lifecycle state to InService
+```
+Send the request:
+```sh
+$ curl localhost:1338/latest/meta-data/autoscaling/target-lifecycle-state
+InService
+```
+
+1. **Starting AEMM with `autoscaling target-lifecycle-state` scheduled transitions**: Users can give a sequence of target lifecycle states that will change at scheduled times:
+```sh
+$ ec2-metadata-mock autoscaling target-lifecycle-state Standby 2023-08-23T06:00:00Z InService 5m Terminated
+Initiating ec2-metadata-mock for autoscaling target lifecycle state on port 1338
+Setting autoscaling target lifecycle state to Standby
+```
+Send the requests:
+```sh
+$ curl localhost:1338/latest/meta-data/autoscaling/target-lifecycle-state
+Standby
+
+# After the specified time, make another request
+$ curl localhost:1338/latest/meta-data/autoscaling/target-lifecycle-state
+InService
+
+# After the specified delay, make another request
+$ curl localhost:1338/latest/meta-data/autoscaling/target-lifecycle-state
+Terminated
+```
 
 ### Spot Interruption
 To view the available flags for the Spot Interruption command use `spot --help`:

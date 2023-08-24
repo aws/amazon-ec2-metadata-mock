@@ -1,6 +1,7 @@
 ami-id
 ami-launch-index
 ami-manifest-path
+autoscaling/
 block-device-mapping/
 elastic-inference/
 events/

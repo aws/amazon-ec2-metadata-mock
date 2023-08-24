@@ -20,6 +20,7 @@ import (
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/autoscaling/targetlifecyclestate"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/handlers"
@@ -108,22 +109,28 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 		{path: dynamic.ServicePath, handler: handlers.ListRoutesHandler},
 	}
 
-	isSpot := strings.Contains(cmd.Name(), "spot")
-	isEvents := strings.Contains(cmd.Name(), "events")
-
 	subCommandHandlers := map[string][]handlerPair{
+		"autoscaling": {{
+			path:    config.Metadata.Paths.AutoscalingTargetLifecycleState,
+			handler: targetlifecyclestate.Handler,
+		}},
 		"spot": {{path: config.Metadata.Paths.Spot, handler: spot.Handler},
 			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler},
 			{path: config.Metadata.Paths.RebalanceRecTime, handler: spot.Handler}},
 		"events": {{path: config.Metadata.Paths.Events, handler: events.Handler}},
 	}
 
-	if isSpot {
+	switch {
+	case strings.Contains(cmd.Name(), "autoscaling"):
+		handlerPairs = append(handlerPairs, subCommandHandlers["autoscaling"]...)
+
+	case strings.Contains(cmd.Name(), "spot"):
 		handlerPairs = append(handlerPairs, subCommandHandlers["spot"]...)
-	} else if isEvents {
+
+	case strings.Contains(cmd.Name(), "events"):
 		handlerPairs = append(handlerPairs, subCommandHandlers["events"]...)
-	} else {
-		// root registers all subcommands
+
+	default: // root registers all subcommands
 		for k := range subCommandHandlers {
 			handlerPairs = append(handlerPairs, subCommandHandlers[k]...)
 		}

@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/autoscaling"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/events"
 	gf "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root/globalflags"
@@ -91,7 +92,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().String(gf.RebalanceTriggerTimeFlag, "", "rebalance rec trigger time in RFC3339 format. This takes priority over "+gf.RebalanceDelayInSecFlag+" (default: none)")
 
 	// add subcommands
-	cmd.AddCommand(spot.Command, events.Command)
+	cmd.AddCommand(autoscaling.Command, spot.Command, events.Command)
 
 	// bind all non-metadata flags at top level
 	var topLevelGFlags []*pflag.Flag
@@ -138,6 +139,7 @@ func saveConfigToFile() {
 
 func setConfig(config cfg.Config) {
 	c = config
+	autoscaling.SetConfig(config)
 	spot.SetConfig(config)
 	events.SetConfig(config)
 }

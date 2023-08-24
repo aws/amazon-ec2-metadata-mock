@@ -8,6 +8,15 @@
       "public-ipv4": "54.92.157.77"
     }
   },
+  "autoscaling": {
+    "target-lifecycle-state": [
+      "InService",
+      "10s",
+      "Standby",
+      "10s",
+      "Terminated"
+    ]
+  },
   "spot": {
     "action": "terminate",
     "time": "2020-01-07T01:03:47Z"

@@ -26,6 +26,7 @@ MAGENTA=5
 CYAN=6
 LAVENDER=147
 ORANGE=172
+BROWN=95
 
 [[ -z $TERM ]] || export TERM=linux
 
@@ -189,6 +190,7 @@ export MAGENTA
 export CYAN
 export LAVENDER
 export ORANGE
+export BROWN
 export HOSTNAME
 export SPOT_INSTANCE_ACTION_DEFAULT
 export EVENTS_STATE_DEFAULT

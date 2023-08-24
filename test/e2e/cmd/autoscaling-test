@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
+AUTOSCALING_URL="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/autoscaling"
+TARGET_LIFECYCLE_STATE_URL="$AUTOSCALING_URL/target-lifecycle-state"
+
+function test_autoscaling_paths() {
+  pid=$1
+
+  tput setaf $BROWN
+  health_check $AUTOSCALING_URL
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $AUTOSCALING_URL)
+  expected_paths=$(cat $SCRIPTPATH/golden/autoscaling/index.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_autoscaling_paths"
+
+  clean_up $pid
+}
+
+function test_target_lifecycle_state() {
+  pid=$1
+  expected_state=$2
+
+  tput setaf $BROWN
+  health_check $TARGET_LIFECYCLE_STATE_URL
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_state=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $TARGET_LIFECYCLE_STATE_URL)
+
+  assert_value "$actual_state" "$expected_state" "test_target_lifecylce_state"
+
+  clean_up $pid
+}
+
+function test_target_lifecycle_state_scheduled_transitions() {
+  pid=$1
+  expected_state1=$2
+  delay1=$3
+  expected_state2=$4
+  delay2=$5
+  expected_state3=$6
+
+  tput setaf $BROWN
+  health_check $TARGET_LIFECYCLE_STATE_URL
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_state1=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $TARGET_LIFECYCLE_STATE_URL)
+  assert_value "$actual_state1" "$expected_state1" "test_target_lifecylce_state_scheduled_transitions::first"
+
+  sleep $delay1
+
+  actual_state2=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $TARGET_LIFECYCLE_STATE_URL)
+  assert_value "$actual_state2" "$expected_state2" "test_target_lifecylce_state_scheduled_transitions::second"
+
+  sleep $delay2
+
+  actual_state3=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $TARGET_LIFECYCLE_STATE_URL)
+  assert_value "$actual_state3" "$expected_state3" "test_target_lifecylce_state_scheduled_transitions::third"
+
+  clean_up $pid
+}
+
+tput setaf $BROWN
+echo "======================================================================================================"
+echo "🥑 Starting autoscaling integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+# Test paths under autoscaling/
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT autoscaling target-lifecycle-state)
+$start_cmd &
+SPOT_PID=$!
+test_autoscaling_paths $SPOT_PID
+
+# Test target lifecycle state transitions from config file (InService 10s Standby 10s Terminated)
+start_cmd=$(create_cmd $METADATA_VERSION --config-file $TEST_CONFIG_FILE --port $AEMM_PORT autoscaling target-lifecycle-state)
+$start_cmd &
+SPOT_PID=$!
+test_target_lifecycle_state_scheduled_transitions $SPOT_PID "InService" 11 "Standby" 11 "Terminated"
+
+# Test single target lifecycle state from command line
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT autoscaling target-lifecycle-state Warmed:Hibernated)
+$start_cmd &
+SPOT_PID=$!
+test_target_lifecycle_state $SPOT_PID "Warmed:Hibernated"
+
+# Test multiple target lifecycle state transitions from command line
+start_cmd=$(create_cmd $METADATA_VERSION --port $AEMM_PORT autoscaling target-lifecycle-state InService 15s Detached 15s Standby)
+$start_cmd &
+SPOT_PID=$!
+test_target_lifecycle_state_scheduled_transitions $SPOT_PID "InService" 16 "Detached" 16 "Standby"
+
+exit $EXIT_CODE_TO_RETURN
