@@ -79,9 +79,8 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 // ValidateLocalConfig validates all local config and returns a slice of error messages
 func ValidateLocalConfig() []string {
-	var errStrings []string
-
-	return errStrings
+	// no-op
+	return nil
 }
 
 func run(cmd *cobra.Command, args []string) {

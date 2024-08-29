@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
 LIFECYCLE_STATE_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/autoscaling/target-lifecycle-state"
 TERMINATION_DELAY=10
 
