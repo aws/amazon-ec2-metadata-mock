@@ -44,9 +44,13 @@ const (
 
 	// RebalanceTriggerTimeFlag - rebalance rec trigger time in RFC3339
 	RebalanceTriggerTimeFlag = "rebalance-trigger-time"
+
+	ASGTerminationDelayInSecFlag = "asg-termination-delay-sec"
+
+	ASGTerminationTriggerTimeFlag = "asg-termination-trigger-time"
 )
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag, ASGTerminationDelayInSecFlag, ASGTerminationTriggerTimeFlag}
 }

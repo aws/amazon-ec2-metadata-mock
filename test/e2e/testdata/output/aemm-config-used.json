@@ -1,4 +1,6 @@
 {
+  "asg-termination-delay-sec" :0,
+  "asg-termination-trigger-time": "",
   "config-file": "$HOME/aemm-config.json",
   "dynamic": {
     "paths": {
@@ -96,6 +98,7 @@
       "services-partition": "/latest/meta-data/services/partition",
       "spot": "/latest/meta-data/spot/instance-action",
       "spot-termination-time": "/latest/meta-data/spot/termination-time",
+      "target-lifecycle-state": "/latest/meta-data/autoscaling/target-lifecycle-state",
       "userdata": "/latest/user-data"
     },
     "values": {

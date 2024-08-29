@@ -29,15 +29,19 @@ type Config struct {
 
 	// ----- CLI config ----- //
 	// config keys that are also cli flags
-	CfgFile              string `mapstructure:"config-file"`
-	MockDelayInSec       int64  `mapstructure:"mock-delay-sec"`
-	MockTriggerTime      string `mapstructure:"mock-trigger-time"`
-	MockIPCount          int    `mapstructure:"mock-ip-count"`
-	SaveConfigToFile     bool   `mapstructure:"save-config-to-file"`
-	Server               Server `mapstructure:"server"`
-	Imdsv2Required       bool   `mapstructure:"imdsv2"`
-	RebalanceDelayInSec  int64  `mapstructure:"rebalance-delay-sec"`
-	RebalanceTriggerTime string `mapstructure:"rebalance-trigger-time"`
+	CfgFile                   string `mapstructure:"config-file"`
+	MockDelayInSec            int64  `mapstructure:"mock-delay-sec"`
+	MockTriggerTime           string `mapstructure:"mock-trigger-time"`
+	MockIPCount               int    `mapstructure:"mock-ip-count"`
+	SaveConfigToFile          bool   `mapstructure:"save-config-to-file"`
+	Server                    Server `mapstructure:"server"`
+	Imdsv2Required            bool   `mapstructure:"imdsv2"`
+	RebalanceDelayInSec       int64  `mapstructure:"rebalance-delay-sec"`
+	RebalanceTriggerTime      string `mapstructure:"rebalance-trigger-time"`
+	ASGTerminationDelayInSec  int64  `mapstructure:"asg-termination-delay-sec"`
+	ASGTerminationTriggerTime string `mapstructure:"asg-termination-trigger-time"`
+
+	// ----- static config ----- //
 
 	// config keys for subcommands
 	SpotConfig   spot.Config   `mapstructure:"spot"`
@@ -76,6 +80,7 @@ type Paths struct {
 	AmiID                        string `mapstructure:"ami-id"`
 	AmiLaunchIndex               string `mapstructure:"ami-launch-index"`
 	AmiManifestPath              string `mapstructure:"ami-manifest-path"`
+	ASGLifecycle                 string `mapstructure:"target-lifecycle-state"`
 	BlockDeviceMappingAmi        string `mapstructure:"block-device-mapping-ami"`
 	BlockDeviceMappingEbs        string `mapstructure:"block-device-mapping-ebs"`
 	BlockDeviceMappingEphemeral  string `mapstructure:"block-device-mapping-ephemeral"`

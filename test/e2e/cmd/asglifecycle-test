@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+TEST_CONFIG_FILE="$SCRIPTPATH/testdata/aemm-config-integ.json"
+LIFECYCLE_STATE_TEST_PATH="http://$HOSTNAME:$AEMM_PORT/latest/meta-data/autoscaling/target-lifecycle-state"
+TERMINATION_DELAY=10
+
+function test_asglifecycle_paths() {
+  pid=$1
+  tput setaf $MAGENTA
+  health_check $LIFECYCLE_STATE_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  actual_paths=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://$HOSTNAME:$AEMM_PORT/latest/meta-data)
+  expected_paths=$(cat $SCRIPTPATH/golden/asglifecycle/latest/meta-data/index.golden)
+
+  assert_value "$actual_paths" "$expected_paths" "test_asglifecycle_paths"
+
+  clean_up $pid
+}
+
+function test_asg_termination_delay() {
+  pid=$1
+  delay_in_sec=$2
+  tput setaf $MAGENTA
+  health_check $LIFECYCLE_STATE_TEST_PATH
+  TOKEN=$(get_v2Token $MAX_TOKEN_TTL $AEMM_PORT)
+
+  expected_state="InService"
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $LIFECYCLE_STATE_TEST_PATH)
+  assert_value "$response" "$expected_state" "test_asglifecycle::asg-pre-delay_response"
+
+  # ensure no impact to mock-delay functionality
+  echo "⏲ Waiting on delay ⏲"
+  sleep $delay_in_sec
+  expected_state="Terminated"
+  response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $LIFECYCLE_STATE_TEST_PATH)
+  assert_value "$response" "$expected_state" "test_asglifecycle::asg-post-delay_response"
+
+  # Confirm response isn't empty
+  if [[ ! -z $response ]]; then
+    echo "✅ Verified post-delay response"
+  else
+    echo "❌ Failed delay: there should be a lifecycle change to Terminated after delay"
+    EXIT_CODE_TO_RETURN=1
+  fi
+
+  clean_up $pid
+}
+
+tput setaf $YELLOW
+echo "======================================================================================================"
+echo "🥑 Starting asg lifecycle integration tests $METADATA_VERSION"
+echo "======================================================================================================"
+
+start_cmd=$(create_cmd $METADATA_VERSION asglifecycle --port $AEMM_PORT)
+$start_cmd &
+ASG_PID=$!
+test_asglifecycle_paths $ASG_PID
+
+start_cmd=$(create_cmd $METADATA_VERSION asglifecycle --port $AEMM_PORT --asg-termination-delay-sec $TERMINATION_DELAY)
+$start_cmd &
+ASG_PID=$!
+test_asg_termination_delay $ASG_PID $TERMINATION_DELAY
+
+exit $EXIT_CODE_TO_RETURN
+
