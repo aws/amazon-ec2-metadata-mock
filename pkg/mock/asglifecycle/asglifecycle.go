@@ -28,10 +28,10 @@ const (
 )
 
 var (
-	eligibleIPs          = make(map[string]bool)
-	c                    cfg.Config
-	autoscalingStartTime int64 = time.Now().Unix()
-	state                      = "InService"
+	eligibleIPs  = make(map[string]bool)
+	c            cfg.Config
+	asgStartTime int64 = time.Now().Unix()
+	state              = "InService"
 )
 
 func Mock(config cfg.Config) {
@@ -53,7 +53,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 			if len(eligibleIPs) < c.MockIPCount {
 				eligibleIPs[requestIP] = true
 			} else {
-				log.Printf("Requesting IP %s is not eligible for Spot ITN or Rebalance Recommendation because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
+				log.Printf("Requesting IP %s is not eligible for ASG Lifecycle State because the max number of IPs configured (%d) has been reached.\n", requestIP, c.MockIPCount)
 				server.ReturnNotFoundResponse(res)
 				return
 			}
@@ -76,7 +76,7 @@ func handleASGTargetLifecycleState(res http.ResponseWriter, req *http.Request) {
 		}
 	} else {
 		delayInSeconds := c.ASGTerminationDelayInSec
-		delayRemaining := delayInSeconds - (requestTime - autoscalingStartTime)
+		delayRemaining := delayInSeconds - (requestTime - asgStartTime)
 		if delayRemaining <= 0 {
 			state = "Terminated"
 		}

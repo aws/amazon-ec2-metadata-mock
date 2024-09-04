@@ -30,7 +30,7 @@ function test_asg_termination_delay() {
   response=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" $LIFECYCLE_STATE_TEST_PATH)
   assert_value "$response" "$expected_state" "test_asglifecycle::asg-pre-delay_response"
 
-  # ensure no impact to mock-delay functionality
+  # ensure no impact to asg termination delay functionality
   echo "⏲ Waiting on delay ⏲"
   sleep $delay_in_sec
   expected_state="Terminated"
