@@ -145,7 +145,7 @@ Available Commands:
   asglifecycle  Mock ASG target-lifecycle-state changes from InService to Terminated
 
 Flags:
-  -g, --asg-termination-delay-sec int      asg termination delay in seconds, relative to the application start time (default: 0 seconds)
+      --asg-termination-delay-sec int      asg termination delay in seconds, relative to the application start time (default: 0 seconds)
       --asg-termination-trigger-time int   asg termination trigger time in RFC3339 format. This takes priority over asg-termination-delay-sec (default: none)
   -c, --config-file string                 config file for cli input parameters in json format (default: $HOME/aemm-config.json)
   -h, --help                               help for ec2-metadata-mock
@@ -255,8 +255,8 @@ Flags:
   -t, --time string                    termination time specifies the approximate time when the spot instance will receive the shutdown signal in RFC3339 format to execute instance action E.g. 2020-01-07T01:03:47Z (default: request time + 2 minutes in UTC)
 
 Global Flags:
-  -g, --asg-termination-delay-sec int      asg termination delay in seconds, relative to the application start time (default: 0 seconds)
-    --asg-termination-trigger-time int   asg termination trigger time in RFC3339 format. This takes priority over asg-termination-delay-sec (default: none)
+      --asg-termination-delay-sec int      asg termination delay in seconds, relative to the application start time (default: 0 seconds)
+      --asg-termination-trigger-time int   asg termination trigger time in RFC3339 format. This takes priority over asg-termination-delay-sec (default: none)
   -c, --config-file string                 config file for cli input parameters in json format (default: $HOME/aemm-config.json)
   -h, --help                               help for ec2-metadata-mock
   -n, --hostname string                    the HTTP hostname for the mock url (default: 0.0.0.0)
@@ -404,36 +404,15 @@ $ curl localhost:1338/latest/meta-data/events/maintenance/scheduled
 ```
 
 ## Auto Scaling Group Lifecycle Termination
-Similar to spot, the `asglifecycle` command, view the local flags using `asglifecycle --help`:
+The `asglifecycle` command will generate a asg lifecycle termination event after a user-specified delay or termination time. 
 
 ```
 $ ec2-metadata-mock asglifecycle --help
 Mock EC2 Auto Scaling Group Lifecycle Termination State
-
 Usage:
   ec2-metadata-mock asglifecycle
-
 Aliases:
   asglifecycle, autoscaling, asg
-
-Examples:
-  ec2-metadata-mock asglifecycle -h   asglifecycle help
-
-Global Flags:
-  -g, --asg-termination-delay-sec int      asg termination delay in seconds, relative to the application start time (default: 0 seconds)
-      --asg-termination-trigger-time int   asg termination trigger time in RFC3339 format. This takes priority over asg-termination-delay-sec (default: none)
-  -c, --config-file string                 config file for cli input parameters in json format (default: $HOME/aemm-config.json)
-  -h, --help                               help for ec2-metadata-mock
-  -n, --hostname string                    the HTTP hostname for the mock url (default: 0.0.0.0)
-  -I, --imdsv2                             whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)
-  -d, --mock-delay-sec int                 spot itn delay in seconds, relative to the application start time (default: 0 seconds)
-  -x, --mock-ip-count int                  number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event (default 2)
-      --mock-trigger-time string           spot itn trigger time in RFC3339 format. This takes priority over mock-delay-sec (default: none)
-  -p, --port string                        the HTTP port where the mock runs (default: 1338)
-      --rebalance-delay-sec int            rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)
-      --rebalance-trigger-time string      rebalance rec trigger time in RFC3339 format. This takes priority over rebalance-delay-sec (default: none)
-  -s, --save-config-to-file                whether to save processed config from all input sources in .ec2-metadata-mock/.aemm-config-used.json in $HOME or working dir, if homedir is not found (default: false)
-  -v, --version                            version for ec2-metadata-mock
 ```
 
 Send the request:

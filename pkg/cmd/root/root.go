@@ -92,7 +92,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().BoolP(gf.Imdsv2Flag, "I", false, "whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)")
 	cmd.PersistentFlags().Int64(gf.RebalanceDelayInSecFlag, 0, "rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)")
 	cmd.PersistentFlags().String(gf.RebalanceTriggerTimeFlag, "", "rebalance rec trigger time in RFC3339 format. This takes priority over "+gf.RebalanceDelayInSecFlag+" (default: none)")
-	cmd.PersistentFlags().Int64P(gf.ASGTerminationDelayInSecFlag, "g", 0, "asg termination delay in seconds, relative to the application start time (default: 0 seconds)")
+	cmd.PersistentFlags().Int64P(gf.ASGTerminationDelayInSecFlag, "", 0, "asg termination delay in seconds, relative to the application start time (default: 0 seconds)")
 	cmd.PersistentFlags().Int64P(gf.ASGTerminationTriggerTimeFlag, "", 0, "asg termination trigger time in RFC3339 format. This takes priority over "+gf.ASGTerminationDelayInSecFlag+" (default: none)")
 
 	// add subcommands
