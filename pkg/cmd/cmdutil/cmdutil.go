@@ -20,6 +20,7 @@ import (
 
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	e "github.com/aws/amazon-ec2-metadata-mock/pkg/error"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/asglifecycle"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/dynamic"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/events"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/handlers"
@@ -110,18 +111,22 @@ func getHandlerPairs(cmd *cobra.Command, config cfg.Config) []handlerPair {
 
 	isSpot := strings.Contains(cmd.Name(), "spot")
 	isEvents := strings.Contains(cmd.Name(), "events")
+	isASGLifecycle := strings.Contains(cmd.Name(), "asglifecycle")
 
 	subCommandHandlers := map[string][]handlerPair{
 		"spot": {{path: config.Metadata.Paths.Spot, handler: spot.Handler},
 			{path: config.Metadata.Paths.SpotTerminationTime, handler: spot.Handler},
 			{path: config.Metadata.Paths.RebalanceRecTime, handler: spot.Handler}},
-		"events": {{path: config.Metadata.Paths.Events, handler: events.Handler}},
+		"events":       {{path: config.Metadata.Paths.Events, handler: events.Handler}},
+		"asglifecycle": {{path: config.Metadata.Paths.ASGLifecycle, handler: asglifecycle.Handler}},
 	}
 
 	if isSpot {
 		handlerPairs = append(handlerPairs, subCommandHandlers["spot"]...)
 	} else if isEvents {
 		handlerPairs = append(handlerPairs, subCommandHandlers["events"]...)
+	} else if isASGLifecycle {
+		handlerPairs = append(handlerPairs, subCommandHandlers["asglifecycle"]...)
 	} else {
 		// root registers all subcommands
 		for k := range subCommandHandlers {

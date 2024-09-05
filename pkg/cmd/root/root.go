@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/asglifecycle"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/cmdutil"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/events"
 	gf "github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/root/globalflags"
@@ -43,14 +44,16 @@ var (
 	cfgMdPrefix = cfg.GetCfgMdValPrefix()
 	cfgDnPrefix = cfg.GetCfgDnValPrefix()
 	defaultCfg  = map[string]interface{}{
-		gf.ConfigFileFlag:           cfg.GetDefaultCfgFileName(),
-		gf.MockDelayInSecFlag:       0,
-		gf.MockTriggerTimeFlag:      "",
-		gf.MockIPCountFlag:          2,
-		gf.SaveConfigToFileFlag:     false,
-		gf.Imdsv2Flag:               false,
-		gf.RebalanceDelayInSecFlag:  0,
-		gf.RebalanceTriggerTimeFlag: "",
+		gf.ConfigFileFlag:                cfg.GetDefaultCfgFileName(),
+		gf.MockDelayInSecFlag:            0,
+		gf.MockTriggerTimeFlag:           "",
+		gf.MockIPCountFlag:               2,
+		gf.SaveConfigToFileFlag:          false,
+		gf.Imdsv2Flag:                    false,
+		gf.RebalanceDelayInSecFlag:       0,
+		gf.RebalanceTriggerTimeFlag:      "",
+		gf.ASGTerminationDelayInSecFlag:  0,
+		gf.ASGTerminationTriggerTimeFlag: "",
 	}
 )
 
@@ -89,9 +92,11 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().BoolP(gf.Imdsv2Flag, "I", false, "whether to enable IMDSv2 only, requiring a session token when submitting requests (default: false, meaning both IMDS v1 and v2 are enabled)")
 	cmd.PersistentFlags().Int64(gf.RebalanceDelayInSecFlag, 0, "rebalance rec delay in seconds, relative to the application start time (default: 0 seconds)")
 	cmd.PersistentFlags().String(gf.RebalanceTriggerTimeFlag, "", "rebalance rec trigger time in RFC3339 format. This takes priority over "+gf.RebalanceDelayInSecFlag+" (default: none)")
+	cmd.PersistentFlags().Int64P(gf.ASGTerminationDelayInSecFlag, "", 0, "asg termination delay in seconds, relative to the application start time (default: 0 seconds)")
+	cmd.PersistentFlags().Int64P(gf.ASGTerminationTriggerTimeFlag, "", 0, "asg termination trigger time in RFC3339 format. This takes priority over "+gf.ASGTerminationDelayInSecFlag+" (default: none)")
 
 	// add subcommands
-	cmd.AddCommand(spot.Command, events.Command)
+	cmd.AddCommand(spot.Command, events.Command, asglifecycle.Command)
 
 	// bind all non-metadata flags at top level
 	var topLevelGFlags []*pflag.Flag
@@ -140,6 +145,7 @@ func setConfig(config cfg.Config) {
 	c = config
 	spot.SetConfig(config)
 	events.SetConfig(config)
+	asglifecycle.SetConfig(config)
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -155,6 +161,7 @@ func validateConfig() []string {
 	// validate subcommands' config
 	errStrings = append(errStrings, spot.ValidateLocalConfig()...)
 	errStrings = append(errStrings, events.ValidateLocalConfig()...)
+	errStrings = append(errStrings, asglifecycle.ValidateLocalConfig()...)
 
 	if c.MockTriggerTime != "" {
 		if err := cmdutil.ValidateRFC3339TimeFormat(gf.MockTriggerTimeFlag, c.MockTriggerTime); err != nil {

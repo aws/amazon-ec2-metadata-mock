@@ -31,7 +31,7 @@ func TestNewCmdName(t *testing.T) {
 	h.Assert(t, expected == actual, fmt.Sprintf("Expected the name for root command to be %s, but was %s", expected, actual))
 }
 func TestNewCmdFlags(t *testing.T) {
-	expectedFlags := []string{"config-file", "save-config-to-file", "mock-delay-sec", "mock-trigger-time", "mock-ip-count", "hostname", "port", "imdsv2", "rebalance-delay-sec", "rebalance-trigger-time"}
+	expectedFlags := []string{"config-file", "save-config-to-file", "mock-delay-sec", "mock-trigger-time", "mock-ip-count", "hostname", "port", "imdsv2", "rebalance-delay-sec", "rebalance-trigger-time", "asg-termination-delay-sec", "asg-termination-trigger-time"}
 
 	cmd := NewCmd()
 	actualFlagSet := cmd.PersistentFlags()
@@ -43,7 +43,7 @@ func TestNewCmdFlags(t *testing.T) {
 	h.ItemsMatch(t, expectedFlags, actualFlags)
 }
 func TestNewCmdHasSubcommands(t *testing.T) {
-	expSubcommandNames := []string{"spot", "events"}
+	expSubcommandNames := []string{"spot", "events", "asglifecycle"}
 
 	cmd := NewCmd()
 	actSubcommands := cmd.Commands()

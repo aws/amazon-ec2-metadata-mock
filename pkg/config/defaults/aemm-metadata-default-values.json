@@ -63,7 +63,8 @@
       "spot-termination-time": "/latest/meta-data/spot/termination-time",
       "rebalance-rec-time": "/latest/meta-data/events/recommendations/rebalance",
       "tags-instance-name": "/latest/meta-data/tags/instance/Name",
-      "tags-instance-test": "/latest/meta-data/tags/instance/Test"
+      "tags-instance-test": "/latest/meta-data/tags/instance/Test",
+      "target-lifecycle-state": "/latest/meta-data/autoscaling/target-lifecycle-state"
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",

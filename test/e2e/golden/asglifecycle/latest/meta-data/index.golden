@@ -4,7 +4,6 @@ ami-manifest-path
 autoscaling/
 block-device-mapping/
 elastic-inference/
-events/
 hostname
 iam/
 instance-action
@@ -25,5 +24,4 @@ ramdisk-id
 reservation-id
 security-groups
 services/
-spot/
 tags/
