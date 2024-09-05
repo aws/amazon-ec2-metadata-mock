@@ -409,8 +409,10 @@ The `asglifecycle` command will generate a asg lifecycle termination event after
 ```
 $ ec2-metadata-mock asglifecycle --help
 Mock EC2 Auto Scaling Group Lifecycle Termination State
+
 Usage:
   ec2-metadata-mock asglifecycle
+
 Aliases:
   asglifecycle, autoscaling, asg
 ```
