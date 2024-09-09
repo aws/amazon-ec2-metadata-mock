@@ -21,6 +21,7 @@ BIN_DIR = ${MAKEFILE_PATH}/bin
 BINARY_NAME ?= ec2-metadata-mock
 THIRD_PARTY_LICENSES = ${MAKEFILE_PATH}/THIRD_PARTY_LICENSES.md
 GOLICENSES = ${BIN_DIR}/go-licenses
+AMAZON_ECR_CREDENTIAL_HELPER_VERSION = 0.7.1
 
 $(shell mkdir -p ${BUILD_DIR_PATH} && touch ${BUILD_DIR_PATH}/_go.mod)
 
@@ -128,7 +129,7 @@ push-docker-images-linux:
 
 push-docker-images-windows:
 	${MAKEFILE_PATH}/scripts/retag-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -v ${VERSION} -o ${IMG} -n ${ECR_REPO}
-	@ECR_REGISTRY=${ECR_REGISTRY} ${MAKEFILE_PATH}/scripts/ecr-public-login
+	bash ${MAKEFILE_PATH}/scripts/install-amazon-ecr-credential-helper $(AMAZON_ECR_CREDENTIAL_HELPER_VERSION)
 	${MAKEFILE_PATH}/scripts/push-docker-images -p ${SUPPORTED_PLATFORMS_WINDOWS} -r ${ECR_REPO} -v ${VERSION} -m
 
 push-helm-chart:
