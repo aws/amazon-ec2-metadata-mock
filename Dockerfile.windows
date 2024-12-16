@@ -18,7 +18,7 @@ RUN go mod download
 
 # Build
 COPY . .
-RUN go build -a -tags aemm-windows -o ./build/ec2-metadata-mock.exe ./cmd/amazon-ec2-metadata-mock.go
+RUN go build -a -tags aemm-windows -o ./build/ ./cmd/...
 # In case the target is build for testing:
 # $ docker build  --target=builder -t test .
 ENTRYPOINT ["/amazon-ec2-metadata-mock/build/ec2-metadata-mock.exe"]
