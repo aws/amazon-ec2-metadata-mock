@@ -7,7 +7,7 @@
    <a href="https://gallery.ecr.aws/aws-ec2/amazon-ec2-metadata-mock">
    <img src="https://img.shields.io/github/v/release/aws/amazon-ec2-metadata-mock?color=yellowgreen&label=latest%20release&sort=semver" alt="latest release">
    </a>
-   <a href="https://golang.org/doc/go1.17">
+   <a href="https://go.dev/doc/go1.23">
    <img src="https://img.shields.io/github/go-mod/go-version/aws/amazon-ec2-metadata-mock?color=blueviolet" alt="go-version">
    </a>
    <a href="https://opensource.org/licenses/Apache-2.0">
@@ -116,7 +116,7 @@ docker run -it --rm -p 1338:1338 public.ecr.aws/aws-ec2/amazon-ec2-metadata-mock
 
 #### Helm
 We are hosting helm-charts for Amazon EC2 Metadata Mock in ecr-public. The chart for this project is hosted in [helm/amazon-ec2-metadata-mock](https://gallery.ecr.aws/aws-ec2/helm/amazon-ec2-metadata-mock).
- 
+
 Detailed instructions on installing Amazon EC2 Metadata Mock using Helm can be found here [Helm README](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/helm/amazon-ec2-metadata-mock/README.md)
 
 #### kubectl
@@ -404,7 +404,7 @@ $ curl localhost:1338/latest/meta-data/events/maintenance/scheduled
 ```
 
 ## Auto Scaling Group Lifecycle Termination
-The `asglifecycle` command will generate a asg lifecycle termination event after a user-specified delay or termination time. 
+The `asglifecycle` command will generate a asg lifecycle termination event after a user-specified delay or termination time.
 
 ```
 $ ec2-metadata-mock asglifecycle --help

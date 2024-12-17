@@ -1,6 +1,6 @@
 # Amazon EC2 Metadata Mock: Build Instructions
 
-## Install Go version 1.14+
+## Install Go version 1.23+
 
 There are several options for installing go:
 
@@ -37,7 +37,7 @@ make unit-test
 
 ### Run All Tests
 
-The full suite includes unit tests, integration tests, and more. See the full list in the [makefile](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/Makefile): 
+The full suite includes unit tests, integration tests, and more. See the full list in the [makefile](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/Makefile):
 
 ```
 make test
@@ -46,7 +46,7 @@ make test
 ## Format
 
 To keep our code readable with go conventions, we use `goimports` to format the source code.
-Make sure to run `goimports` before you submit a PR or you'll be caught by our tests! 
+Make sure to run `goimports` before you submit a PR or you'll be caught by our tests!
 
 You can use the `make fmt` target as a convenience
 ```
