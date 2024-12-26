@@ -55,5 +55,5 @@ const (
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag, ASGTerminationDelayInSecFlag, ASGTerminationTriggerTimeFlag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, WatchConfigFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag, ASGTerminationDelayInSecFlag, ASGTerminationTriggerTimeFlag}
 }

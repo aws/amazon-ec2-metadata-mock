@@ -51,6 +51,7 @@ var (
 		gf.MockTriggerTimeFlag:           "",
 		gf.MockIPCountFlag:               2,
 		gf.SaveConfigToFileFlag:          false,
+		gf.WatchConfigFileFlag:           false,
 		gf.Imdsv2Flag:                    false,
 		gf.RebalanceDelayInSecFlag:       0,
 		gf.RebalanceTriggerTimeFlag:      "",
