@@ -128,6 +128,7 @@ func setupAndSaveConfig(cmd *cobra.Command, args []string) error {
 				log.Printf("Failed to reset config on config change: %v\n", err)
 				return
 			}
+			saveConfigToFile()
 			server.Reset()
 			cmdutil.RegisterHandlers(cmd, c)
 		})
