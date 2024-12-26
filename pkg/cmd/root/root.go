@@ -21,6 +21,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -32,6 +33,7 @@ import (
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/spot"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	r "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/root"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
 
 var (
@@ -120,6 +122,10 @@ func setupAndSaveConfig(cmd *cobra.Command, args []string) error {
 	saveConfigToFile()
 
 	if watchCfg := viper.GetBool(gf.WatchConfigFileFlag); watchCfg {
+		viper.OnConfigChange(func(_ fsnotify.Event) {
+			server.Reset()
+			cmdutil.RegisterHandlers(cmd, c)
+		})
 		viper.WatchConfig()
 	}
 
