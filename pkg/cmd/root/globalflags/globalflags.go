@@ -21,6 +21,9 @@ const (
 	// SaveConfigToFileFlag - whether to save processed config from all input sources
 	SaveConfigToFileFlag = "save-config-to-file"
 
+	// WatchConfigFileFlag - whether to watch the config file for changes
+	WatchConfigFileFlag = "watch-config-file"
+
 	// MockDelayInSecFlag - spot itn delay in seconds, relative to the application start time
 	MockDelayInSecFlag = "mock-delay-sec"
 

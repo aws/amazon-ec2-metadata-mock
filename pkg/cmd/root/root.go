@@ -86,6 +86,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().StringP(gf.PortFlag, "p", "", "the HTTP port where the mock runs (default: 1338)")
 	cmd.PersistentFlags().StringP(gf.ConfigFileFlag, "c", "", "config file for cli input parameters in json format (default: "+cfg.GetDefaultCfgFileName()+")")
 	cmd.PersistentFlags().BoolP(gf.SaveConfigToFileFlag, "s", false, "whether to save processed config from all input sources in "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
+	cmd.PersistentFlags().BoolP(gf.WatchConfigFileFlag, "s", false, "whether to watch the config file "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
 	cmd.PersistentFlags().Int64P(gf.MockDelayInSecFlag, "d", 0, "spot itn delay in seconds, relative to the application start time (default: 0 seconds)")
 	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "spot itn trigger time in RFC3339 format. This takes priority over "+gf.MockDelayInSecFlag+" (default: none)")
 	cmd.PersistentFlags().Int64P(gf.MockIPCountFlag, "x", 2, "number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event")
@@ -117,6 +118,10 @@ func setupAndSaveConfig(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	saveConfigToFile()
+
+	if watchCfg := viper.GetBool(gf.WatchConfigFileFlag); watchCfg {
+		viper.WatchConfig()
+	}
 
 	return nil
 }
