@@ -123,6 +123,10 @@ func setupAndSaveConfig(cmd *cobra.Command, args []string) error {
 
 	if watchCfg := viper.GetBool(gf.WatchConfigFileFlag); watchCfg {
 		viper.OnConfigChange(func(_ fsnotify.Event) {
+			if err := injectViperConfig(); err != nil {
+				log.Printf("Failed to reset config on config change: %v\n", err)
+				return
+			}
 			server.Reset()
 			cmdutil.RegisterHandlers(cmd, c)
 		})
