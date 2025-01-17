@@ -21,6 +21,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -32,6 +33,7 @@ import (
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/cmd/spot"
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	r "github.com/aws/amazon-ec2-metadata-mock/pkg/mock/root"
+	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
 )
 
 var (
@@ -49,6 +51,7 @@ var (
 		gf.MockTriggerTimeFlag:           "",
 		gf.MockIPCountFlag:               2,
 		gf.SaveConfigToFileFlag:          false,
+		gf.WatchConfigFileFlag:           false,
 		gf.Imdsv2Flag:                    false,
 		gf.RebalanceDelayInSecFlag:       0,
 		gf.RebalanceTriggerTimeFlag:      "",
@@ -86,6 +89,7 @@ func NewCmd() *cobra.Command {
 	cmd.PersistentFlags().StringP(gf.PortFlag, "p", "", "the HTTP port where the mock runs (default: 1338)")
 	cmd.PersistentFlags().StringP(gf.ConfigFileFlag, "c", "", "config file for cli input parameters in json format (default: "+cfg.GetDefaultCfgFileName()+")")
 	cmd.PersistentFlags().BoolP(gf.SaveConfigToFileFlag, "s", false, "whether to save processed config from all input sources in "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
+	cmd.PersistentFlags().BoolP(gf.WatchConfigFileFlag, "w", false, "whether to watch the config file "+cfg.GetSavedCfgFileName()+" in $HOME or working dir, if homedir is not found (default: false)")
 	cmd.PersistentFlags().Int64P(gf.MockDelayInSecFlag, "d", 0, "spot itn delay in seconds, relative to the application start time (default: 0 seconds)")
 	cmd.PersistentFlags().String(gf.MockTriggerTimeFlag, "", "spot itn trigger time in RFC3339 format. This takes priority over "+gf.MockDelayInSecFlag+" (default: none)")
 	cmd.PersistentFlags().Int64P(gf.MockIPCountFlag, "x", 2, "number of IPs in a cluster that can receive a Spot Interrupt Notice and/or Scheduled Event")
@@ -117,6 +121,19 @@ func setupAndSaveConfig(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	saveConfigToFile()
+
+	if watchCfg := viper.GetBool(gf.WatchConfigFileFlag); watchCfg {
+		viper.OnConfigChange(func(_ fsnotify.Event) {
+			if err := injectViperConfig(); err != nil {
+				log.Printf("Failed to reset config on config change: %v\n", err)
+				return
+			}
+			saveConfigToFile()
+			server.Reset()
+			cmdutil.RegisterHandlers(cmd, c)
+		})
+		viper.WatchConfig()
+	}
 
 	return nil
 }

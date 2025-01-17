@@ -21,6 +21,9 @@ const (
 	// SaveConfigToFileFlag - whether to save processed config from all input sources
 	SaveConfigToFileFlag = "save-config-to-file"
 
+	// WatchConfigFileFlag - whether to watch the config file for changes
+	WatchConfigFileFlag = "watch-config-file"
+
 	// MockDelayInSecFlag - spot itn delay in seconds, relative to the application start time
 	MockDelayInSecFlag = "mock-delay-sec"
 
@@ -52,5 +55,5 @@ const (
 
 // GetTopLevelFlags returns the top level global flags
 func GetTopLevelFlags() []string {
-	return []string{ConfigFileFlag, SaveConfigToFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag, ASGTerminationDelayInSecFlag, ASGTerminationTriggerTimeFlag}
+	return []string{ConfigFileFlag, SaveConfigToFileFlag, WatchConfigFileFlag, MockDelayInSecFlag, MockTriggerTimeFlag, MockIPCountFlag, Imdsv2Flag, RebalanceDelayInSecFlag, RebalanceTriggerTimeFlag, ASGTerminationDelayInSecFlag, ASGTerminationTriggerTimeFlag}
 }

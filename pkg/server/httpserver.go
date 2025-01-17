@@ -62,7 +62,7 @@ const UnauthorizedResponse = `<?xml version="1.0" encoding="UTF-8"?>
 var (
 	// Routes represents the list of routes served by the http server
 	Routes []string
-	router = mux.NewRouter()
+	router = NewSwapper()
 )
 
 // HandlerType represents the function passed as an argument to HandleFunc
@@ -75,7 +75,12 @@ func HandleFunc(pattern string, requestHandler HandlerType) {
 
 // HandleFuncPrefix registers the handler function for the given prefix pattern
 func HandleFuncPrefix(pattern string, requestHandler HandlerType) {
-	router.PathPrefix(pattern).HandlerFunc(requestHandler)
+	router.HandleFuncPrefix(pattern, requestHandler)
+}
+
+// Reset resets the router swapper
+func Reset() {
+	router.Reset()
 }
 
 func listRoutes() {
