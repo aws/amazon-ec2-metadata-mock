@@ -21,7 +21,6 @@ import (
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/config/defaults"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -43,7 +42,7 @@ var (
 func getHomeDir() string {
 	var err error
 	var h string
-	if h, err = homedir.Dir(); err != nil {
+	if h, err = os.UserHomeDir(); err != nil {
 		log.Printf("Warning: Failed to find home directory due to error: %s\n", err)
 	}
 	return h

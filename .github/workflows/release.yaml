@@ -9,7 +9,7 @@ permissions:
   contents: write # required for uploading releases
 
 env:
-  DEFAULT_GO_VERSION: ^1.17
+  DEFAULT_GO_VERSION: ^1.23
   DEFAULT_PY_VERSION: "3.9"
   GITHUB_USERNAME: ${{ secrets.EC2_BOT_GITHUB_USERNAME }}
   GITHUB_TOKEN: ${{ secrets.EC2_BOT_GITHUB_TOKEN }}
@@ -86,7 +86,7 @@ jobs:
 
       - name: Sync to Homebrew
         run: make homebrew-sync
-      
+
       - name: Sync Helm Chart Catalog information
         run: make sync-catalog-information-for-helm-chart
         env:
