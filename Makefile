@@ -57,7 +57,7 @@ clean:
 
 compile:
 	@echo ${MAKEFILE_PATH}
-	go build -a -tags aemm${GOOS} -o ${BUILD_DIR_PATH}/${BINARY_NAME} ${MAKEFILE_PATH}/cmd/amazon-ec2-metadata-mock.go
+	go build -a -tags aemm${GOOS} -o ${BUILD_DIR_PATH}/ ./cmd/...
 
 validate-json:
 	${MAKEFILE_PATH}/scripts/validators/json-validator
@@ -161,7 +161,7 @@ release-docker-windows: build-docker-images-windows push-docker-images-windows
 
 release: release-github release-docker-linux release-docker-windows
 
-# Targets intended for local use 
+# Targets intended for local use
 fmt:
 	goimports -w ./ && gofmt -s -w ./
 
@@ -199,4 +199,4 @@ release-prep-custom: # Run make NEW_VERSION=v1.2.3 release-prep-custom to prep f
 ifdef NEW_VERSION
 	$(shell echo "${MAKEFILE_PATH}/scripts/create-local-tag-for-release -v $(NEW_VERSION) && echo && make create-release-pr")
 endif
-	
+
