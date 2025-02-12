@@ -57,7 +57,7 @@ clean:
 
 compile:
 	@echo ${MAKEFILE_PATH}
-	go build -a -tags aemm${GOOS} -o ${BUILD_DIR_PATH}/ ./cmd/...
+	go build -a -tags aemm${GOOS} -o ${BUILD_DIR_PATH}/${BINARY_NAME} ./cmd/...
 
 validate-json:
 	${MAKEFILE_PATH}/scripts/validators/json-validator
