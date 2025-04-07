@@ -31,7 +31,7 @@
       "mac-local-ipv4s": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/local-ipv4s",
       "mac-mac": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/mac",
       "mac-network-interface-id": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/interface-id",
-      "mac-network-interface-card-index": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/network-card-index",
+      "mac-network-interface-card-index": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/network-card",
       "mac-owner-id": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/owner-id",
       "mac-public-hostname": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/public-hostname",
       "mac-public-ipv4s": "/latest/meta-data/network/interfaces/macs/0e:49:61:0f:c3:11/public-ipv4s",
