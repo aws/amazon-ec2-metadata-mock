@@ -7,7 +7,7 @@ spec:
   containers:
   - name: mock-ip-test
     imagePullPolicy: "IfNotPresent"
-    image: "mirror.gcr.io/library/centos:latest"
+    image: "quay.io/centos/centos:latest"
     command:
     - "bash"
     - "-c"
