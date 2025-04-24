@@ -5,7 +5,7 @@ ipv6s
 local-hostname
 local-ipv4s
 mac
-network-card-index
+network-card
 owner-id
 public-hostname
 public-ipv4s
