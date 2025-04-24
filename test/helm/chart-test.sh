@@ -19,6 +19,8 @@ set -euo pipefail
 
 # KIND / Kubernetes
 # shellcheck disable=SC2034
+readonly K8s_1_32="v1.32.2"
+# shellcheck disable=SC2034
 readonly K8s_1_21="v1.21.1"
 # shellcheck disable=SC2034
 readonly K8s_1_20="v1.20.0"
@@ -31,9 +33,9 @@ readonly K8s_1_17="v1.17.5"
 # shellcheck disable=SC2034
 readonly K8s_1_16="v1.16.9"
 PLATFORM=$(uname | tr '[:upper:]' '[:lower:]')
-KIND_IMAGE="$K8s_1_18"
-readonly KIND_VERSION="v0.11.1"
-readonly HELM3_VERSION="3.2.4"
+KIND_IMAGE="$K8s_1_32"
+readonly KIND_VERSION="v0.27.0"
+readonly HELM3_VERSION="3.17.1"
 readonly KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 readonly CLUSTER_NAME="kind-ct"
 readonly REPO_PATH="$( cd "$(dirname "$0")"; cd ../../ ; pwd -P )"
