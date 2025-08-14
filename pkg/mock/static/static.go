@@ -84,6 +84,7 @@ func RegisterHandlers(config cfg.Config) {
 			path := pathValues.Field(i).Interface().(string)
 			value := mdValueFieldName.Interface()
 			if path != "" && value != nil {
+				// Ex: "/latest/meta-data/instance-id" : "i-1234567890abcdef0"
 				supportedPaths[path] = value
 				if config.Imdsv2Required {
 					server.HandleFunc(path, imdsv2.ValidateToken(Handler))
