@@ -68,6 +68,10 @@
     },
     "values": {
       "ami-id": "ami-0a887e401f7654935",
+      "tags-instance": {
+        "Name": "test-instance",
+        "Test": "test-tag"
+      },
       "ami-launch-index": "0",
       "ami-manifest-path": "(unknown)",
       "block-device-mapping-ami": "/dev/xvda",

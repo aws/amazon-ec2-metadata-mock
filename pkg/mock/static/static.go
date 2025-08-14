@@ -84,4 +84,16 @@ func RegisterHandlers(config cfg.Config) {
 			}
 		}
 	}
+
+	if config.Metadata.Values.TagsInstance != nil {
+		for tag, value := range config.Metadata.Values.TagsInstance {
+			tagPath := "/latest/meta-data/tags/instance/" + tag
+			supportedPaths[tagPath] = value
+			if config.Imdsv2Required {
+				server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
+			} else {
+				server.HandleFunc(tagPath, Handler)
+			}
+		}
+	}
 }
