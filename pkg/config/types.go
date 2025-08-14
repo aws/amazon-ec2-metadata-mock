@@ -204,7 +204,6 @@ type Values struct {
 	SecurityGroups               string                            `mapstructure:"security-groups"`
 	ServicesDomain               string                            `mapstructure:"services-domain"`
 	ServicesPartition            string                            `mapstructure:"services-partition"`
-	// Arbitrary instance tags: map of tag name to value
 	TagsInstance map[string]string `mapstructure:"tags-instance"`
 }
 
