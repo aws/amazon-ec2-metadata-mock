@@ -14,13 +14,13 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/config/defaults"
-
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -121,6 +121,12 @@ func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interfa
 	SetUserdataDefaults(defaults.GetDefaultValues())
 	SetServerCfgDefaults()
 
+	// Extract case-sensitive tags before viper processes the config
+	var caseSensitiveTags map[string]string
+	if configFile := viper.ConfigFileUsed(); configFile != "" {
+		caseSensitiveTags = extractCaseSensitiveTags(configFile)
+	}
+
 	// read in config using viper
 	if err := viper.ReadInConfig(); err != nil {
 		switch err.(type) {
@@ -131,6 +137,11 @@ func LoadConfigForRoot(configFileFlagName string, cmdDefaults map[string]interfa
 		}
 	} else {
 		fmt.Println("Using configuration from file: ", viper.ConfigFileUsed())
+	}
+
+	// Apply case-sensitive tags after viper loads the config
+	if caseSensitiveTags != nil {
+		applyCaseSensitiveTags(caseSensitiveTags)
 	}
 
 	// if config overrides update placeholder values, then paths with placeholders need to be updated as well
@@ -212,4 +223,46 @@ func overrideMetadataPathsWithPlaceholders() {
 			}
 		}
 	}
+}
+
+// extractCaseSensitiveTags reads the config file and extracts the original case-sensitive tags
+func extractCaseSensitiveTags(configFile string) map[string]string {
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Printf("Warning: Could not read config file for case-sensitive tags: %v", err)
+		return nil
+	}
+
+	var rawConfig map[string]interface{}
+	if err := json.Unmarshal(data, &rawConfig); err != nil {
+		log.Printf("Warning: Could not parse config file for case-sensitive tags: %v", err)
+		return nil
+	}
+
+	// Navigate to metadata.values.tags-instance
+	if metadata, ok := rawConfig["metadata"].(map[string]interface{}); ok {
+		if values, ok := metadata["values"].(map[string]interface{}); ok {
+			if tagsInstance, ok := values["tags-instance"].(map[string]interface{}); ok {
+				// Convert to map[string]string while preserving case
+				result := make(map[string]string)
+				for k, v := range tagsInstance {
+					if strVal, ok := v.(string); ok {
+						result[k] = strVal
+					}
+				}
+				return result
+			}
+		}
+	}
+	return nil
+}
+
+// applyCaseSensitiveTags updates viper with the case-sensitive tag keys
+func applyCaseSensitiveTags(caseSensitiveTags map[string]string) {
+	if len(caseSensitiveTags) == 0 {
+		return
+	}
+
+	// Set the corrected tags-instance map in viper
+	viper.Set("metadata.values.tags-instance", caseSensitiveTags)
 }
