@@ -225,7 +225,6 @@ func overrideMetadataPathsWithPlaceholders() {
 	}
 }
 
-// extractCaseSensitiveTags reads the config file and extracts the original case-sensitive tags
 func extractCaseSensitiveTags(configFile string) map[string]string {
 	data, err := os.ReadFile(configFile)
 	if err != nil {
@@ -239,11 +238,9 @@ func extractCaseSensitiveTags(configFile string) map[string]string {
 		return nil
 	}
 
-	// Navigate to metadata.values.tags-instance
 	if metadata, ok := rawConfig["metadata"].(map[string]interface{}); ok {
 		if values, ok := metadata["values"].(map[string]interface{}); ok {
 			if tagsInstance, ok := values["tags-instance"].(map[string]interface{}); ok {
-				// Convert to map[string]string while preserving case
 				result := make(map[string]string)
 				for k, v := range tagsInstance {
 					if strVal, ok := v.(string); ok {
@@ -257,12 +254,10 @@ func extractCaseSensitiveTags(configFile string) map[string]string {
 	return nil
 }
 
-// applyCaseSensitiveTags updates viper with the case-sensitive tag keys
 func applyCaseSensitiveTags(caseSensitiveTags map[string]string) {
 	if len(caseSensitiveTags) == 0 {
 		return
 	}
 
-	// Set the corrected tags-instance map in viper
 	viper.Set("metadata.values.tags-instance", caseSensitiveTags)
 }
