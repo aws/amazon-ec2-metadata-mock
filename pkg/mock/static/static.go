@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/spf13/viper"
+
 	cfg "github.com/aws/amazon-ec2-metadata-mock/pkg/config"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/mock/imdsv2"
 	"github.com/aws/amazon-ec2-metadata-mock/pkg/server"
@@ -57,6 +59,26 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 // RegisterHandlers registers handlers for static paths
 func RegisterHandlers(config cfg.Config) {
+       // Register all keys in metadata.values from the raw config that start with 'tags/instance/'
+       if viper.IsSet("metadata.values") {
+	       if valuesMap, ok := viper.Get("metadata.values").(map[string]interface{}); ok {
+		       for k, v := range valuesMap {
+			       if len(k) > 14 && k[:14] == "tags/instance/" {
+				       tagPath := "/latest/meta-data/" + k
+				       if strVal, ok := v.(string); ok {
+					       supportedPaths[tagPath] = strVal
+					       log.Println("Registered dynamic tag endpoint:", tagPath)
+					       if config.Imdsv2Required {
+						       server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
+					       } else {
+						       server.HandleFunc(tagPath, Handler)
+					       }
+				       }
+			       }
+		       }
+	       }
+       }
+	registered := []string{}
 	server.HandleFunc("/latest/api/token", imdsv2.GenerateToken)
 
 	pathValues := reflect.ValueOf(config.Metadata.Paths)
@@ -65,35 +87,42 @@ func RegisterHandlers(config cfg.Config) {
 	// Iterate over fields in config.Metadata.Paths to
 	// determine intersections with config.Metadata.Values.
 	// Intersections represent which paths and values to bind.
-	for i := 0; i < pathValues.NumField(); i++ {
-		pathFieldName := pathValues.Type().Field(i).Name
-		mdValueFieldName := mdValues.FieldByName(pathFieldName)
-		if mdValueFieldName.IsValid() {
-			path := pathValues.Field(i).Interface().(string)
-			value := mdValueFieldName.Interface()
-			if path != "" && value != nil {
-				// Ex: "/latest/meta-data/instance-id" : "i-1234567890abcdef0"
-				supportedPaths[path] = value
-				if config.Imdsv2Required {
-					server.HandleFunc(path, imdsv2.ValidateToken(Handler))
-				} else {
-					server.HandleFunc(path, Handler)
-				}
-			} else {
-				log.Printf("There was an issue registering path %v with mdValue: %v", path, value)
-			}
-		}
-	}
+       for i := 0; i < pathValues.NumField(); i++ {
+	       pathFieldName := pathValues.Type().Field(i).Name
+	       mdValueFieldName := mdValues.FieldByName(pathFieldName)
+	       if mdValueFieldName.IsValid() {
+		       path := pathValues.Field(i).Interface().(string)
+		       value := mdValueFieldName.Interface()
+		       if path != "" && value != nil {
+			       supportedPaths[path] = value
+			       registered = append(registered, path)
+			       if config.Imdsv2Required {
+				       server.HandleFunc(path, imdsv2.ValidateToken(Handler))
+			       } else {
+				       server.HandleFunc(path, Handler)
+			       }
+		       } else {
+			       log.Printf("There was an issue registering path %v with mdValue: %v", path, value)
+		       }
+	       }
+       }
 
-	if config.Metadata.Values.TagsInstance != nil {
-		for tag, value := range config.Metadata.Values.TagsInstance {
-			tagPath := "/latest/meta-data/tags/instance/" + tag
-			supportedPaths[tagPath] = value
-			if config.Imdsv2Required {
-				server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
-			} else {
-				server.HandleFunc(tagPath, Handler)
-			}
-		}
-	}
+       if config.Metadata.Values.TagsInstance != nil {
+	       for tag, value := range config.Metadata.Values.TagsInstance {
+		       tagPath := "/latest/meta-data/tags/instance/" + tag
+		       supportedPaths[tagPath] = value
+		       registered = append(registered, tagPath)
+		       if config.Imdsv2Required {
+			       server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
+		       } else {
+			       server.HandleFunc(tagPath, Handler)
+		       }
+	       }
+       }
+
+       // DEBUG: Print all registered static endpoints
+       log.Println("Registered static metadata endpoints:")
+       for _, p := range registered {
+	       log.Println("  ", p)
+       }
 }
