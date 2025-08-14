@@ -69,8 +69,8 @@
     "values": {
       "ami-id": "ami-0a887e401f7654935",
       "tags-instance": {
-        "Name": "test-instance",
-        "Test": "test-tag"
+        "Name": "tags-instance-name",
+        "Test": "tags-instance-test"
       },
       "ami-launch-index": "0",
       "ami-manifest-path": "(unknown)",

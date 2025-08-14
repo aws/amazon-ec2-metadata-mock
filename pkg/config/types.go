@@ -204,7 +204,7 @@ type Values struct {
 	SecurityGroups               string                            `mapstructure:"security-groups"`
 	ServicesDomain               string                            `mapstructure:"services-domain"`
 	ServicesPartition            string                            `mapstructure:"services-partition"`
-	TagsInstance map[string]string `mapstructure:"tags-instance"`
+	TagsInstance                 map[string]string                 `mapstructure:"tags-instance"`
 }
 
 // UserdataPaths represents EC2 userdata paths
