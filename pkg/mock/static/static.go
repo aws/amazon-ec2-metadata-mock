@@ -57,12 +57,11 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 // RegisterHandlers registers handlers for static paths
 func RegisterHandlers(config cfg.Config) {
-	// Register all tags/instance/<TAGNAME> from the tags-instance map in the config struct
+	// Register all tags/instance/<TAGNAME> from the tags- map in the config struct
 	if config.Metadata.Values.TagsInstance != nil {
 		for tag, value := range config.Metadata.Values.TagsInstance {
 			tagPath := "/latest/meta-data/tags/instance/" + tag
 			supportedPaths[tagPath] = value
-			log.Println("Registered tag endpoint:", tagPath)
 			if config.Imdsv2Required {
 				server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
 			} else {
@@ -70,7 +69,6 @@ func RegisterHandlers(config cfg.Config) {
 			}
 		}
 	}
-	registered := []string{}
 	server.HandleFunc("/latest/api/token", imdsv2.GenerateToken)
 
 	pathValues := reflect.ValueOf(config.Metadata.Paths)
@@ -87,7 +85,6 @@ func RegisterHandlers(config cfg.Config) {
 			value := mdValueFieldName.Interface()
 			if path != "" && value != nil {
 				supportedPaths[path] = value
-				registered = append(registered, path)
 				if config.Imdsv2Required {
 					server.HandleFunc(path, imdsv2.ValidateToken(Handler))
 				} else {
@@ -103,18 +100,11 @@ func RegisterHandlers(config cfg.Config) {
 		for tag, value := range config.Metadata.Values.TagsInstance {
 			tagPath := "/latest/meta-data/tags/instance/" + tag
 			supportedPaths[tagPath] = value
-			registered = append(registered, tagPath)
 			if config.Imdsv2Required {
 				server.HandleFunc(tagPath, imdsv2.ValidateToken(Handler))
 			} else {
 				server.HandleFunc(tagPath, Handler)
 			}
 		}
-	}
-
-	// DEBUG: Print all registered static endpoints
-	log.Println("Registered static metadata endpoints:")
-	for _, p := range registered {
-		log.Println("  ", p)
 	}
 }
