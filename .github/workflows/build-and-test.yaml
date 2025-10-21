@@ -17,6 +17,9 @@ env:
   DEFAULT_PY_VERSION: "3.9"
   IS_PUSH: ${{ github.event_name == 'push' }}
 
+permissions:
+  contents: read
+
 jobs:
   buildAndTest:
     name: Build and Test
