@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write # required for uploading releases
+  id-token: write
 
 env:
   DEFAULT_GO_VERSION: ^1.23
@@ -45,12 +46,15 @@ jobs:
             build/k8s-resources/${{ env.RELEASE_VERSION }}/all-resources.yaml
             build/k8s-resources/${{ env.RELEASE_VERSION }}/helm-chart-archives/*
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.WF_ROLE_ARN }}
+          role-session-name: "aemm-release-${{ github.run_id }}"
+          aws-region: us-east-1
+
       - name: Release Docker Linux
         run: make release-docker-linux
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   releaseWindows:
     name: Release Windows
@@ -64,12 +68,15 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.WF_ROLE_ARN }}
+          role-session-name: "aemm-release-windows-${{ github.run_id }}"
+          aws-region: us-east-1
+
       - name: Release Windows Docker Image
         run: make release-docker-windows
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   postRelease:
     name: Post Release
@@ -87,19 +94,18 @@ jobs:
       - name: Sync to Homebrew
         run: make homebrew-sync
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.WF_ROLE_ARN }}
+          role-session-name: "aemm-post-release-${{ github.run_id }}"
+          aws-region: us-east-1
+
       - name: Sync Helm Chart Catalog information
         run: make sync-catalog-information-for-helm-chart
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Sync Helm Chart to ECR Public
         run: make push-helm-chart
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   helmLint:
     name: Helm Lint Test
