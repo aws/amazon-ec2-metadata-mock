@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 19 * * 1-5'
 
+permissions:
+  contents: read
+
 jobs:
   chartTests:
     name: Helm Chart Tests
