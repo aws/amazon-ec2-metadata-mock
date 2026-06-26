@@ -217,19 +217,19 @@ These configurations can be loaded from various sources with a deterministic pre
 ## Defaults
 Defaults for AEMM configuration are sourced throughout code. Examples below:
 * **CLI flags**
-  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/server.go#L22)
+  * [server config defaults](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/pkg/config/server.go#L22)
 * **Metadata mock responses**
-  * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/config/defaults/aemm-metadata-default-values.json)
+  * [aemm-metadata-default-values.json](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/pkg/config/defaults/aemm-metadata-default-values.json)
 * **Commands**
-  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/pkg/cmd/events/events.go#L72)
+  * [events](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/pkg/cmd/events/events.go#L72)
 
 ## Overrides
 AEMM supports configuration from various sources including: cli flags, env variables, and config files. Details regarding
-configuration steps, behavior, and precedence are outlined [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/configuration.md).
+configuration steps, behavior, and precedence are outlined [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/docs/configuration.md).
 
 # Usage
 AEMM is primarily used as a developer tool to help test behavior related to Metadata Service. Popular use cases include: emulating spot instance interrupts after a designated delay, mocking scheduled maintenance events, IMDSv2 migrations,
-and requesting static metadata. This section outlines the common use cases of AEMM; advanced usage and behavior are documented [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md).
+and requesting static metadata. This section outlines the common use cases of AEMM; advanced usage and behavior are documented [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/docs/usage.md).
 
 ## Spot Interruption
 To view the available flags for the Spot Interruption command use `spot --help`:
@@ -380,7 +380,7 @@ Flags:
 (Truncated Global Flags for readability)
 ```
 
-1.) **Starting AEMM with `events`**: `events` route available immediately and `spot` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md):
+1.) **Starting AEMM with `events`**: `events` route available immediately and `spot` routes will no longer be available due to the implementation of Commands [detailed here](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/docs/usage.md):
 
 ```
 $ ec2-metadata-mock events --code instance-reboot -a 2020-01-07T01:03:47Z  -b 2020-01-01T01:03:47Z -l 2020-01-10T01:03:47Z --state completed
@@ -489,7 +489,7 @@ $ curl localhost:1338/latest/meta-data/instance-id
 i-1234567890abcdef0
 ```
 
-Details on overriding static metadata values and behavior can be found [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/docs/usage.md#static-metadata)
+Details on overriding static metadata values and behavior can be found [here](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/docs/usage.md#static-metadata)
 
 # Troubleshooting
 
@@ -511,7 +511,7 @@ to download the latest AEMM release, install it onto the cluster, and start it w
 cordons the worker node and evicts the test pod, thus validating NTH functionality. For more details on NTH e2e tests refer to the documentation [here](https://github.com/aws/aws-node-termination-handler/blob/master/test/README.md).
 
 # Building
-For build instructions, please consult [BUILD.md](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/BUILD.md)
+For build instructions, please consult [BUILD.md](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/BUILD.md)
 
 # Communication
 If you've run into a bug or have a new feature request, please open an [issue](https://github.com/aws/amazon-ec2-metadata-mock/issues/new).
@@ -519,7 +519,7 @@ If you've run into a bug or have a new feature request, please open an [issue](h
 Check out the open source [Amazon EC2 Spot Instances Integrations Roadmap](https://github.com/aws/ec2-spot-instances-integrations-roadmap) to see what we're working on and give us feedback!
 
 # Contributing
-Contributions are welcome! Please read our [guidelines](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/CONTRIBUTING.md) and our [Code of Conduct](https://github.com/aws/amazon-ec2-metadata-mock/blob/master/CODE_OF_CONDUCT.md)
+Contributions are welcome! Please read our [guidelines](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/CONTRIBUTING.md) and our [Code of Conduct](https://github.com/aws/amazon-ec2-metadata-mock/blob/main/CODE_OF_CONDUCT.md)
 
 # License
 This project is licensed under the Apache-2.0 License.
